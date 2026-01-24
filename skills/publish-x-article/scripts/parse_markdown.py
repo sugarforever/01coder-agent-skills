@@ -206,6 +206,9 @@ def markdown_to_html(markdown: str) -> str:
 
     html = re.sub(r'___CODE_BLOCK_START___(.*?)___CODE_BLOCK_END___', convert_code_block, html, flags=re.DOTALL)
 
+    # Horizontal rules (must be before headers to avoid conflicts)
+    html = re.sub(r'^---+$', r'<hr>', html, flags=re.MULTILINE)
+
     # Headers (H2 only, H1 is title)
     html = re.sub(r'^## (.+)$', r'<h2>\1</h2>', html, flags=re.MULTILINE)
     html = re.sub(r'^### (.+)$', r'<h3>\1</h3>', html, flags=re.MULTILINE)
@@ -240,7 +243,7 @@ def markdown_to_html(markdown: str) -> str:
         if not part:
             continue
         # Skip if already a block element
-        if part.startswith(('<h2>', '<h3>', '<blockquote>', '<ul>', '<ol>')):
+        if part.startswith(('<h2>', '<h3>', '<blockquote>', '<ul>', '<ol>', '<hr>')):
             processed_parts.append(part)
         else:
             # Wrap in paragraph, convert single newlines to <br>
