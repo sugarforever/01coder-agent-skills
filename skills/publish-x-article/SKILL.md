@@ -200,18 +200,19 @@ The goal is an article that reads naturally on X, not a mechanically transformed
 
 ## Main Workflow
 
-**Strategy: "先文后图" (Text First, Images Later)**
+**Strategy: "先文后图后分割线" (Text First, Images Second, Dividers Last)**
 
-For articles with multiple images, paste ALL text content first, then insert images at correct positions using block index.
+For articles with images and dividers, paste ALL text content first, then insert images and dividers at correct positions using block index.
 
 1. **Pre-process**: Convert tables/mermaid to images, flatten deep headers
-2. Parse modified Markdown with Python script → get title, images with block_index, HTML
+2. Parse modified Markdown with Python script → get title, images, dividers (all with block_index), HTML
 3. Navigate to X Articles editor
 4. Upload cover image (first image)
 5. Fill title
 6. Copy HTML to clipboard (Python) → Paste with Cmd+V
 7. Insert content images at positions specified by block_index
-8. Save as draft (NEVER auto-publish)
+8. **Insert dividers at positions specified by block_index** (via Insert > Divider menu)
+9. Save as draft (NEVER auto-publish)
 
 ## 高效执行原则 (Efficiency Guidelines)
 
@@ -344,15 +345,20 @@ Output JSON:
     {"path": "/tmp/table-1.png", "block_index": 5, "after_text": "context..."},
     {"path": "/tmp/mermaid-1.png", "block_index": 12, "after_text": "another context..."}
   ],
+  "dividers": [
+    {"block_index": 7, "after_text": "context before divider..."},
+    {"block_index": 15, "after_text": "another context..."}
+  ],
   "html": "<p>Content...</p><h2>Section</h2>...",
   "total_blocks": 45
 }
 ```
 
 **Key fields:**
-- `block_index`: The image should be inserted AFTER block element at this index (0-indexed)
+- `block_index`: The image/divider should be inserted AFTER block element at this index (0-indexed)
 - `total_blocks`: Total number of block elements in the HTML
 - `after_text`: Kept for reference/debugging only, NOT for positioning
+- `dividers`: Array of divider positions (markdown `---` must be inserted via X's menu, not HTML `<hr>`)
 
 Save HTML to temp file for clipboard:
 ```bash
@@ -458,6 +464,42 @@ browser_wait_for textGone="正在上传媒体" time=2
 2. 再插入 block_index=12 的图片
 3. 最后插入 block_index=5 的图片
 
+## Step 6.5: Insert Dividers (Via Menu)
+
+**重要**: Markdown 中的 `---` 分割线不能通过 HTML `<hr>` 标签粘贴（X Articles 会忽略它）。必须通过 X Articles 的 Insert 菜单插入。
+
+### 为什么需要特殊处理
+
+X Articles 有自己的原生分割线元素，只能通过 Insert > Divider 菜单插入。HTML `<hr>` 标签会被完全忽略。
+
+### 操作步骤
+
+For each divider (from `dividers` array), in **reverse order of block_index**:
+
+```
+# 1. Click the block element at block_index position
+browser_click on the element at position block_index in the editor
+
+# 2. Open Insert menu
+browser_click on "Insert" button (Add Media button)
+
+# 3. Click Divider menu item
+browser_click on "Divider" menuitem
+
+# Divider is inserted at cursor position
+```
+
+### 反向插入
+
+和图片一样，按 `block_index` **从大到小**的顺序插入分割线，避免位置偏移问题。
+
+### 与图片的插入顺序
+
+建议先插入所有图片，再插入所有分割线。两者都按 block_index 从大到小的顺序：
+
+1. 插入所有图片（从最大 block_index 开始）
+2. 插入所有分割线（从最大 block_index 开始）
+
 ## Step 7: Save Draft
 
 1. Verify content pasted (check word count indicator)
@@ -472,9 +514,10 @@ browser_wait_for textGone="正在上传媒体" time=2
 3. **First image = cover** - Upload first image as cover image
 4. **Rich text conversion** - Always convert Markdown to HTML before pasting
 5. **Use clipboard API** - Paste via clipboard for proper formatting
-6. **Block index positioning** - Use block_index for precise image placement
-7. **Reverse order insertion** - Insert images from highest to lowest block_index
+6. **Block index positioning** - Use block_index for precise image/divider placement
+7. **Reverse order insertion** - Insert images and dividers from highest to lowest block_index
 8. **H1 title handling** - H1 is used as title only, not included in body
+9. **Dividers via menu** - Markdown `---` must be inserted via Insert > Divider menu (HTML `<hr>` is ignored)
 
 ## Supported Formatting (After Pre-Processing)
 
@@ -491,6 +534,7 @@ browser_wait_for textGone="正在上传媒体" time=2
 | Tables | Converted | → PNG images |
 | Mermaid | Converted | → PNG images |
 | H3+ headers | Converted | → H2 or bold |
+| Dividers (`---`) | Menu insert | → Insert > Divider |
 
 ## Example Flow
 
