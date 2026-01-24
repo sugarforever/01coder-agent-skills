@@ -1,7 +1,7 @@
 {
     "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
     "name": "01coder-agent-skills",
-    "version": "1.0.101",
+    "version": "1.0.102",
     "description": "Security scanning and productivity skills for development workflows",
     "owner": {
         "name": "VerySmallWoods",
@@ -27,6 +27,13 @@
             "description": "Correct speech recognition errors in SRT subtitle files with word-level diff reports",
             "version": "1.0.0",
             "source": "./skills/subtitle-correction",
+            "category": "productivity"
+        },
+        {
+            "name": "publish-x-article",
+            "description": "Publish Markdown articles to X (Twitter) with automatic conversion of tables and mermaid diagrams to images",
+            "version": "1.0.0",
+            "source": "./skills/publish-x-article",
             "category": "productivity"
         }
     ]
