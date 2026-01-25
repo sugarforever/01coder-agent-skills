@@ -259,6 +259,10 @@ To create a new skill:
 - Playwright MCP for browser automation
 - X Premium or Premium+ subscription
 
+## Acknowledgements
+
+- **Publish X Article** skill is inspired by and based on [wshuyi/x-article-publisher-skill](https://github.com/wshuyi/x-article-publisher-skill). Thank you to the original author for the foundational work.
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
