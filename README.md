@@ -122,6 +122,34 @@ Converts Mermaid diagrams and Markdown tables to images (PNG/SVG) for platforms 
 "Export this flowchart as PNG"
 ```
 
+---
+
+### Publish X Article
+
+Publish Markdown articles to X (Twitter) Articles editor with proper formatting. Automatically handles X Premium limitations by converting unsupported elements to images.
+
+> **Credits:** This skill is inspired by and based on [wshuyi/x-article-publisher-skill](https://github.com/wshuyi/x-article-publisher-skill).
+
+**Features:**
+- Subscription-aware formatting (Premium vs Premium+)
+- Cover image upload
+- Markdown to rich text conversion
+- Auto-converts unsupported elements (tables, mermaid diagrams, deep headers) to images
+- Divider insertion via X's native menu
+- Draft-only mode (never auto-publishes)
+
+**Supported Formatting:**
+- H2 headers, bold, italic, links
+- Ordered and unordered lists
+- Blockquotes
+- Images (inline and cover)
+- Dividers (via menu insertion)
+
+**Usage:**
+```
+/publish-x-article
+```
+
 ## Project Structure
 
 ```
@@ -167,9 +195,16 @@ agent-skills/
 │   │   └── scripts/              # Validation tools
 │   │       └── subtitle_tool.py
 │   │
-│   └── diagram-to-image/
-│       ├── skill.md              # Skill definition
-│       └── scripts/              # Conversion tools
+│   ├── diagram-to-image/
+│   │   ├── skill.md              # Skill definition
+│   │   └── scripts/              # Conversion tools
+│   │       └── table_to_image.py
+│   │
+│   └── publish-x-article/
+│       ├── SKILL.md              # Skill definition
+│       └── scripts/              # Automation tools
+│           ├── parse_markdown.py
+│           ├── copy_to_clipboard.py
 │           └── table_to_image.py
 ├── .claude/                      # Claude Code configuration
 ├── LICENSE
@@ -215,6 +250,14 @@ To create a new skill:
 - Node.js and npm (for mermaid-cli)
 - mermaid-cli: `npm install -g @mermaid-js/mermaid-cli`
 - Python 3.x with Pillow: `pip install pillow`
+
+### Publish X Article
+- Python 3.9+ with dependencies:
+  - macOS: `pip install Pillow pyobjc-framework-Cocoa markdown`
+  - Windows: `pip install Pillow pywin32 clip-util markdown`
+- Node.js and npm (for mermaid-cli): `npm install -g @mermaid-js/mermaid-cli`
+- Playwright MCP for browser automation
+- X Premium or Premium+ subscription
 
 ## License
 
