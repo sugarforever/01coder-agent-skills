@@ -1,11 +1,22 @@
 ---
 name: verysmallwoods-research
-description: Fetch and browse recent items from the verysmallwoods research feed — AI, LLM, Agents, and Coding-Agent articles/videos collected from RSS and YouTube sources — then use those items as grounding material for drafting blog posts. Invoke when the user asks things like "今天有什么新鲜的", "过去 24 小时有什么", "研究源", "新内容", "情报", "看看最近", "看看过去一周", "什么值得写", "候选素材", "帮我找篇能写的", "what's new", "what landed today", "research feed", "candidate sources", "any good articles lately", "draft a post on the latest X", or when the user names a topic and wants candidate articles or asks for help drafting a blog post based on recent items.
+description: Fetch and browse recent items from the verysmallwoods research feed — AI, LLM, Agents, and Coding-Agent articles/videos collected from RSS and YouTube sources — plus AI/tech news headlines from a separate aggregator lane (TechCrunch AI, Hacker News, The Decoder, MarkTechPost, Ars Technica AI, MIT Tech Review AI, AI News). Use these items as grounding material for drafting blog posts or topic discovery. Invoke when the user asks things like "今天有什么新鲜的", "过去 24 小时有什么", "研究源", "新内容", "情报", "看看最近", "看看过去一周", "什么值得写", "候选素材", "帮我找篇能写的", "今天 AI 圈有什么新闻", "最新动态", "AI 趋势", "热点话题", "what's new", "what landed today", "research feed", "candidate sources", "any good articles lately", "draft a post on the latest X", "trending in AI", "AI news today", or when the user names a topic and wants candidate articles or asks for help drafting a blog post based on recent items.
 ---
 
 # verysmallwoods-research
 
 Fetch recent research feed entries (articles and videos) from the verysmallwoods backend, present them as a candidate list, then fetch full detail for the one the user picks — ready to ground a blog post draft.
+
+## Two lanes, two endpoints
+
+The backend exposes two separate feeds:
+
+| Lane | Endpoint | Use for | Importance scored? |
+|---|---|---|---|
+| **research** | `/research/recent` | Deep content (blogs, VC posts, newsletters, YouTube) — finding material to write about | Yes (1-5) |
+| **trends** | `/research/trends` | News headlines (TechCrunch AI, HN, The Decoder, etc.) — spotting what's happening right now | No (binary filter only) |
+
+`/research/recent` automatically excludes news-aggregator sources, and `/research/trends` only returns them. They never overlap. Pick the right one based on whether the user wants "what's worth writing about" (research) vs "what's trending" (trends).
 
 ## Setup
 
@@ -27,6 +38,8 @@ Do not attempt any API calls until both are confirmed present.
 ## Mode 1 — List candidates ("what's new")
 
 **Trigger:** the user asks what's new, what's available, last N hours/days, "情报", "看看最近", "research feed", etc., or wants a pool of candidate articles to choose from.
+
+**Note:** This endpoint excludes news-aggregator sources (TechCrunch AI, Hacker News, etc.) — for breaking news and trend-scanning, use **Mode 3** (`/research/trends`) instead.
 
 ### 1.1 Build the request
 
@@ -105,6 +118,92 @@ The API does not filter by source. If the user asks for a specific source (e.g.,
 
 ---
 
+## Mode 3 — Scan trends ("what's happening today")
+
+**Trigger:** the user asks what's happening / trending / making news, "今天 AI 圈有什么新闻", "AI 趋势", "热点", "what's trending in AI", or wants topic discovery from breaking news rather than a curated reading list.
+
+### 3.1 Build the request
+
+```
+GET {VSW_RESEARCH_API_BASE}/research/trends
+  ?since_hours={N}
+  [&limit={K}]
+  [&source_id={id}]
+
+Authorization: Bearer {VSW_RESEARCH_API_TOKEN}
+```
+
+**Defaults:**
+
+| Param | Default | Override when user says… |
+|---|---|---|
+| `since_hours` | `72` | "today" / "今天" → `24`; "this week" / "过去一周" → `168` |
+| `limit` | `100` | "top 20" → `20` |
+| `source_id` | _(omit — all news sources)_ | "只看 Hacker News" → `hn-front`; "TechCrunch" → `tc-ai` |
+
+The hard cap on `since_hours` is `168` (7 days) — older trends data isn't kept.
+
+### 3.2 Response shape
+
+```json
+{
+  "entries": [
+    {
+      "id": "e_xyz789...",
+      "url_original": "https://...",
+      "title_original": "...",
+      "published_at": "2026-05-06T15:00:00Z",
+      "fetched_at": "2026-05-06T15:30:00Z",
+      "source": {
+        "id": "tc-ai",
+        "name": "TechCrunch AI"
+      }
+    }
+  ],
+  "count": 47
+}
+```
+
+**Note:** No `importance`, no `source_type` — trends entries are binary-filtered for AI/tech relevance, not scored.
+
+### 3.3 Present as a table
+
+Sort by `published_at DESC` (already the API's default order — preserve it).
+
+**Chinese table:**
+
+| # | 来源 | 标题 | 发布时间 | 链接 |
+|---|---|---|---|---|
+| 1 | TechCrunch AI | … | 2 小时前 | … |
+
+**English table:**
+
+| # | source | title | when | url |
+|---|---|---|---|---|
+| 1 | TechCrunch AI | … | 2h ago | … |
+
+### 3.4 Spotting trending events
+
+Multiple sources covering the same release / launch / story = trending event. After presenting the table, scan for clusters and call them out:
+
+> "看起来 OpenAI 今天发了新模型 — TechCrunch、The Decoder、Hacker News 都有报道。要深入看吗？"
+
+When the user picks one, drill down via Mode 2 (`/research/entry/:id`) or directly WebFetch the URL for the full article.
+
+### 3.5 News sources currently covered
+
+| id | source |
+|---|---|
+| `tc-ai` | TechCrunch AI |
+| `mit-tr-ai` | MIT Tech Review AI |
+| `hn-front` | Hacker News (front page) |
+| `the-decoder` | The Decoder |
+| `marktechpost` | MarkTechPost |
+| `ai-news` | AI News (artificialintelligence-news.com) |
+| `ars-ai` | Ars Technica AI |
+
+---
+
 ## Mode 2 — Fetch one entry (after user picks)
 
 **Trigger:** user picks a specific item — "write about #2", "the Anthropic one", "就那篇 Cursor 的", "let's do that one", etc.
@@ -173,6 +272,15 @@ You may invoke the `personal-writing-style` skill once the full article content 
 
 **"看看最近有没有关于 Claude 工具调用的文章"**
 → Mode 1, `since_hours=72`, filter display by keyword "tool" / "工具" in title; ask user to pick.
+
+**"今天 AI 圈有什么新闻"**
+→ Mode 3, `since_hours=24`. Scan headlines, surface clusters of multiple sources covering the same event.
+
+**"What's trending in AI right now"**
+→ Mode 3, `since_hours=24` or `72`. Same as above.
+
+**"只看 Hacker News 的"**
+→ Mode 3, `source_id=hn-front`.
 
 ---
 
