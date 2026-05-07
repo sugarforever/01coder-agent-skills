@@ -14,11 +14,14 @@ Reference this skill when:
 - Translating content
 - Editing content for consistency
 - Generating subtitles or captions
+- Writing social media posts (tweets, threads)
 
 ## Style Preferences
 
 See `references/punctuation.md` for detailed punctuation rules.
 See `references/article-structure.md` for article structure and heading conventions.
+See `references/voice-and-phrasing.md` for word-choice rules - avoid translation-style and net-slang constructions.
+See `references/social-media-style.md` for social media (X/Twitter) writing conventions.
 
 ## Quick Reference
 
@@ -38,6 +41,15 @@ See `references/article-structure.md` for article structure and heading conventi
 
 - **结构隐于文中**：让内容本身传达层次，不靠编号、标签、"总结"等显式脚手架
 - **用散文连接，不要硬切**：话题之间用过渡句桥接，写博客不是写论文
+
+### Voice and Phrasing
+
+中文应该读起来像中文，不像英文翻译。避免翻译腔和近年网感构造。
+
+- **避免** "X 值得花" (worth X 直译) → 用 "X 很有必要" / "X 划算" / "X 值得做"
+- **避免** "你买不起 X 的成本" (can't afford X 直译) → 用 "X 的代价很大" / "承担不起 X"
+- **避免** 业绩化术语：闭环、抓手、颗粒度、对齐/拉齐、赋能、赛道、弯道超车、心智 → 用日常中文等价表达
+- **Test**：句子能一对一回译成英文且不丢信息 → 翻译腔。单句独立读像 startup 公关 → 网感词。
 
 ## Notes
 

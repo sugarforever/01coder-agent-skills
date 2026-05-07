@@ -1,0 +1,64 @@
+# Voice and Phrasing - Avoid Translation Style and Net-Slang
+
+中文科技写作应该读起来像中文，不像英文翻译过来的。避免最近几年从英文直译或网感文化里冒出来的构造 - 这类构造让文章读起来像 PR 稿或 AI 生成的内容，覆盖掉个人声音。
+
+## Patterns to Avoid
+
+### Worth-X 构造（X 值得花）
+
+直接翻译自英文 "worth X" / "worth doing X"。中文里 "值得花" 单独使用，"花" 没了宾语，读起来悬空。
+
+| ❌ Avoid | ✅ Prefer |
+|---|---|
+| 多路检索的复杂度值得花 | 多路检索很有必要 |
+| 这个工程量值得花 | 这工程量不大，回报够大 |
+| 这件事值得花 | 这件事值得做 / 这件事划算 |
+
+### Can't-Afford 构造（你买不起 X 的成本）
+
+"You can't afford X" 的直译。中文里 "买不起" 一般指实际购买，引申到 "代价/后果" 时不自然。
+
+| ❌ Avoid | ✅ Prefer |
+|---|---|
+| 你买不起换框架的成本 | 换框架的代价会很大 |
+| 你买不起这个 downtime | 你承担不起这个 downtime |
+| 你买不起这个错误 | 这个错误代价太大 |
+
+### 业绩/Business 化的 Metaphor
+
+Startup 圈和大厂术语，过度使用让文章像周报或竞品分析。
+
+| ❌ Avoid | 通常更准的中文 |
+|---|---|
+| 闭环 | 完整流程 / 跑通 |
+| 抓手 | 切入点 / 着力点 |
+| 颗粒度 | 细致程度 / 粒度 |
+| 对齐 / 拉齐 | 同步 / 取得共识 |
+| 赋能 | 帮助 / 让 X 能做 Y |
+| 赛道 | 领域 / 市场 |
+| 弯道超车 | 后发追上 |
+| 心智 / 占领心智 | 让用户记住 / 形成印象 |
+
+例外：行业内已成主流术语且没有更精确替代时可以保留（如 "技术栈" "护城河" 这种已经稳固的）。
+
+## How to Spot
+
+**Test 1：回译还原。** 如果一句中文几乎可以一对一回译成英文且不丢信息，它八成是翻译腔。
+
+**Test 2：单句独立读。** 把一句话从文章里抽出来，独立读。如果像 startup 公关稿、产品 landing page 标题、或科技博主搞流量的话术 - 那它八成是网感词。
+
+两个 test 任一中招，换日常中文（划算、代价、值得做、帮助、记住）。
+
+## Why This Matters
+
+这些构造在语法上都没错。但它们集中出现在：
+
+- AI 从英文翻译过来的稿子
+- 出海派 startup 的中文 blog
+- 近 2-3 年的科技博主网感文
+
+一篇博客如果带这些构造，读者很容易把它归到上面三类，而不是 "personal voice"。
+
+## Add as encountered
+
+This list grows over time. When auditing copy and a phrase feels off but it isn't covered above, add the pattern + replacement here.
