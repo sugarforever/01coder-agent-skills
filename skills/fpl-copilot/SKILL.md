@@ -1,7 +1,7 @@
 ---
 name: fpl-copilot
-version: 1.1.0
-description: "Fantasy Premier League copilot: syncs live FPL data, analyzes players/teams/fixtures, and manages your fantasy squad — all locally with SQLite + markdown. Use when the user asks about FPL, player stats, transfer advice, captain picks, fixture difficulty, gameweek strategy, or squad management."
+version: 1.2.0
+description: "Fantasy Premier League copilot: syncs live FPL data, analyzes players/teams/fixtures, manages your fantasy squad, and generates self-contained HTML reports for squads, fixtures, transfers, captain picks, and gameweek strategy. Use when the user asks about FPL, player stats, transfer advice, captain picks, fixture difficulty, gameweek strategy, or squad management."
 metadata:
   requires:
     bins: ["curl", "jq", "sqlite3"]
@@ -145,3 +145,4 @@ Read `references/squad.md` for the full markdown format specification.
 8. **Normalize by price** when comparing players: value = points / (cost in millions).
 9. **Fetch player detail on demand**: Only run `sync.sh player <id>` when the user asks about a specific player's match-by-match performance. Don't batch-fetch unless explicitly needed.
 10. **Proactively persist squads**: Always save/update squad files after any squad-related interaction. Never rely on conversation context alone.
+11. **Generate HTML for spatial outputs**: Any request that maps to a template in `templates/` — "plan gameweek" / "next gameweek team" → `gameweek-report.html`; "show/view my squad", formation, bench → `squad-view.html`; "compare transfer", out → in → `transfer-comparison.html`; "captain pick" with reasoning → `captain-ranking.html`; fixture run / FDR matrix → `fixture-matrix.html` — MUST produce the HTML file (saved to `~/.fplcopilot/reports/{YYYY-MM-DD}-{slug}.html`) and report the path with an `open <path>` hint on macOS. Markdown is only for one-line / single-stat lookups, short reasoning, deadlines, price changes, or ≤3-row SQL results.
