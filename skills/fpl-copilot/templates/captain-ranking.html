@@ -1,0 +1,191 @@
+<!--
+  TEMPLATE: captain-ranking.html
+  Replace placeholder data with top N captain options for the GW.
+  Slots: {gw_num}, {deadline}, {candidates[]} — for each: rank, web_name, team_color, team_code, position, fixture (opp, was_home, fdr), form, xpts, ownership_pct, recommendation_score, reasoning.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Captain Picks — GW14</title>
+<style>
+  :root {
+    --pl-purple: #37003c; --pl-teal: #00ff87; --pl-magenta: #e90052;
+    --fdr-1: #00ff87; --fdr-2: #91dfb3; --fdr-3: #e8e8e8; --fdr-4: #ff6b85; --fdr-5: #e90052;
+    --bg: #fafafa; --surface: #ffffff; --text: #1a1a1a; --text-muted: #6b6b6b; --border: #e5e5e5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0a0a0a; --surface: #161616; --text: #f0f0f0; --text-muted: #9b9b9b; --border: #2a2a2a; }
+    .fdr-3 { background: #4a4a4a !important; color: #f0f0f0 !important; }
+  }
+  * { box-sizing: border-box; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", sans-serif; font-size: 15px; line-height: 1.55; max-width: 1100px; margin: 2rem auto; padding: 0 1.25rem; color: var(--text); background: var(--bg); }
+  h1 { font-family: Georgia, serif; font-weight: 600; letter-spacing: -0.01em; font-size: 1.75rem; margin-bottom: 0.25rem; }
+  .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0; }
+  .top-pick { background: var(--surface); border: 2px solid var(--pl-teal); border-radius: 8px; padding: 1.25rem 1.5rem; margin: 1.5rem 0; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+  .crown-svg { width: 32px; height: 32px; color: var(--pl-magenta); flex-shrink: 0; }
+  .top-pick-body { flex: 1; min-width: 200px; }
+  .top-pick .label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 600; }
+  .top-pick .name { font-family: Georgia, serif; font-size: 1.5rem; font-weight: 600; margin: 0.15rem 0; }
+  .top-pick .meta { color: var(--text-muted); font-size: 0.9rem; }
+  .top-pick .xpts { text-align: right; }
+  .top-pick .xpts-num { font-size: 2rem; font-weight: 700; color: var(--pl-purple); font-variant-numeric: tabular-nums; line-height: 1; }
+  .top-pick .xpts-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-top: 0.25rem; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; margin-top: 1rem; }
+  th, td { padding: 0.6rem 0.5rem; text-align: left; border-bottom: 1px solid var(--border); }
+  th { font-weight: 600; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; user-select: none; background: var(--surface); }
+  th:hover { color: var(--pl-purple); }
+  th[data-dir="asc"]::after { content: " ▲"; }
+  th[data-dir="desc"]::after { content: " ▼"; }
+  td.num { text-align: right; font-weight: 600; }
+  .team-badge { display: inline-flex; align-items: center; gap: 0.35rem; }
+  .team-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--team-color); border: 1px solid rgba(0,0,0,0.15); }
+  .fix-chip { display: inline-block; padding: 0.15rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-weight: 600; }
+  .fdr-1 { background: var(--fdr-1); color: #0a4a2c; }
+  .fdr-2 { background: var(--fdr-2); color: #0a4a2c; }
+  .fdr-3 { background: var(--fdr-3); color: #1a1a1a; }
+  .fdr-4 { background: var(--fdr-4); color: #5a1020; }
+  .fdr-5 { background: var(--fdr-5); color: #ffffff; }
+  .away { opacity: 0.75; font-style: italic; }
+  .row-toggle { cursor: pointer; }
+  .row-toggle:hover { background: var(--bg); }
+  .reasoning { background: var(--bg); display: none; }
+  .reasoning.open { display: table-row; }
+  .reasoning td { padding: 1rem 1.5rem; color: var(--text-muted); font-size: 0.9rem; border-bottom: 1px solid var(--border); }
+  .conf { display: inline-block; width: 60px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; vertical-align: middle; }
+  .conf-bar { height: 100%; background: var(--pl-teal); }
+  .rank { font-family: Georgia, serif; font-weight: 600; color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="display:none"><defs>
+  <symbol id="i-crown" viewBox="0 0 24 24"><path d="M2 17h20l-2-9-5 4-3-8-3 8-5-4z" fill="currentColor"/></symbol>
+</defs></svg>
+
+<h1>Captain Picks</h1>
+<p class="subtitle">GW14 · Deadline Saturday 11:30 · 8 candidates ranked</p>
+
+<div class="top-pick">
+  <svg class="crown-svg" aria-hidden="true"><use href="#i-crown"/></svg>
+  <div class="top-pick-body">
+    <div class="label">Top pick</div>
+    <div class="name">Mohamed Salah</div>
+    <div class="meta"><span class="team-badge" style="--team-color:#c8102e"><span class="team-dot"></span>LIV</span> · vs <span class="fix-chip fdr-2 away">WOL (A)</span> · Form 8.0 · Ownership 38%</div>
+  </div>
+  <div class="xpts">
+    <div class="xpts-num">8.6</div>
+    <div class="xpts-label">xPts captained</div>
+  </div>
+</div>
+
+<table data-sortable>
+  <thead>
+    <tr>
+      <th data-type="number">#</th>
+      <th data-type="text">Player</th>
+      <th data-type="text">Fixture</th>
+      <th data-type="number">Form</th>
+      <th data-type="number">xPts</th>
+      <th data-type="number">Own %</th>
+      <th data-type="number">Confidence</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="row-toggle">
+      <td class="rank">1</td>
+      <td><span class="team-badge" style="--team-color:#c8102e"><span class="team-dot"></span></span> Salah</td>
+      <td><span class="fix-chip fdr-2 away">WOL (A)</span></td>
+      <td class="num">8.0</td>
+      <td class="num">8.6</td>
+      <td class="num">38%</td>
+      <td class="num"><span class="conf"><span class="conf-bar" style="width:92%"></span></span></td>
+    </tr>
+    <tr class="reasoning"><td colspan="7">Salah has averaged 7.2 ppg over the last 5 GWs, faces a Wolves side that's conceded 9 in their last 6. Ownership floor at 38% caps downside vs the field. Reliable double-digit ceiling.</td></tr>
+
+    <tr class="row-toggle">
+      <td class="rank">2</td>
+      <td><span class="team-badge" style="--team-color:#034694"><span class="team-dot"></span></span> Palmer</td>
+      <td><span class="fix-chip fdr-3">MCI (H)</span></td>
+      <td class="num">8.2</td>
+      <td class="num">8.1</td>
+      <td class="num">31%</td>
+      <td class="num"><span class="conf"><span class="conf-bar" style="width:78%"></span></span></td>
+    </tr>
+    <tr class="reasoning"><td colspan="7">Form leader with 41 pts last 5. Home vs City is harder than the FDR suggests, but Palmer's set-piece duties and penalty role give him a higher floor than most premium MIDs. Differential edge if City defense holds.</td></tr>
+
+    <tr class="row-toggle">
+      <td class="rank">3</td>
+      <td><span class="team-badge" style="--team-color:#dd0000"><span class="team-dot"></span></span> Wood</td>
+      <td><span class="fix-chip fdr-2">LEE (H)</span></td>
+      <td class="num">7.4</td>
+      <td class="num">7.2</td>
+      <td class="num">14%</td>
+      <td class="num"><span class="conf"><span class="conf-bar" style="width:65%"></span></span></td>
+    </tr>
+    <tr class="reasoning"><td colspan="7">Differential punt at 14% ownership. Home vs Leeds with Wood as the lone striker — clear shot-on-goal monopoly. Risk: Forest rotation possible after midweek European fixture.</td></tr>
+
+    <tr class="row-toggle">
+      <td class="rank">4</td>
+      <td><span class="team-badge" style="--team-color:#241f20"><span class="team-dot"></span></span> Isak</td>
+      <td><span class="fix-chip fdr-2 away">BUR (A)</span></td>
+      <td class="num">6.6</td>
+      <td class="num">7.0</td>
+      <td class="num">22%</td>
+      <td class="num"><span class="conf"><span class="conf-bar" style="width:62%"></span></span></td>
+    </tr>
+    <tr class="reasoning"><td colspan="7">Burnley away is winnable, but Isak's xG conversion has been streaky — overperformed by 2.1 goals this season, due regression. Solid floor, lower ceiling than the top 3.</td></tr>
+
+    <tr class="row-toggle">
+      <td class="rank">5</td>
+      <td><span class="team-badge" style="--team-color:#6cabdd"><span class="team-dot"></span></span> Haaland</td>
+      <td><span class="fix-chip fdr-5 away">CHE (A)</span></td>
+      <td class="num">4.6</td>
+      <td class="num">5.8</td>
+      <td class="num">52%</td>
+      <td class="num"><span class="conf"><span class="conf-bar" style="width:48%"></span></span></td>
+    </tr>
+    <tr class="reasoning"><td colspan="7">Template captain, but Chelsea away is a brutal fixture. Highest base xPts in the model gets dragged down by FDR. If you're chasing rank, sticking with him is defensible; if you're attacking rank, pivot.</td></tr>
+
+    <tr class="row-toggle">
+      <td class="rank">6</td>
+      <td><span class="team-badge" style="--team-color:#ef0107"><span class="team-dot"></span></span> Saka</td>
+      <td><span class="fix-chip fdr-2">CHE (H)</span></td>
+      <td class="num">6.2</td>
+      <td class="num">6.4</td>
+      <td class="num">24%</td>
+      <td class="num"><span class="conf"><span class="conf-bar" style="width:55%"></span></span></td>
+    </tr>
+    <tr class="reasoning"><td colspan="7">Home in a London derby, but Saka's xG has been suppressed in the last 3 — touches in the box dropped by 18%. Wait for confirmed minutes before locking in.</td></tr>
+  </tbody>
+</table>
+
+<script>
+  document.querySelectorAll('table[data-sortable] th').forEach((th, col) => {
+    th.addEventListener('click', () => {
+      const tbody = th.closest('table').tBodies[0];
+      const pairs = [];
+      for (let i = 0; i < tbody.rows.length; i += 2) pairs.push([tbody.rows[i], tbody.rows[i + 1]]);
+      const type = th.dataset.type || 'text';
+      const dir = th.dataset.dir === 'asc' ? -1 : 1;
+      th.parentElement.querySelectorAll('th').forEach(h => h.removeAttribute('data-dir'));
+      th.dataset.dir = dir === 1 ? 'asc' : 'desc';
+      pairs.sort(([a], [b]) => {
+        const av = a.cells[col].textContent.trim();
+        const bv = b.cells[col].textContent.trim();
+        return type === 'number' ? (parseFloat(av) - parseFloat(bv)) * dir : av.localeCompare(bv) * dir;
+      });
+      pairs.forEach(([r1, r2]) => { tbody.appendChild(r1); tbody.appendChild(r2); });
+    });
+  });
+  document.querySelectorAll('.row-toggle').forEach(tr => {
+    tr.addEventListener('click', () => {
+      const next = tr.nextElementSibling;
+      if (next && next.classList.contains('reasoning')) next.classList.toggle('open');
+    });
+  });
+</script>
+
+</body>
+</html>

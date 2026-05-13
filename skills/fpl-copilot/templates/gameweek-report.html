@@ -1,0 +1,210 @@
+<!--
+  TEMPLATE: gameweek-report.html
+  The full strategy report — combines squad health, fixtures, captain pick, transfers, and chip strategy.
+  Replace placeholders with real data sourced from SQL + the user's squad file.
+  Sections (with jump links): TL;DR, Squad Health, Fixtures, Captain, Transfers, Chip Strategy, Notes.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GW14 Strategy — Very Big Woods</title>
+<style>
+  :root {
+    --pl-purple: #37003c; --pl-teal: #00ff87; --pl-magenta: #e90052;
+    --fdr-1: #00ff87; --fdr-2: #91dfb3; --fdr-3: #e8e8e8; --fdr-4: #ff6b85; --fdr-5: #e90052;
+    --bg: #fafafa; --surface: #ffffff; --text: #1a1a1a; --text-muted: #6b6b6b; --border: #e5e5e5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0a0a0a; --surface: #161616; --text: #f0f0f0; --text-muted: #9b9b9b; --border: #2a2a2a; }
+    .fdr-3 { background: #4a4a4a !important; color: #f0f0f0 !important; }
+  }
+  * { box-sizing: border-box; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", sans-serif; font-size: 15px; line-height: 1.6; max-width: 900px; margin: 2rem auto; padding: 0 1.25rem; color: var(--text); background: var(--bg); }
+  h1 { font-family: Georgia, serif; font-weight: 600; letter-spacing: -0.01em; font-size: 2rem; margin-bottom: 0.25rem; }
+  h2 { font-family: Georgia, serif; font-weight: 600; font-size: 1.35rem; margin-top: 2.5rem; padding-top: 1rem; border-top: 2px solid var(--pl-purple); }
+  h3 { font-family: Georgia, serif; font-weight: 600; font-size: 1.05rem; margin-top: 1.5rem; }
+  .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0; }
+  nav { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1.25rem; margin: 1.5rem 0; font-size: 0.85rem; }
+  nav a { color: var(--text-muted); text-decoration: none; margin-right: 1.25rem; }
+  nav a:hover { color: var(--pl-purple); text-decoration: underline; }
+  .tldr { background: var(--surface); border-left: 4px solid var(--pl-teal); padding: 1.25rem 1.5rem; margin: 1.5rem 0; border-radius: 4px; }
+  .tldr h3 { margin-top: 0; }
+  .tldr ul { margin: 0.5rem 0 0; padding-left: 1.25rem; }
+  .tldr li { margin-bottom: 0.35rem; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; margin: 1rem 0; }
+  th, td { padding: 0.5rem 0.6rem; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+  th { font-weight: 600; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; background: var(--surface); }
+  td.num { text-align: right; font-weight: 600; }
+  .team-badge { display: inline-flex; align-items: center; gap: 0.35rem; }
+  .team-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--team-color); border: 1px solid rgba(0,0,0,0.15); }
+  .fix-chip { display: inline-block; padding: 0.15rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-weight: 600; margin-right: 2px; }
+  .fdr-1 { background: var(--fdr-1); color: #0a4a2c; }
+  .fdr-2 { background: var(--fdr-2); color: #0a4a2c; }
+  .fdr-3 { background: var(--fdr-3); color: #1a1a1a; }
+  .fdr-4 { background: var(--fdr-4); color: #5a1020; }
+  .fdr-5 { background: var(--fdr-5); color: #ffffff; }
+  .away { opacity: 0.75; font-style: italic; }
+  .status { display: inline-block; padding: 0 0.35rem; border-radius: 3px; font-size: 0.7rem; font-weight: 700; margin-right: 0.35rem; }
+  .status-d { background: #ffd54f; color: #5a3d00; }
+  .status-i { background: var(--fdr-5); color: white; }
+  .status-s { background: #1a1a1a; color: white; }
+  .pick { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--surface); border-radius: 6px; border-left: 4px solid var(--pl-teal); margin: 0.75rem 0; }
+  .pick.alt { border-left-color: var(--text-muted); }
+  .pick .name { font-weight: 600; font-size: 1.05rem; }
+  .pick .reason { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.2rem; }
+  .pick .xpts { margin-left: auto; font-size: 1.25rem; font-weight: 700; color: var(--pl-purple); }
+  .verdict-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem 1.5rem; margin: 1rem 0; }
+  .verdict-card .head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem; }
+  .verdict-card .title { font-family: Georgia, serif; font-weight: 600; font-size: 1.05rem; }
+  .verdict { padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+  .verdict-yes { background: var(--fdr-1); color: #0a4a2c; }
+  .verdict-no { background: var(--fdr-5); color: white; }
+  .verdict-maybe { background: #ffd54f; color: #5a3d00; }
+  .chips { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.75rem 0; }
+  .chip { padding: 0.3rem 0.7rem; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; font-size: 0.8rem; }
+  .chip.used { opacity: 0.4; text-decoration: line-through; }
+  .chip.recommend { background: var(--pl-teal); color: #0a4a2c; border-color: var(--pl-teal); font-weight: 600; }
+  details summary { cursor: pointer; font-weight: 600; color: var(--pl-purple); margin: 0.5rem 0; }
+  .notes { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem 1.25rem; margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+
+<h1>GW14 Strategy</h1>
+<p class="subtitle">Very Big Woods · Generated 2026-05-13 · Deadline Sat 11:30</p>
+
+<nav>
+  <a href="#tldr">TL;DR</a>
+  <a href="#health">Squad Health</a>
+  <a href="#fixtures">Fixtures</a>
+  <a href="#captain">Captain</a>
+  <a href="#transfers">Transfers</a>
+  <a href="#chips">Chips</a>
+</nav>
+
+<div class="tldr" id="tldr">
+  <h3>TL;DR</h3>
+  <ul>
+    <li><strong>Captain Salah.</strong> Wolves (A) is the best non-Haaland fixture in the GW; Salah's form clears 8.0 ppg.</li>
+    <li><strong>Make one transfer.</strong> Maddison → Palmer. +16.6 xPts over the next 5 GWs for £3.1m.</li>
+    <li><strong>Hold Haaland for now.</strong> CHE (A) is rough, but Spurs (H) and Fulham follow — sell only if you need budget.</li>
+    <li><strong>No chip this week.</strong> Wildcard candidate: GW18, after the international break and price drift settles.</li>
+  </ul>
+</div>
+
+<h2 id="health">Squad Health</h2>
+<table>
+  <thead><tr><th>Player</th><th>Status</th><th>Note</th></tr></thead>
+  <tbody>
+    <tr><td><span class="team-badge" style="--team-color:#003399"><span class="team-dot"></span></span> McNeil</td><td><span class="status status-i">I</span> Injured</td><td>Hamstring — out until GW16. Bench priority 4 is fine; consider replacing if it stretches.</td></tr>
+    <tr><td><span class="team-badge" style="--team-color:#95bfe5"><span class="team-dot"></span></span> Cash</td><td><span class="status status-d">D</span> Doubtful</td><td>75% chance to play per Emery presser. Acceptable bench risk.</td></tr>
+    <tr><td colspan="3" style="color:var(--text-muted); text-align:center; padding:0.75rem;">9 starters fit and starting · 1 doubtful · 1 injured</td></tr>
+  </tbody>
+</table>
+
+<h2 id="fixtures">Fixtures — Next 5 GWs</h2>
+<p style="color:var(--text-muted); font-size:0.9rem;">Owned-team fixtures only. Full league matrix: see <code>fixture-matrix.html</code>.</p>
+<table>
+  <thead><tr><th>Team</th><th>GW14</th><th>GW15</th><th>GW16</th><th>GW17</th><th>GW18</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="team-badge" style="--team-color:#c8102e"><span class="team-dot"></span>LIV</span></td>
+      <td><span class="fix-chip fdr-2 away">WOL</span></td>
+      <td><span class="fix-chip fdr-3">BRE</span></td>
+      <td><span class="fix-chip fdr-4 away">NEW</span></td>
+      <td><span class="fix-chip fdr-4">ARS</span></td>
+      <td><span class="fix-chip fdr-2 away">SUN</span></td>
+    </tr>
+    <tr>
+      <td><span class="team-badge" style="--team-color:#ef0107"><span class="team-dot"></span>ARS</span></td>
+      <td><span class="fix-chip fdr-2">CHE</span></td>
+      <td><span class="fix-chip fdr-3 away">BHA</span></td>
+      <td><span class="fix-chip fdr-2">WOL</span></td>
+      <td><span class="fix-chip fdr-4 away">LIV</span></td>
+      <td><span class="fix-chip fdr-2">CRY</span></td>
+    </tr>
+    <tr>
+      <td><span class="team-badge" style="--team-color:#6cabdd"><span class="team-dot"></span>MCI</span></td>
+      <td><span class="fix-chip fdr-5">CHE</span></td>
+      <td><span class="fix-chip fdr-4 away">TOT</span></td>
+      <td><span class="fix-chip fdr-3">FUL</span></td>
+      <td><span class="fix-chip fdr-5 away">ARS</span></td>
+      <td><span class="fix-chip fdr-4">NEW</span></td>
+    </tr>
+    <tr>
+      <td><span class="team-badge" style="--team-color:#dd0000"><span class="team-dot"></span>NFO</span></td>
+      <td><span class="fix-chip fdr-2">LEE</span></td>
+      <td><span class="fix-chip fdr-3 away">EVE</span></td>
+      <td><span class="fix-chip fdr-2">SUN</span></td>
+      <td><span class="fix-chip fdr-4 away">CHE</span></td>
+      <td><span class="fix-chip fdr-2">BOU</span></td>
+    </tr>
+    <tr>
+      <td><span class="team-badge" style="--team-color:#241f20"><span class="team-dot"></span>NEW</span></td>
+      <td><span class="fix-chip fdr-2 away">BUR</span></td>
+      <td><span class="fix-chip fdr-3">CRY</span></td>
+      <td><span class="fix-chip fdr-4">LIV</span></td>
+      <td><span class="fix-chip fdr-3 away">WHU</span></td>
+      <td><span class="fix-chip fdr-4 away">MCI</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="captain">Captain</h2>
+<div class="pick">
+  <div>
+    <div class="name">Salah · vs WOL (A)</div>
+    <div class="reason">Wolves have conceded 9 in their last 6. Salah's last-5 form is 8.0 ppg with three returns. Ownership 38% caps downside.</div>
+  </div>
+  <div class="xpts">8.6</div>
+</div>
+<div class="pick alt">
+  <div>
+    <div class="name">Palmer · vs MCI (H)</div>
+    <div class="reason">Differential at 31% if you transferred him in. Set-piece + penalty role gives a floor most premium MIDs lack.</div>
+  </div>
+  <div class="xpts">8.1</div>
+</div>
+<details>
+  <summary>See full top-8 ranking</summary>
+  <p>For the complete table with sortable form/xPts/ownership columns, generate <code>captain-ranking.html</code>.</p>
+</details>
+
+<h2 id="transfers">Transfers</h2>
+
+<div class="verdict-card">
+  <div class="head">
+    <span class="title">Maddison → Palmer</span>
+    <span class="verdict verdict-yes">Recommended · 0 hits</span>
+  </div>
+  <p>+16.6 xPts over the next 5 GWs for £3.1m. Free transfer covers it; £5.2m leftover in the bank.</p>
+</div>
+
+<div class="verdict-card">
+  <div class="head">
+    <span class="title">Haaland → Wood (with downgrade)</span>
+    <span class="verdict verdict-maybe">Hold this week</span>
+  </div>
+  <p>Wood's form (7.4) and fixtures (avg FDR 2.6) beat Haaland's, but Haaland's ceiling and ownership floor are too high to drop into one bad fixture. Reassess after CHE (A).</p>
+</div>
+
+<h2 id="chips">Chip Strategy</h2>
+<div class="chips">
+  <span class="chip used">Wildcard 1</span>
+  <span class="chip">Wildcard 2</span>
+  <span class="chip">Free Hit</span>
+  <span class="chip">Bench Boost</span>
+  <span class="chip">Triple Captain</span>
+</div>
+<p><strong>Wildcard 2:</strong> Target GW18, after international-break price drift. Current squad is fixture-aligned through GW17.</p>
+<p><strong>Triple Captain:</strong> Hold for a Salah or Haaland double gameweek — projection has DGW32 as the likely candidate.</p>
+<p><strong>Bench Boost:</strong> Pair with WC2 — wildcard the bench up to bench-boosters in the same window.</p>
+
+<div class="notes">
+  <strong>Notes from previous analysis:</strong> Last GW's bench was 11 pts left on the bench (Cunha hat-trick); consider promoting a Wolves or Palace bench option after WC2 to reduce bench variance.
+</div>
+
+</body>
+</html>

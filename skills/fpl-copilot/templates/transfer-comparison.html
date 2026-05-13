@@ -1,0 +1,172 @@
+<!--
+  TEMPLATE: transfer-comparison.html
+  Replace placeholder data with real transfer scenarios.
+  Slots: {transfers[]} — array of {out: player, in: player, delta: {price, points_last5, xpts_next5, fdr_avg}, verdict, notes}.
+  Per player: team_color, team_code, web_name, position, price_m, form, points_last5, xpts_next5, next5_fixtures (array of {opp, was_home, fdr}).
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transfer Comparison — GW14</title>
+<style>
+  :root {
+    --pl-purple: #37003c; --pl-teal: #00ff87; --pl-magenta: #e90052;
+    --fdr-1: #00ff87; --fdr-2: #91dfb3; --fdr-3: #e8e8e8; --fdr-4: #ff6b85; --fdr-5: #e90052;
+    --bg: #fafafa; --surface: #ffffff; --text: #1a1a1a; --text-muted: #6b6b6b; --border: #e5e5e5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0a0a0a; --surface: #161616; --text: #f0f0f0; --text-muted: #9b9b9b; --border: #2a2a2a; }
+    .fdr-3 { background: #4a4a4a !important; color: #f0f0f0 !important; }
+  }
+  * { box-sizing: border-box; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", sans-serif; font-size: 15px; line-height: 1.55; max-width: 1100px; margin: 2rem auto; padding: 0 1.25rem; color: var(--text); background: var(--bg); }
+  h1 { font-family: Georgia, serif; font-weight: 600; letter-spacing: -0.01em; font-size: 1.75rem; margin-bottom: 0.25rem; }
+  h2 { font-family: Georgia, serif; font-size: 1.1rem; margin-top: 2rem; margin-bottom: 0.5rem; }
+  .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0; }
+  .scenario { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin: 1.5rem 0; overflow: hidden; }
+  .scenario-header { padding: 0.75rem 1.25rem; background: var(--bg); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+  .scenario-title { font-family: Georgia, serif; font-weight: 600; font-size: 1rem; }
+  .verdict { padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+  .verdict-yes { background: var(--fdr-1); color: #0a4a2c; }
+  .verdict-no { background: var(--fdr-5); color: white; }
+  .verdict-maybe { background: #ffd54f; color: #5a3d00; }
+  .pair { display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; padding: 1.25rem; align-items: stretch; }
+  .player-card { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; }
+  .player-card .label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 600; }
+  .player-card.out .label { color: var(--pl-magenta); }
+  .player-card.in .label { color: #0a8a4a; }
+  .player-name { font-size: 1.15rem; font-weight: 600; margin: 0.25rem 0 0.15rem; }
+  .player-team { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.85rem; color: var(--text-muted); font-weight: 500; margin-bottom: 0.75rem; }
+  .team-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--team-color); border: 1px solid rgba(0,0,0,0.15); }
+  .stat-row { display: flex; justify-content: space-between; padding: 0.35rem 0; border-top: 1px solid var(--border); font-size: 0.85rem; }
+  .stat-row .k { color: var(--text-muted); }
+  .stat-row .v { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .fixtures-mini { display: flex; gap: 2px; margin-top: 0.75rem; }
+  .fix-cell { flex: 1; padding: 0.35rem 0.2rem; border-radius: 3px; text-align: center; font-size: 0.7rem; font-weight: 600; }
+  .arrow { display: flex; align-items: center; justify-content: center; color: var(--pl-purple); font-size: 1.5rem; font-weight: 700; }
+  .deltas { background: var(--bg); padding: 1rem 1.25rem; border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; }
+  .delta { display: flex; flex-direction: column; }
+  .delta .k { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+  .delta .v { font-size: 1.1rem; font-weight: 700; font-variant-numeric: tabular-nums; margin-top: 0.15rem; }
+  .delta.pos .v { color: #0a8a4a; }
+  .delta.neg .v { color: var(--pl-magenta); }
+  .notes { padding: 0.75rem 1.25rem; font-size: 0.9rem; color: var(--text-muted); border-top: 1px solid var(--border); background: var(--bg); }
+  .fdr-1 { background: var(--fdr-1); color: #0a4a2c; }
+  .fdr-2 { background: var(--fdr-2); color: #0a4a2c; }
+  .fdr-3 { background: var(--fdr-3); color: #1a1a1a; }
+  .fdr-4 { background: var(--fdr-4); color: #5a1020; }
+  .fdr-5 { background: var(--fdr-5); color: #ffffff; }
+  @media (max-width: 600px) { .pair { grid-template-columns: 1fr; } .arrow { transform: rotate(90deg); padding: 0.5rem 0; } }
+</style>
+</head>
+<body>
+
+<h1>Transfer Comparison</h1>
+<p class="subtitle">GW14 · 1 free transfer · 0 hits to confirm</p>
+
+<div class="scenario">
+  <div class="scenario-header">
+    <span class="scenario-title">Scenario 1 — Sell Haaland, buy Wood</span>
+    <span class="verdict verdict-maybe">Marginal</span>
+  </div>
+  <div class="pair">
+    <div class="player-card out">
+      <div class="label">Out</div>
+      <div class="player-name">Haaland</div>
+      <div class="player-team"><span class="team-dot" style="--team-color:#6cabdd"></span>MCI · FWD</div>
+      <div class="stat-row"><span class="k">Price</span><span class="v">£15.1m</span></div>
+      <div class="stat-row"><span class="k">Form</span><span class="v">4.6</span></div>
+      <div class="stat-row"><span class="k">Pts last 5</span><span class="v">23</span></div>
+      <div class="stat-row"><span class="k">xPts next 5</span><span class="v">32.4</span></div>
+      <div class="fixtures-mini">
+        <div class="fix-cell fdr-5">CHE</div>
+        <div class="fix-cell fdr-4">TOT</div>
+        <div class="fix-cell fdr-3">FUL</div>
+        <div class="fix-cell fdr-5">ARS</div>
+        <div class="fix-cell fdr-4">NEW</div>
+      </div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="player-card in">
+      <div class="label">In</div>
+      <div class="player-name">Wood</div>
+      <div class="player-team"><span class="team-dot" style="--team-color:#dd0000"></span>NFO · FWD</div>
+      <div class="stat-row"><span class="k">Price</span><span class="v">£6.8m</span></div>
+      <div class="stat-row"><span class="k">Form</span><span class="v">7.4</span></div>
+      <div class="stat-row"><span class="k">Pts last 5</span><span class="v">37</span></div>
+      <div class="stat-row"><span class="k">xPts next 5</span><span class="v">28.1</span></div>
+      <div class="fixtures-mini">
+        <div class="fix-cell fdr-2">LEE</div>
+        <div class="fix-cell fdr-3">EVE</div>
+        <div class="fix-cell fdr-2">SUN</div>
+        <div class="fix-cell fdr-4">CHE</div>
+        <div class="fix-cell fdr-2">BOU</div>
+      </div>
+    </div>
+  </div>
+  <div class="deltas">
+    <div class="delta pos"><span class="k">Price freed</span><span class="v">+£8.3m</span></div>
+    <div class="delta pos"><span class="k">Pts last 5</span><span class="v">+14</span></div>
+    <div class="delta neg"><span class="k">xPts next 5</span><span class="v">−4.3</span></div>
+    <div class="delta pos"><span class="k">Avg FDR</span><span class="v">−1.4</span></div>
+  </div>
+  <div class="notes">
+    Wood beats Haaland on form and fixtures, but loses on raw ceiling and ownership floor. Frees £8.3m that could upgrade a midfielder. Verdict hinges on what you do with the freed budget — see Scenario 2 below.
+  </div>
+</div>
+
+<div class="scenario">
+  <div class="scenario-header">
+    <span class="scenario-title">Scenario 2 — Sell Maddison, buy Palmer (requires Scenario 1's freed budget)</span>
+    <span class="verdict verdict-yes">Recommended</span>
+  </div>
+  <div class="pair">
+    <div class="player-card out">
+      <div class="label">Out</div>
+      <div class="player-name">Maddison</div>
+      <div class="player-team"><span class="team-dot" style="--team-color:#132257"></span>TOT · MID</div>
+      <div class="stat-row"><span class="k">Price</span><span class="v">£7.6m</span></div>
+      <div class="stat-row"><span class="k">Form</span><span class="v">3.8</span></div>
+      <div class="stat-row"><span class="k">Pts last 5</span><span class="v">19</span></div>
+      <div class="stat-row"><span class="k">xPts next 5</span><span class="v">22.0</span></div>
+      <div class="fixtures-mini">
+        <div class="fix-cell fdr-3">FUL</div>
+        <div class="fix-cell fdr-3">MCI</div>
+        <div class="fix-cell fdr-2">BOU</div>
+        <div class="fix-cell fdr-2">BUR</div>
+        <div class="fix-cell fdr-3">EVE</div>
+      </div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="player-card in">
+      <div class="label">In</div>
+      <div class="player-name">Palmer</div>
+      <div class="player-team"><span class="team-dot" style="--team-color:#034694"></span>CHE · MID</div>
+      <div class="stat-row"><span class="k">Price</span><span class="v">£10.7m</span></div>
+      <div class="stat-row"><span class="k">Form</span><span class="v">8.2</span></div>
+      <div class="stat-row"><span class="k">Pts last 5</span><span class="v">41</span></div>
+      <div class="stat-row"><span class="k">xPts next 5</span><span class="v">38.6</span></div>
+      <div class="fixtures-mini">
+        <div class="fix-cell fdr-3">MCI</div>
+        <div class="fix-cell fdr-4">ARS</div>
+        <div class="fix-cell fdr-2">BHA</div>
+        <div class="fix-cell fdr-3">NFO</div>
+        <div class="fix-cell fdr-3">TOT</div>
+      </div>
+    </div>
+  </div>
+  <div class="deltas">
+    <div class="delta neg"><span class="k">Price cost</span><span class="v">−£3.1m</span></div>
+    <div class="delta pos"><span class="k">Pts last 5</span><span class="v">+22</span></div>
+    <div class="delta pos"><span class="k">xPts next 5</span><span class="v">+16.6</span></div>
+    <div class="delta"><span class="k">Avg FDR</span><span class="v">±0</span></div>
+  </div>
+  <div class="notes">
+    Big xPts upgrade for £3.1m of the £8.3m freed in Scenario 1. Leaves £5.2m in the bank for a future move. Captain-viability for Palmer this run is a bonus.
+  </div>
+</div>
+
+</body>
+</html>

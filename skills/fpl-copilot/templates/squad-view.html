@@ -1,0 +1,107 @@
+<!--
+  TEMPLATE: squad-view.html
+  Replace placeholder data with real squad from ~/.fplcopilot/squads/{name}.md and current SQL data.
+  Slots: {squad_name}, {gw_num}, {gw_points}, {squad_value}, {bank}, {free_transfers}, {chip_active}
+         starters[] in formation order (GK, DEF[], MID[], FWD[]) and bench[] (GK, then outfield in priority).
+         Per player: team_color (hex), team_code (3-letter), web_name, position, price_m, form, points_gw, status (a/d/i/s), captain (c/v/null), team_id.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Squad — Very Big Woods · GW14</title>
+<style>
+  :root {
+    --pl-purple: #37003c; --pl-teal: #00ff87; --pl-magenta: #e90052;
+    --fdr-1: #00ff87; --fdr-2: #91dfb3; --fdr-3: #e8e8e8; --fdr-4: #ff6b85; --fdr-5: #e90052;
+    --bg: #fafafa; --surface: #ffffff; --text: #1a1a1a; --text-muted: #6b6b6b; --border: #e5e5e5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0a0a0a; --surface: #161616; --text: #f0f0f0; --text-muted: #9b9b9b; --border: #2a2a2a; }
+  }
+  * { box-sizing: border-box; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", sans-serif; font-size: 15px; line-height: 1.55; max-width: 1100px; margin: 2rem auto; padding: 0 1.25rem; color: var(--text); background: var(--bg); }
+  h1 { font-family: Georgia, "Times New Roman", serif; font-weight: 600; letter-spacing: -0.01em; font-size: 1.75rem; margin-bottom: 0.25rem; }
+  .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0; }
+  .meta { display: flex; flex-wrap: wrap; gap: 1.5rem; margin: 1.5rem 0; padding: 1rem 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; }
+  .meta-item { display: flex; flex-direction: column; }
+  .meta-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+  .meta-value { font-size: 1.15rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .pitch { background: linear-gradient(180deg, #1a5d1a 0%, #2d7a2d 100%); padding: 1.5rem 0.75rem; border-radius: 8px; margin: 1.5rem 0; }
+  .row { display: flex; justify-content: center; gap: 0.75rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .row:last-child { margin-bottom: 0; }
+  .player { background: var(--surface); border-radius: 6px; padding: 0.5rem 0.6rem; min-width: 90px; text-align: center; font-size: 0.8rem; position: relative; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  .player .team-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.15); margin-right: 0.3rem; vertical-align: middle; }
+  .player .name { font-weight: 600; color: var(--text); margin: 0.15rem 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .player .pts { font-size: 1.25rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--pl-purple); line-height: 1; margin: 0.2rem 0; }
+  .player .price { color: var(--text-muted); font-size: 0.75rem; font-variant-numeric: tabular-nums; }
+  .player .badge { position: absolute; top: -6px; right: -6px; background: var(--pl-purple); color: white; width: 18px; height: 18px; border-radius: 50%; font-size: 0.65rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .player.cap .badge { background: var(--pl-magenta); }
+  .player.vc .badge { background: var(--text-muted); }
+  .status { position: absolute; top: -6px; left: -6px; padding: 0 0.35rem; border-radius: 3px; font-size: 0.65rem; font-weight: 700; }
+  .status-d { background: #ffd54f; color: #5a3d00; }
+  .status-i { background: var(--fdr-5); color: white; }
+  .status-s { background: #1a1a1a; color: white; }
+  .bench { background: var(--surface); border: 1px solid var(--border); padding: 1rem 0.75rem; border-radius: 8px; }
+  .bench h2 { font-family: Georgia, serif; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin: 0 0 0.75rem; text-align: center; }
+  .bench .row { margin-bottom: 0; }
+  .bench .player { background: var(--bg); border: 1px solid var(--border); box-shadow: none; }
+  @media (max-width: 600px) { .player { min-width: 75px; padding: 0.4rem; font-size: 0.75rem; } }
+</style>
+</head>
+<body>
+
+<h1>Very Big Woods</h1>
+<p class="subtitle">Squad view · GW14 · Generated 2026-05-13</p>
+
+<div class="meta">
+  <div class="meta-item"><span class="meta-label">GW points</span><span class="meta-value">62</span></div>
+  <div class="meta-item"><span class="meta-label">Squad value</span><span class="meta-value">£103.4m</span></div>
+  <div class="meta-item"><span class="meta-label">Bank</span><span class="meta-value">£0.6m</span></div>
+  <div class="meta-item"><span class="meta-label">Free transfers</span><span class="meta-value">1</span></div>
+  <div class="meta-item"><span class="meta-label">Chip</span><span class="meta-value">—</span></div>
+</div>
+
+<div class="pitch">
+  <div class="row">
+    <div class="player">
+      <span class="team-dot" style="background:#ef0107"></span>ARS
+      <div class="name">Raya</div>
+      <div class="pts">6</div>
+      <div class="price">£5.5m</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="player"><span class="team-dot" style="background:#c8102e"></span>LIV<div class="name">Robertson</div><div class="pts">8</div><div class="price">£6.7m</div></div>
+    <div class="player"><span class="team-dot" style="background:#0057b8"></span>BHA<div class="name">Estupiñán</div><div class="pts">5</div><div class="price">£5.4m</div></div>
+    <div class="player"><span class="team-dot" style="background:#ef0107"></span>ARS<div class="name">Saliba</div><div class="pts">7</div><div class="price">£6.1m</div></div>
+    <div class="player cap"><span class="team-dot" style="background:#6cabdd"></span>MCI<div class="name">Gvardiol</div><div class="pts">9</div><div class="price">£6.0m</div></div>
+  </div>
+
+  <div class="row">
+    <div class="player cap"><span class="team-dot" style="background:#c8102e"></span>LIV<div class="name">Salah</div><div class="pts">14</div><div class="price">£13.2m</div><span class="badge">C</span></div>
+    <div class="player vc"><span class="team-dot" style="background:#ef0107"></span>ARS<div class="name">Saka</div><div class="pts">8</div><div class="price">£10.1m</div><span class="badge">V</span></div>
+    <div class="player"><span class="team-dot" style="background:#132257"></span>TOT<div class="name">Maddison</div><div class="pts">5</div><div class="price">£7.6m</div></div>
+  </div>
+
+  <div class="row">
+    <div class="player"><span class="team-dot" style="background:#6cabdd"></span>MCI<div class="name">Haaland</div><div class="pts">2</div><div class="price">£15.1m</div></div>
+    <div class="player"><span class="team-dot" style="background:#dd0000"></span>NFO<div class="name">Wood</div><div class="pts">10</div><div class="price">£6.8m</div></div>
+    <div class="player"><span class="team-dot" style="background:#241f20"></span>NEW<div class="name">Isak</div><div class="pts">8</div><div class="price">£8.4m</div></div>
+  </div>
+</div>
+
+<div class="bench">
+  <h2>Bench</h2>
+  <div class="row">
+    <div class="player"><span class="team-dot" style="background:#7a263a"></span>WHU<div class="name">Areola</div><div class="pts">3</div><div class="price">£4.4m</div></div>
+    <div class="player"><span class="status status-d" title="Doubtful">D</span><span class="team-dot" style="background:#95bfe5"></span>AVL<div class="name">Cash</div><div class="pts">2</div><div class="price">£4.7m</div></div>
+    <div class="player"><span class="team-dot" style="background:#fdb913"></span>WOL<div class="name">Cunha</div><div class="pts">1</div><div class="price">£6.6m</div></div>
+    <div class="player"><span class="status status-i" title="Injured">I</span><span class="team-dot" style="background:#003399"></span>EVE<div class="name">McNeil</div><div class="pts">0</div><div class="price">£5.2m</div></div>
+  </div>
+</div>
+
+</body>
+</html>

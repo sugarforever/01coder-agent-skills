@@ -1,0 +1,165 @@
+<!--
+  TEMPLATE: fixture-matrix.html
+  Replace placeholder data with real fixtures from `fixtures` table joined with `teams`.
+  Slots: {gw_start}, {gw_end}, {teams[]} — for each team: short_name, team_color, fixtures[] (one per GW: opponent_code, was_home, fdr), avg_fdr.
+  Sortable by any GW column or Avg FDR. Click a row to highlight.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fixture Difficulty — GW14 → GW19</title>
+<style>
+  :root {
+    --pl-purple: #37003c; --fdr-1: #00ff87; --fdr-2: #91dfb3; --fdr-3: #e8e8e8; --fdr-4: #ff6b85; --fdr-5: #e90052;
+    --bg: #fafafa; --surface: #ffffff; --text: #1a1a1a; --text-muted: #6b6b6b; --border: #e5e5e5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0a0a0a; --surface: #161616; --text: #f0f0f0; --text-muted: #9b9b9b; --border: #2a2a2a; }
+    .fdr-3 { background: #4a4a4a !important; color: #f0f0f0 !important; }
+  }
+  * { box-sizing: border-box; }
+  body { font-family: ui-sans-serif, -apple-system, "Segoe UI", sans-serif; font-size: 15px; line-height: 1.55; max-width: 1100px; margin: 2rem auto; padding: 0 1.25rem; color: var(--text); background: var(--bg); }
+  h1 { font-family: Georgia, serif; font-weight: 600; letter-spacing: -0.01em; font-size: 1.75rem; margin-bottom: 0.25rem; }
+  .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0; }
+  .legend { display: flex; gap: 0.5rem; align-items: center; margin: 1rem 0; font-size: 0.8rem; color: var(--text-muted); }
+  .legend-cell { display: inline-block; width: 28px; height: 18px; border-radius: 3px; text-align: center; line-height: 18px; font-weight: 700; font-size: 0.75rem; }
+  table { width: 100%; border-collapse: separate; border-spacing: 2px; font-variant-numeric: tabular-nums; }
+  th { padding: 0.5rem 0.5rem; text-align: center; font-weight: 600; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; user-select: none; background: var(--surface); border-radius: 4px; }
+  th:hover { color: var(--pl-purple); }
+  th[data-dir="asc"]::after { content: " ▲"; }
+  th[data-dir="desc"]::after { content: " ▼"; }
+  th.team-col { text-align: left; }
+  td { padding: 0.6rem 0.4rem; text-align: center; border-radius: 4px; font-weight: 600; font-size: 0.85rem; }
+  td.team-cell { text-align: left; background: var(--surface); padding-left: 0.75rem; }
+  .team-badge { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 600; }
+  .team-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--team-color); border: 1px solid rgba(0,0,0,0.15); flex-shrink: 0; }
+  .fdr-1 { background: var(--fdr-1); color: #0a4a2c; }
+  .fdr-2 { background: var(--fdr-2); color: #0a4a2c; }
+  .fdr-3 { background: var(--fdr-3); color: #1a1a1a; }
+  .fdr-4 { background: var(--fdr-4); color: #5a1020; }
+  .fdr-5 { background: var(--fdr-5); color: #ffffff; }
+  .avg { background: var(--surface); color: var(--text); font-weight: 700; }
+  tbody tr.highlight td { outline: 2px solid var(--pl-purple); }
+  tbody tr { cursor: pointer; }
+  .away { opacity: 0.75; font-weight: 500; font-style: italic; }
+  @media (max-width: 700px) { td, th { padding: 0.4rem 0.25rem; font-size: 0.75rem; } }
+</style>
+</head>
+<body>
+
+<h1>Fixture Difficulty</h1>
+<p class="subtitle">GW14 → GW19 · 6 gameweeks · Generated 2026-05-13</p>
+
+<div class="legend">
+  Difficulty:
+  <span class="legend-cell fdr-1">1</span>
+  <span class="legend-cell fdr-2">2</span>
+  <span class="legend-cell fdr-3">3</span>
+  <span class="legend-cell fdr-4">4</span>
+  <span class="legend-cell fdr-5">5</span>
+  · Home in bold, away italic · Click column to sort · Click row to highlight
+</div>
+
+<table data-sortable>
+  <thead>
+    <tr>
+      <th data-type="text" class="team-col">Team</th>
+      <th data-type="number">GW14</th>
+      <th data-type="number">GW15</th>
+      <th data-type="number">GW16</th>
+      <th data-type="number">GW17</th>
+      <th data-type="number">GW18</th>
+      <th data-type="number">GW19</th>
+      <th data-type="number">Avg</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="team-cell"><span class="team-badge" style="--team-color:#ef0107"><span class="team-dot"></span>ARS</span></td>
+      <td class="fdr-2" data-sort="2">CHE</td>
+      <td class="fdr-3" data-sort="3"><span class="away">BHA</span></td>
+      <td class="fdr-2" data-sort="2">WOL</td>
+      <td class="fdr-4" data-sort="4"><span class="away">LIV</span></td>
+      <td class="fdr-2" data-sort="2">CRY</td>
+      <td class="fdr-3" data-sort="3"><span class="away">FUL</span></td>
+      <td class="avg" data-sort="2.7">2.7</td>
+    </tr>
+    <tr>
+      <td class="team-cell"><span class="team-badge" style="--team-color:#c8102e"><span class="team-dot"></span>LIV</span></td>
+      <td class="fdr-2" data-sort="2"><span class="away">WOL</span></td>
+      <td class="fdr-3" data-sort="3">BRE</td>
+      <td class="fdr-4" data-sort="4"><span class="away">NEW</span></td>
+      <td class="fdr-4" data-sort="4">ARS</td>
+      <td class="fdr-2" data-sort="2"><span class="away">SUN</span></td>
+      <td class="fdr-3" data-sort="3">EVE</td>
+      <td class="avg" data-sort="3.0">3.0</td>
+    </tr>
+    <tr>
+      <td class="team-cell"><span class="team-badge" style="--team-color:#6cabdd"><span class="team-dot"></span>MCI</span></td>
+      <td class="fdr-5" data-sort="5">CHE</td>
+      <td class="fdr-4" data-sort="4"><span class="away">TOT</span></td>
+      <td class="fdr-3" data-sort="3">FUL</td>
+      <td class="fdr-5" data-sort="5"><span class="away">ARS</span></td>
+      <td class="fdr-4" data-sort="4">NEW</td>
+      <td class="fdr-3" data-sort="3"><span class="away">BHA</span></td>
+      <td class="avg" data-sort="4.0">4.0</td>
+    </tr>
+    <tr>
+      <td class="team-cell"><span class="team-badge" style="--team-color:#241f20"><span class="team-dot"></span>NEW</span></td>
+      <td class="fdr-2" data-sort="2"><span class="away">BUR</span></td>
+      <td class="fdr-3" data-sort="3">CRY</td>
+      <td class="fdr-4" data-sort="4">LIV</td>
+      <td class="fdr-3" data-sort="3"><span class="away">WHU</span></td>
+      <td class="fdr-4" data-sort="4"><span class="away">MCI</span></td>
+      <td class="fdr-2" data-sort="2">LEE</td>
+      <td class="avg" data-sort="3.0">3.0</td>
+    </tr>
+    <tr>
+      <td class="team-cell"><span class="team-badge" style="--team-color:#132257"><span class="team-dot"></span>TOT</span></td>
+      <td class="fdr-3" data-sort="3"><span class="away">FUL</span></td>
+      <td class="fdr-3" data-sort="3">MCI</td>
+      <td class="fdr-2" data-sort="2"><span class="away">BOU</span></td>
+      <td class="fdr-2" data-sort="2">BUR</td>
+      <td class="fdr-3" data-sort="3"><span class="away">EVE</span></td>
+      <td class="fdr-4" data-sort="4">CHE</td>
+      <td class="avg" data-sort="2.8">2.8</td>
+    </tr>
+    <tr>
+      <td class="team-cell"><span class="team-badge" style="--team-color:#dd0000"><span class="team-dot"></span>NFO</span></td>
+      <td class="fdr-2" data-sort="2">LEE</td>
+      <td class="fdr-3" data-sort="3"><span class="away">EVE</span></td>
+      <td class="fdr-2" data-sort="2">SUN</td>
+      <td class="fdr-4" data-sort="4"><span class="away">CHE</span></td>
+      <td class="fdr-2" data-sort="2">BOU</td>
+      <td class="fdr-3" data-sort="3"><span class="away">BRE</span></td>
+      <td class="avg" data-sort="2.7">2.7</td>
+    </tr>
+  </tbody>
+</table>
+
+<script>
+  document.querySelectorAll('table[data-sortable] th').forEach((th, col) => {
+    th.addEventListener('click', () => {
+      const tbody = th.closest('table').tBodies[0];
+      const rows = [...tbody.rows];
+      const type = th.dataset.type || 'text';
+      const dir = th.dataset.dir === 'asc' ? -1 : 1;
+      th.parentElement.querySelectorAll('th').forEach(h => h.removeAttribute('data-dir'));
+      th.dataset.dir = dir === 1 ? 'asc' : 'desc';
+      rows.sort((a, b) => {
+        const av = a.cells[col].dataset.sort ?? a.cells[col].textContent.trim();
+        const bv = b.cells[col].dataset.sort ?? b.cells[col].textContent.trim();
+        return type === 'number' ? (parseFloat(av) - parseFloat(bv)) * dir : av.localeCompare(bv) * dir;
+      });
+      rows.forEach(r => tbody.appendChild(r));
+    });
+  });
+  document.querySelectorAll('tbody tr').forEach(tr => {
+    tr.addEventListener('click', () => tr.classList.toggle('highlight'));
+  });
+</script>
+
+</body>
+</html>
