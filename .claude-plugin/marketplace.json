@@ -1,7 +1,7 @@
 {
     "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
     "name": "01coder-agent-skills",
-    "version": "3.0.1",
+    "version": "3.0.2",
     "description": "Skills for creators and developers — content creation, publishing, analytics, and security scanning",
     "owner": {
         "name": "VerySmallWoods",
@@ -24,7 +24,6 @@
                 "./skills/cover-image",
                 "./skills/diagram-to-image",
                 "./skills/subtitle-correction",
-                "./skills/china-stock-analysis",
                 "./skills/interactive-input",
                 "./skills/add-feishu",
                 "./skills/tweet-insight",
