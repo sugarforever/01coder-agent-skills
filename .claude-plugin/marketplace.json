@@ -1,8 +1,8 @@
 {
     "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
     "name": "01coder-agent-skills",
-    "version": "3.0.0",
-    "description": "Security scanning, content creation, and productivity skills for development workflows",
+    "version": "3.0.1",
+    "description": "Skills for creators and developers — content creation, publishing, analytics, and security scanning",
     "owner": {
         "name": "VerySmallWoods",
         "email": "0001coder@gmail.com"
@@ -10,7 +10,7 @@
     "plugins": [
         {
             "name": "01coder-skills",
-            "description": "Security scanning, content creation, publishing, and productivity skills by VerySmallWoods",
+            "description": "Content creation, publishing, analytics, and security scanning skills by VerySmallWoods",
             "source": "./",
             "skills": [
                 "./skills/nextjs-security-scan",
