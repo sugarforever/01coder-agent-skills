@@ -36,7 +36,7 @@ This skill works with both Chrome DevTools MCP and Playwright MCP. Use whichever
 
 - Substack dashboard: `https://{publication}.substack.com/publish`
 - Post editor: `https://{publication}.substack.com/publish/post/{postId}`
-- Default publication: `verysmallwoods`
+- Default publication: `{publication}`
 
 ## Editor Interface
 
@@ -149,7 +149,7 @@ Navigate to the Substack dashboard and create a new post:
 
 ```
 # Navigate to Substack dashboard
-navigate to: https://verysmallwoods.substack.com/publish
+navigate to: https://{publication}.substack.com/publish
 ```
 
 If not logged in, prompt user to log in:
@@ -236,7 +236,7 @@ The editor auto-saves, so no explicit save action is needed.
 草稿已保存到 Substack。请在 Substack 中预览并手动发布。
 Draft saved to Substack. Please preview and publish manually.
 
-Post URL: https://verysmallwoods.substack.com/publish/post/{postId}
+Post URL: https://{publication}.substack.com/publish/post/{postId}
 ```
 
 ## Complete Example Flow
@@ -311,7 +311,7 @@ Substack's Tiptap editor does not support HTML tables. They collapse into inline
 ### Login Required
 If page shows login prompt:
 ```
-请先登录 Substack: https://verysmallwoods.substack.com
+请先登录 Substack: https://{publication}.substack.com
 登录完成后告诉我。
 ```
 

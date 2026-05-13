@@ -10,7 +10,7 @@ Each squad is a markdown file with YAML frontmatter and structured tables:
 
 ```markdown
 ---
-name: VeryBigWoods
+name: MyFplTeam
 owner: me
 updated: 2026-04-13
 gameweek: 32
@@ -77,7 +77,7 @@ formation: 3-5-2
 ### File Naming
 
 Use kebab-case derived from the squad name:
-- "VeryBigWoods" → `very-big-woods.md`
+- "MyFplTeam" → `my-fpl-team.md`
 - "Dave's Team" → `daves-team.md`
 - "Wildcard Draft" → `wildcard-draft.md`
 

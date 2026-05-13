@@ -123,7 +123,7 @@ Squads are stored as markdown files in `~/.fplcopilot/squads/` — one file per 
 3. **On conversation start**: If the user asks about "my squad" or "my team", check `~/.fplcopilot/squads/` for existing squad files first. List available squads if multiple exist.
 4. **On analysis**: After generating a strategy report or analysis, update the squad file's Notes section with key takeaways.
 5. **Multi-squad**: Users may discuss multiple squads (their own, friends', draft plans). Each gets its own file. The user can specify which squad by name.
-6. **File naming**: Use kebab-case slugs derived from the squad name (e.g., `very-big-woods.md`, `daves-team.md`, `wildcard-draft.md`).
+6. **File naming**: Use kebab-case slugs derived from the squad name (e.g., `my-fpl-team.md`, `daves-team.md`, `wildcard-draft.md`).
 
 Read `references/squad.md` for the full markdown format specification.
 

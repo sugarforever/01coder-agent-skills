@@ -35,7 +35,7 @@ This skill works with both Chrome DevTools MCP and Playwright MCP. Use whichever
 
 - Login page: `https://wx.zsxq.com/login`
 - Article editor: `https://wx.zsxq.com/article?groupId={groupId}`
-- Default group ID: `51111858848454` (小木头的AI星球)
+- Default group ID: `{groupId}`
 
 ## Editor Interface
 
@@ -80,7 +80,7 @@ cat /path/to/article.md
 
 ```
 # Navigate to the article editor with group ID
-navigate_page: https://wx.zsxq.com/article?groupId=51111858848454
+navigate_page: https://wx.zsxq.com/article?groupId={groupId}
 ```
 
 If not logged in, the page will redirect to login. Prompt user to log in manually:
@@ -190,7 +190,7 @@ User: "把 /path/to/my-article.md 发布到知识星球"
    - Extract title from H1 or first line
    - Get full content
 
-2. Navigate to https://wx.zsxq.com/article?groupId=51111858848454
+2. Navigate to https://wx.zsxq.com/article?groupId={groupId}
 
 3. Check if logged in
    - If not, prompt user to login
