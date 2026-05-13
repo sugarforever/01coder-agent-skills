@@ -3,3 +3,7 @@ __pycache__/
 *.pyc
 remotion-demo/
 .DS_Store
+
+# Personal-use skill kept on disk but excluded from open-source release
+skills/lark-stock-tracker/
+

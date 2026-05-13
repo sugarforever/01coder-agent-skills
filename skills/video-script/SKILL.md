@@ -5,7 +5,7 @@ description: Create video scripts and publishing materials for YouTubers/UP主. 
 
 # Video Script & Publishing Materials
 
-Help YouTubers/UP主 prepare video content: write structured scripts (口播稿), blog posts, and platform-specific publishing materials.
+Help YouTubers/UP主 prepare video content: write structured scripts (口播稿), blog posts, platform-specific publishing materials, and an X (Twitter) promo tweet.
 
 ## Output Structure
 
@@ -16,7 +16,8 @@ Each video gets a date-based directory under user's chosen location:
 ├── script.md       # 视频口播稿
 ├── blog.md         # 博客文章
 ├── youtube.md      # YouTube 发布素材
-└── bilibili.md     # Bilibili 发布素材
+├── bilibili.md     # Bilibili 发布素材
+└── x.md            # X (Twitter) 推广文案
 ```
 
 ## Interactive Workflow
@@ -86,7 +87,15 @@ Generate separate publishing materials for each platform. The two platforms shar
 - See `templates/youtube.md` and `templates/bilibili.md` for output format templates
 - See `references/platform-differences.md` for platform-specific rules and guidelines
 
-### Step 7: Review & Iterate
+### Step 7: Write X/Twitter Promo (x.md)
+
+Generate a short promo tweet that the user can post alongside the video to drive traffic. Not a summary — a hook that makes people want to watch.
+
+- See `templates/x.md` for the output format template
+- **IMPORTANT**: Follow `personal-writing-style` skill's `references/social-media-style.md` rules (link position, bullet vs prose, tone)
+- Leave `[视频链接]` as a placeholder — user fills in the real URL on publish
+
+### Step 8: Review & Iterate
 
 完成后提示用户：
 
@@ -97,14 +106,13 @@ Generate separate publishing materials for each platform. The two platforms shar
 ├── script.md      — 口播稿（约 X 分钟）
 ├── blog.md        — 博客文章
 ├── youtube.md     — YouTube 发布素材
-└── bilibili.md    — Bilibili 发布素材
+├── bilibili.md    — Bilibili 发布素材
+└── x.md           — X (Twitter) 推广文案
 
 请检查内容，如果需要调整，告诉我：
 - 需要修改哪个部分？
 - 风格/语气需要调整吗？
 - 有要补充的要点吗？
-
-提示：youtube.md 中的章节时间戳是估算值，请在剪辑完成后根据实际时长调整。
 ```
 
 ## Personal Promotion Info
@@ -132,7 +140,7 @@ See `references/examples.md` for detailed examples of different usage scenarios.
 
 1. **先问后写** — 信息不足时必须追问，不要猜测用户意图
 2. **口语化脚本** — 脚本是用来说的，不是用来读的
-3. **时间戳是估算** — 明确提醒用户剪辑后需调整
+3. **不要加时间戳** — 脚本章节标题和 YouTube 描述里都不要估算时间戳，节奏由作者自己掌控
 4. **不要自动发布** — 只生成文件，不执行任何发布操作
 5. **保留用户风格** — 如果用户提供了之前的视频风格参考，尽量保持一致
 6. **推广信息复用** — 首次询问后保存到 auto memory，后续自动填充
