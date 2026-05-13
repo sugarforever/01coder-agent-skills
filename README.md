@@ -32,6 +32,8 @@ New skills are picked up automatically on marketplace update — no reinstall ne
 - **cover-image** — Hand-drawn style article cover image generator with 17 style options and 10 composition layouts.
 - **tweet-insight** — Read a tweet plus its linked papers / blogs / system cards, then write an original Chinese share-post in your own words.
 - **share-reading** — Draft social-media posts to recommend an article, paper, or resource across X, Substack, and 知识星球.
+- **promote-post** — Write a teaser tweet for a published article that opens the story instead of summarizing it — the tweet IS the first bite, not a label on the packaging.
+- **slides-video** — Orchestrate slide generation + script writing to produce slides-driven narration videos (口播视频), with each slide mapping 1:1 to one voiceover section.
 - **subtitle-correction** — Correct speech-recognition errors in `.srt` subtitle files (Chinese and English) while preserving timestamps.
 
 ### Publishing
