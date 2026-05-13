@@ -40,7 +40,7 @@ If the database doesn't exist or data is stale, sync first.
 ### 2. Sync Data
 
 ```bash
-SYNC=~/.claude/skills/fpl-copilot/references/sync.sh
+SYNC="${CLAUDE_PLUGIN_ROOT}/skills/fpl-copilot/references/sync.sh"
 
 # First time or daily refresh
 $SYNC bootstrap              # Teams, gameweeks, ~600 players (~5s)
