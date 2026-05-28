@@ -18,7 +18,7 @@ Publish Markdown content to Substack post editor, converting Markdown to HTML an
 
 ## Browser MCP Tool Mapping
 
-This skill works with both Chrome DevTools MCP and Playwright MCP. Use whichever is available:
+This skill works with both Chrome DevTools MCP and Playwright MCP:
 
 | Action | Chrome DevTools MCP | Playwright MCP |
 |--------|---------------------|----------------|
@@ -27,16 +27,31 @@ This skill works with both Chrome DevTools MCP and Playwright MCP. Use whichever
 | Take screenshot | `take_screenshot` | `browser_take_screenshot` |
 | Click element | `click` | `browser_click` |
 | Fill text | `fill` | `browser_type` |
+| Upload file | `upload_file` | `browser_file_upload` |
 | Press key | `press_key` | `browser_press_key` |
 | Evaluate JS | `evaluate_script` | `browser_evaluate` |
 
-**Detection**: Check available tools at runtime. If `mcp__chrome-devtools__navigate_page` exists, use Chrome DevTools MCP. If `mcp__playwright__browser_navigate` exists, use Playwright MCP.
+**Priority**: Default to **Playwright MCP**. Use Chrome DevTools MCP only when Playwright MCP is unavailable.
+
+**Detection**: At runtime, prefer `mcp__playwright__browser_navigate`. Fall back to `mcp__chrome-devtools__navigate_page` only if Playwright tools are not available.
 
 ## Key URLs
 
 - Substack dashboard: `https://{publication}.substack.com/publish`
 - Post editor: `https://{publication}.substack.com/publish/post/{postId}`
-- Default publication: `{publication}`
+
+## Publication Resolution
+
+The Substack publication subdomain (e.g., `verysmallwoods` in `verysmallwoods.substack.com`) is required to navigate to the dashboard. **Do not hardcode a default.**
+
+Before any navigation, resolve the publication in this order:
+
+1. **Skill argument** — if the user invoked the skill with a publication subdomain, use it.
+2. **Environment variable** — check `SUBSTACK_PUBLICATION` (optional, for users who publish repeatedly to the same publication).
+3. **Prompt the user** if neither is available:
+   > 请提供 Substack publication subdomain（例如 verysmallwoods.substack.com 里的 `verysmallwoods`）。
+
+Do not proceed to Step 3 (Navigate) without a resolved publication subdomain.
 
 ## Editor Interface
 
@@ -294,6 +309,8 @@ User: "把 /path/to/my-article.md 发布到 Substack"
 7. **No `nl2br` extension** - Causes double line breaks
 8. **Tables → images** - Pre-process tables before pasting content; upload images after paste
 9. **Playwright file paths** - Playwright MCP restricts file uploads to allowed roots; copy temp files to project directory before uploading
+10. **Resolve publication first** - Never hardcode a publication subdomain. Resolve via skill argument, `SUBSTACK_PUBLICATION` env var, or user prompt before any navigation (see Publication Resolution)
+11. **Prefer Playwright MCP** - Default to Playwright MCP; only use Chrome DevTools MCP when Playwright is unavailable
 
 ## Troubleshooting
 
