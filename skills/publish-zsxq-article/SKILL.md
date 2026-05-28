@@ -16,7 +16,7 @@ Publish Markdown content to Zsxq (知识星球) article editor in Markdown mode,
 
 ## Browser MCP Tool Mapping
 
-This skill works with both Chrome DevTools MCP and Playwright MCP. Use whichever is available:
+This skill works with both Chrome DevTools MCP and Playwright MCP:
 
 | Action | Chrome DevTools MCP | Playwright MCP |
 |--------|---------------------|----------------|
@@ -27,15 +27,29 @@ This skill works with both Chrome DevTools MCP and Playwright MCP. Use whichever
 | Fill text | `fill` | `browser_type` |
 | Upload file | `upload_file` | `browser_file_upload` |
 | Press key | `press_key` | `browser_press_key` |
-| Evaluate JS | `evaluate_script` | `browser_console_exec` |
+| Evaluate JS | `evaluate_script` | `browser_evaluate` |
 
-**Detection**: Check available tools at runtime. If `mcp__chrome-devtools__navigate_page` exists, use Chrome DevTools MCP. If `mcp__playwright__browser_navigate` exists, use Playwright MCP.
+**Priority**: Default to **Playwright MCP**. Use Chrome DevTools MCP only when Playwright MCP is unavailable.
+
+**Detection**: At runtime, prefer `mcp__playwright__browser_navigate`. Fall back to `mcp__chrome-devtools__navigate_page` only if Playwright tools are not available.
 
 ## Key URLs
 
 - Login page: `https://wx.zsxq.com/login`
 - Article editor: `https://wx.zsxq.com/article?groupId={groupId}`
-- Default group ID: `{groupId}`
+
+## Group ID Resolution
+
+The Zsxq group ID is required to navigate to the article editor (the `groupId=` URL parameter). **Do not hardcode a default.**
+
+Before any navigation, resolve the group ID in this order:
+
+1. **Skill argument** — if the user invoked the skill with a group ID, use it.
+2. **Environment variable** — check `ZSXQ_GROUP_ID` (optional, for users who publish repeatedly to the same group).
+3. **Prompt the user** if neither is available:
+   > 请提供知识星球的 group ID（在星球 URL 里 `groupId=` 之后那串数字）。
+
+Do not proceed to Step 2 (Navigate) without a resolved group ID.
 
 ## Editor Interface
 
@@ -68,8 +82,12 @@ The Milkdown editor requires content to be inserted via **paste event**, NOT dir
 ### Step 1: Prepare Content
 
 Read the Markdown file and extract:
-- Title (from H1 header `# Title` or filename)
-- Content (full Markdown body)
+- **Title**: from YAML frontmatter `title` field, or H1 header `# Title`, or filename
+- **Content**: Markdown body with the following stripped:
+  - YAML frontmatter (`---` delimited block at the top)
+  - H1 title line (already used as the article title)
+  - HTML comments (`<!-- ... -->`)
+  - **Horizontal rules (`---`)** — Milkdown's paste handler misparses `---`, causing subsequent headings and formatting to break (e.g., `##` rendered as bold `**` text instead of H2). Remove all `---` lines before pasting.
 
 ```bash
 # Read the markdown file
@@ -79,7 +97,7 @@ cat /path/to/article.md
 ### Step 2: Navigate to Article Editor
 
 ```
-# Navigate to the article editor with group ID
+# Navigate to the article editor with the resolved group ID (see Group ID Resolution above)
 navigate_page: https://wx.zsxq.com/article?groupId={groupId}
 ```
 
@@ -187,10 +205,11 @@ User: "把 /path/to/my-article.md 发布到知识星球"
 
 ```
 1. Read /path/to/my-article.md
-   - Extract title from H1 or first line
-   - Get full content
+   - Extract title from frontmatter or H1
+   - Strip frontmatter, H1 title, HTML comments, and horizontal rules (`---`)
+   - Get cleaned content
 
-2. Navigate to https://wx.zsxq.com/article?groupId={groupId}
+2. Navigate to https://wx.zsxq.com/article?groupId={resolved groupId}
 
 3. Check if logged in
    - If not, prompt user to login
@@ -221,6 +240,8 @@ User: "把 /path/to/my-article.md 发布到知识星球"
 3. **Check login status** - Prompt user to login if needed
 4. **Preserve original file** - Never modify the source Markdown file
 5. **Report completion** - Tell user the draft is saved and needs manual review
+6. **Resolve group ID first** - Never hardcode a group ID. Resolve via skill argument, `ZSXQ_GROUP_ID` env var, or user prompt before any navigation (see Group ID Resolution)
+7. **Prefer Playwright MCP** - Default to Playwright MCP; only use Chrome DevTools MCP when Playwright is unavailable
 
 ## Troubleshooting
 
@@ -230,6 +251,11 @@ If you see raw Markdown syntax like `**bold**` or `[link](url)` instead of rende
 - **Solution**: Use the `evaluate_script` method to simulate a paste event (see Step 5)
 
 The Milkdown editor only parses Markdown when content is pasted, not when directly set.
+
+### Horizontal Rules (`---`) Break Formatting
+If headings appear as bold text with `**` markers, or formatting is garbled after a `---` line:
+- **Cause**: Milkdown's paste handler misparses `---` (horizontal rule), corrupting subsequent Markdown elements
+- **Solution**: Strip all `---` lines from the content before pasting. The article can use headings for section separation instead.
 
 ### Login Required
 If page redirects or shows login prompt:

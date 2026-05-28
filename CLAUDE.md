@@ -72,15 +72,13 @@ New skills are picked up automatically on marketplace update — no reinstall ne
    ---
    ```
 
-2. Add the skill path to the appropriate plugin group in `.claude-plugin/marketplace.json`:
-   ```json
-   "skills": [
-       "./skills/existing-skill",
-       "./skills/new-skill"
-   ]
+2. Sync `marketplace.json` from the filesystem:
+   ```bash
+   ./scripts/sync-marketplace-skills.sh
    ```
+   The script scans `skills/*/SKILL.md`, respects `.gitignore` (so personal-only skills excluded via gitignore stay out), and rewrites the `skills[]` array alphabetically. Never edit `skills[]` by hand.
 
-3. Bump the marketplace `version` in marketplace.json
+3. Bump the marketplace `version` in `marketplace.json` (script does not touch the version field).
 
 4. Commit and push. Users get the new skill on their next marketplace update.
 

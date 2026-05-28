@@ -1,117 +1,47 @@
-# Chinese Punctuation Preferences
+# Chinese Punctuation Rules
 
-Personal style preferences for Chinese punctuation in written content.
+Apply these rules to Chinese body text. They do not apply to YAML frontmatter, code, JSON/config, URLs, file paths, commands, or exact source quotes.
 
-> 🛑 **Rule #1 — Quotes are the most-broken rule.** Read this section before anything else, and verify your output against it before saving. AI assistants repeatedly write straight `"` (U+0022) in Chinese body text even after reading this skill — including immediately after acknowledging the rule. The fix is mechanical: every `"` that surrounds Chinese body text must be `“` (U+201C) or `”` (U+201D). Treat this as a checklist item, not a stylistic preference.
+## Required Forms
 
-## Quotes / 引号
+Use the form on the left. Replace the form on the right.
 
-**Preferred**: `“` (U+201C, left curly quote) and `”` (U+201D, right curly quote)
-**Avoid**: `"` (U+0022, straight ASCII double quote)
-**Context**: For Chinese text content (body text, not code)
+- `“中文”` replaces `"中文"`.
+- `前文 - 后文` replaces `前文--后文`, `前文——后文`, and `前文—后文`.
+- `中文......` replaces `中文……` and Chinese prose ellipsis written as `中文...`.
+- `中文，中文。` replaces `中文,中文.`.
+- `问题？回答！` replaces `问题?回答!`.
+- `说明：内容；补充` replaces `说明:内容;补充`.
 
-### Why this rule gets broken
+## Common Failure Modes
 
-When an AI tool writes a file containing `"` it almost always produces U+0022 unless the curly characters were explicitly pasted from another source. The visual difference is small in some fonts but the codepoints are different and Chinese typography expects U+201C/201D. A correctly-styled file is byte-identifiable; a wrong one is not.
+- Straight quotes remain in Chinese prose: `他说"可以运行了"` should be `他说“可以运行了”`.
+- The model writes `--` or `——` for a dash. Replace with ` - `.
+- The model writes `……`. Replace with `......`.
+- English punctuation leaks into Chinese sentences: `中文,中文` should be `中文，中文`.
 
-### Pre-save checklist for AI assistants
+## Examples
 
-Before saving any Chinese content (blog post, tweet, subtitle, doc):
+```text
+Correct:
+Clawdbot 文档推荐使用 Opus 4.5，部分原因就是它有“更好的 prompt injection 抵抗能力” - 这说明维护者很清楚这是一个真实问题。
+所有这些......能力确实是变革性的。
 
-1. Search the file for `"` (U+0022)
-2. For every match, confirm it's inside:
-   - YAML frontmatter (`title: "..."`) ✅ keep
-   - Code block (```` ``` ````) ✅ keep
-   - Config / JSON value ✅ keep
-3. Any other `"` in Chinese body text → replace with `“` / `”`
-4. Verify by reading codepoints, not by visual inspection
-
-### Examples
-
-```
-✅ Correct (Chinese content):
-但“真正去做事情”意味着“可以在你的电脑上执行任意命令”。
-很多人想体验这个“贾维斯式”的 AI 助手。
-
-❌ Avoid (Chinese content):
-但"真正去做事情"意味着"可以在你的电脑上执行任意命令"。
-很多人想体验这个"贾维斯式"的 AI 助手。
+Avoid:
+Clawdbot 文档推荐使用 Opus 4.5,部分原因就是它有"更好的 prompt injection 抵抗能力"——这说明维护者很清楚这是一个真实问题。
+所有这些……能力确实是变革性的。
 ```
 
-### How to Type
+## Manual Audit
 
-- macOS: `Option + [` for `“`, `Option + Shift + [` for `”`
-- Or copy from here: `“` `”`
+Before delivering, scan the final text for these literal tokens:
 
-### Exception: YAML/Code
+- `"` in Chinese body text.
+- `--`, `——`, or `—` used as a dash.
+- `……`.
+- `,` `.` `:` `;` `?` `!` between Chinese characters.
 
-Use straight quotes `"` in:
-- Markdown frontmatter (YAML syntax requirement)
-- Code blocks
-- JSON/config files
-
-```yaml
-# Frontmatter uses straight quotes
----
-title: "文章标题"
-tags: ["AI", "安全"]
----
-```
-
----
-
-## Dash / 破折号
-
-**Preferred**: ` - ` (space-hyphen-space)
-**Avoid**: `——` (Chinese em dash, U+2014)
-
-### Examples
-
-```
-✅ Correct:
-Clawdbot 文档推荐使用 Opus 4.5，部分原因就是它有"更好的 prompt injection 抵抗能力" - 这说明维护者们很清楚这是一个真实的问题。
-
-❌ Avoid:
-Clawdbot 文档推荐使用 Opus 4.5，部分原因就是它有"更好的 prompt injection 抵抗能力"——这说明维护者们很清楚这是一个真实的问题。
-```
-
-### Rationale
-- More consistent across platforms and fonts
-- Easier to type
-- Cleaner visual appearance in technical content
-
----
-
-## Ellipsis / 省略号
-
-**Preferred**: `......` (six ASCII periods)
-**Avoid**: `……` (Chinese ellipsis, U+2026 × 2)
-
-### Examples
-
-```
-✅ Correct:
-Clawdbot、Claude computer use，所有这些......能力确实是变革性的。
-
-❌ Avoid:
-Clawdbot、Claude computer use，所有这些……能力确实是变革性的。
-```
-
-### Rationale
-- Consistent character width
-- Better compatibility with plain text environments
-- Easier to search and replace
-
----
-
-## Summary Table
-
-| Punctuation | Chinese Name | Preferred | Unicode | Avoid | Unicode |
-|-------------|--------------|-----------|---------|-------|---------|
-| Dash | 破折号 | ` - ` | U+002D | `——` | U+2014 |
-| Ellipsis | 省略号 | `......` | U+002E × 6 | `……` | U+2026 × 2 |
-| Left Quote | 左引号 | `"` | U+201C | `"` | U+0022 |
-| Right Quote | 右引号 | `"` | U+201D | `"` | U+0022 |
+Fix all true positives. If a token is inside a source quote or technical syntax, keep it and do not rewrite the quoted/source material.
 
 ---
 
