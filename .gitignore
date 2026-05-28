@@ -7,3 +7,6 @@ remotion-demo/
 # Personal-use skill kept on disk but excluded from open-source release
 skills/lark-stock-tracker/
 
+# Local Codex CLI config (per-machine)
+.codex/
+

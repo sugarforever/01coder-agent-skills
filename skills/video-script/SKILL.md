@@ -71,6 +71,7 @@ Write a structured 口播稿 in the user's preferred language. The script should
 
 - See `templates/script.md` for the output format template
 - See `references/script-guidelines.md` for detailed writing rules
+- See `references/examples-tutorial.md` for the canonical 教程 / 配置类 sample script - **read it before writing if the topic is a configuration / how-to / setup video**
 
 ### Step 5: Write Blog Post (blog.md)
 

@@ -69,7 +69,7 @@ New skills are picked up automatically on marketplace update — no reinstall ne
    description: When to trigger this skill. Be specific about trigger phrases — include Chinese and English if applicable.
    ---
    ```
-2. Add the skill path to the `skills[]` array in `.claude-plugin/marketplace.json` and bump the `version`.
+2. Run `./scripts/sync-marketplace-skills.sh` to regenerate the `skills[]` array in `.claude-plugin/marketplace.json`, then bump the `version` manually.
 3. (Optional) Add `references/`, `scripts/`, `assets/`, or `templates/` directories alongside `SKILL.md` for domain knowledge, automation, or report templates.
 
 See [CLAUDE.md](CLAUDE.md) for the full convention.
