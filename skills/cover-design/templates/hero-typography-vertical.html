@@ -1,0 +1,177 @@
+<!--
+  Template: hero-typography-vertical (竖屏族 / vertical family)
+  支持比例: 9:16 (1080×1920, 默认) · 3:4 (1080×1440, 把 :root 的 --cv-h 改 1440px)
+  适配平台: 抖音 / 视频号 竖屏封面
+
+  安全区 (重要): 抖音首尾会叠 UI (字幕、按钮)、视频号首尾可能被裁 / 九宫格裁成 3:4。
+  所以所有文字都放在一个垂直居中的 .safe 列里,上下各留足余量。
+  设计时想看安全区边界,给 <body> 加 class="show-guide" (最终渲染不要留着)。
+
+  Customization points (替换占位符,改 CSS 变量):
+    1. CSS :root - 改 --bg / --accent 调色;改 --cv-h 切 9:16 / 3:4
+    2. .tag        - 顶部品牌行 (例如 "Claude Code · 深度解读")
+    3. .hero-eyebrow - 主标题上方小字
+    4. .hero-title - 主标题大字,两个 <span class="stack"> 各一行,英文小写最佳
+    5. .hero-sub   - 中文副标题,可在重点词加 <span class="lime">
+    6. .foot .name / .channel - 作者署名 + 频道名
+
+  Render: 见 references/render-pipeline.md
+    9:16 → resize 1080×1940, 输出 ~2160×3840 (Retina 2x)
+    3:4  → 改 --cv-h:1440px, resize 1080×1460, 输出 ~2160×2880
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="color-scheme" content="dark">
+<title>{{TITLE}} · Cover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:           #000000;
+  --ink:          #ffffff;
+  --ink-soft:     #c2cad6;
+  --muted:        #7b8699;
+  --accent:       #7bff9f;
+  --accent-soft:  rgba(123, 255, 159, 0.10);
+  --font-display: 'Manrope', 'Noto Sans SC', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+  /* 画布尺寸 - 竖屏族。9:16 默认；3:4 把 --cv-h 改成 1440px */
+  --cv-w:         1080px;
+  --cv-h:         1920px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--ink); font-family: var(--font-display); -webkit-font-smoothing: antialiased; }
+
+.cover {
+  width: var(--cv-w);
+  height: var(--cv-h);
+  position: relative;
+  background: var(--bg);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Soft radial glow */
+.cover::before {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1000px;
+  height: 1000px;
+  background: radial-gradient(circle, rgba(123, 255, 159, 0.12) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* 安全区 - 所有内容垂直居中,上下自然留白即安全余量 */
+.safe {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  padding: 0 80px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: 26px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+}
+.tag::before { content: "▍"; margin-right: 10px; }
+
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 200px;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: var(--accent);
+  text-transform: lowercase;
+  text-shadow: 0 0 80px rgba(123, 255, 159, 0.25);
+}
+.hero-title .stack { display: block; }
+
+.hero-sub {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 72px;
+  line-height: 1.18;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.hero-sub .lime {
+  color: var(--accent);
+  background: linear-gradient(180deg, transparent 70%, var(--accent-soft) 70%);
+  padding: 0 0.12em;
+}
+
+.foot {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--font-mono);
+  font-size: 26px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.foot .name { color: var(--ink); font-weight: 700; letter-spacing: 0.04em; text-transform: none; font-size: 30px; font-family: var(--font-display); }
+.foot .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: inline-block; }
+
+/* 设计辅助线 - body.show-guide 时显示 9:16 安全带,最终渲染移除 class */
+.guide {
+  display: none;
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 1464px;            /* 抖音封面实际显示带 ~1080×1464 */
+  border: 2px dashed rgba(123, 255, 159, 0.5);
+  z-index: 50;
+  pointer-events: none;
+}
+body.show-guide .guide { display: block; }
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="guide"></div>
+  <div class="safe">
+    <div class="tag">{{TAG_LEFT}}</div>
+    <div class="hero-eyebrow">{{EYEBROW}}</div>
+    <h1 class="hero-title">
+      <span class="stack">{{TITLE_LINE_1}}</span>
+      <span class="stack">{{TITLE_LINE_2}}</span>
+    </h1>
+    <div class="hero-sub">{{SUBTITLE_HTML}}</div>
+    <div class="foot">
+      <span class="name">{{AUTHOR_NAME}}</span>
+      <span class="dot"></span>
+      <span>{{CHANNEL}}</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

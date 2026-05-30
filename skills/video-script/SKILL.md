@@ -17,7 +17,9 @@ Each video gets a date-based directory under user's chosen location:
 ├── blog.md         # 博客文章
 ├── youtube.md      # YouTube 发布素材
 ├── bilibili.md     # Bilibili 发布素材
-└── x.md            # X (Twitter) 推广文案
+├── x.md            # X (Twitter) 推广文案
+├── fact-check.md   # 技术事实审核表（技术类视频必出，见 Step 8）
+└── cover.png       # 封面（可选，见 Step 10）
 ```
 
 ## Interactive Workflow
@@ -96,7 +98,42 @@ Generate a short promo tweet that the user can post alongside the video to drive
 - **IMPORTANT**: Follow `personal-writing-style` skill's `references/social-media-style.md` rules (link position, bullet vs prose, tone)
 - Leave `[视频链接]` as a placeholder — user fills in the real URL on publish
 
-### Step 8: Review & Iterate
+### Step 8: Fact Audit (技术事实审核)
+
+**技术解读 / 评测 / 任何含技术事实点的视频必做，不可跳过。** 在风格校对之前先把内容核实一遍 - 因为审核可能要删改成段内容。
+
+- **逐条核验**：把 `script.md` 和 `blog.md` 里的每一条技术陈述列出来，标来源、给核验结论。规则与来源分级见 `references/fact-audit.md`
+- **结论三档**：✅ 成立（有官方来源，可直接讲）/ ⚠️ 需屏上引用（非官方来源，保留但录制时屏上给可见证据）/ ❌ 删除（无来源或属推断，从脚本和博客移除）
+- **绝不让模型的猜测 / 幻觉进稿**：没有来源支撑的推断一律删，或改成「官方没披露，不猜」
+- **闭源 / research preview 内容**：脚本里要有披露句（「研究预览，部分细节未公开」）和边界句（「未披露的实现不猜」）；启用机制（环境变量 / 命令 / 菜单）对照当前官方文档核对；争议数字默认取官方
+- **产物**：把核验结果写成 `fact-check.md` 放进视频目录，便于复核追溯。格式见 `templates/fact-check.md`
+
+### Step 9: Apply personal-writing-style (统一风格校对)
+
+After every file is written and fact-audited, run a dedicated polish pass over **all** generated Chinese text files. This is a required finishing step, not optional.
+
+- **Invoke the `personal-writing-style` skill** and apply it to every generated file: `script.md`, `blog.md`, `youtube.md`, `bilibili.md`, `x.md`
+- **口播稿不例外**：`script.md` 虽然是用来「说」的，也要完整套用标点与风格规则 — 中文弯引号、半角破折号 " - "、ASCII 省略号 "......"、无标题编号、简洁标题，且不留全角/英文标点
+- **保留口语化与自然语流**：personal-writing-style 只做标点与语气的统一，不强加模板结构（不要把 script.md 改成 Hook/引言/正文/CTA 那种套路）
+- `x.md` 仍以 personal-writing-style 的 `references/social-media-style.md` 为准（链接位置、bullet vs prose、语气）
+
+### Step 10: Generate Cover (封面，可选)
+
+封面不是默认产物 - **先问用户要不要做封面**，需要时再生成。
+
+询问：
+
+```
+要不要顺手做一张封面？
+- 视频缩略图（YouTube / Bilibili）→ 我用 `cover-design`（代码驱动的排版封面，文字清晰、适合缩略图）
+- 文章头图（博客 / X Article）→ 我用 `cover-image`（AI 生成的插画风头图）
+```
+
+- 缩略图类需求 → 调用 `cover-design` skill
+- 文章头图类需求 → 调用 `cover-image` skill
+- 产物存进视频目录（如 `cover.html` / `cover.png`）
+
+### Step 11: Review & Iterate
 
 完成后提示用户：
 
@@ -108,7 +145,9 @@ Generate a short promo tweet that the user can post alongside the video to drive
 ├── blog.md        — 博客文章
 ├── youtube.md     — YouTube 发布素材
 ├── bilibili.md    — Bilibili 发布素材
-└── x.md           — X (Twitter) 推广文案
+├── x.md           — X (Twitter) 推广文案
+├── fact-check.md  — 技术事实审核表（技术类视频）
+└── cover.png      — 封面（如已生成）
 
 请检查内容，如果需要调整，告诉我：
 - 需要修改哪个部分？
@@ -146,3 +185,6 @@ See `references/examples.md` for detailed examples of different usage scenarios.
 5. **保留用户风格** — 如果用户提供了之前的视频风格参考，尽量保持一致
 6. **推广信息复用** — 首次询问后保存到 auto memory，后续自动填充
 7. **日期目录** — 每期视频按当天日期创建独立目录
+8. **技术内容先审后发** — 技术解读/评测等含技术事实的视频，发布前必须逐条事实审核（见 Step 8），无官方来源的点要么删、要么屏上给可见引用，绝不让模型的猜测/幻觉进稿，并出 `fact-check.md` 留档
+9. **统一风格收尾** — 所有生成的中文文稿（含口播稿）在收尾时必须用 `personal-writing-style` 过一遍，见 Step 9，不可跳过
+10. **封面按需生成** — 封面不是默认产物，先问用户；缩略图用 `cover-design`，文章头图用 `cover-image`（见 Step 10）

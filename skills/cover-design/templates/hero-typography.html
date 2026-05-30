@@ -1,0 +1,255 @@
+<!--
+  Template: hero-typography (横屏族 / horizontal family)
+  支持比例: 16:9 (1920×1080, 默认) · 16:10 (1920×1200, 把 :root 的 --cv-h 改 1200px)
+  适配平台: YouTube (16:9) · Bilibili (16:10) · 横屏短视频 (16:9)
+  竖屏 (9:16 / 3:4, 抖音 / 视频号) 用 hero-typography-vertical.html
+
+  When to use:
+    - 技术解读 / 概念视频 / 新功能发布的视频缩略图
+    - 主标题是一个英文词或短语 (1-3 词最佳),想用打字版作为视觉锚点
+    - 配大字 + 中文副标 + 两侧轻量装饰节点 (暗示并行 / 分支 / 网络这类概念)
+
+  Customization points (替换占位符,改 CSS 变量):
+    1. CSS :root 变量 - 改 --bg / --accent 改色调
+    2. .tag 文本 - 顶部左品牌行 (例如 "Claude Code · 深度解读")
+    3. .brand-mark 文本 - 顶部右品牌 + 日期
+    4. .hero-eyebrow 文本 - 主标题上方小字 (例如 "Anthropic · Research Preview")
+    5. .hero-title - 主标题,两个 <span class="stack"> 各一行,英文小写效果最好
+    6. .hero-sub - 中文副标题,可在重点词上加 <span class="lime"> 高亮
+    7. .foot .author 文本 - 作者署名 + 频道名
+    8. .foot .episode 文本 - 底部右侧 chip,通常 "Ep · {主题} 解读"
+    9. 两个 .nodes SVG - 装饰节点图,默认 5 路扇出,可改路数或换形状
+
+  Render: 见 SKILL.md Step 4 / references/render-pipeline.md
+    16:9  → resize 1920×1100, 输出 ~3840×2160 (Retina 2x)
+    16:10 → 改 --cv-h:1200px, resize 1920×1220, 输出 ~3840×2400
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>{{TITLE}} · Cover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:           #000000;
+  --ink:          #ffffff;
+  --ink-soft:     #c2cad6;
+  --muted:        #7b8699;
+  --muted-2:      #4a5260;
+  --accent:       #7bff9f;
+  --accent-soft:  rgba(123, 255, 159, 0.10);
+  --font-display: 'Manrope', 'Noto Sans SC', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+  /* 画布尺寸 - 横屏族。16:9 默认；16:10 把 --cv-h 改成 1200px */
+  --cv-w:         1920px;
+  --cv-h:         1080px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--ink); font-family: var(--font-display); -webkit-font-smoothing: antialiased; }
+
+.cover {
+  width: var(--cv-w);
+  height: var(--cv-h);
+  position: relative;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+/* Soft radial glow for depth */
+.cover::before {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1400px;
+  height: 1400px;
+  background: radial-gradient(circle, rgba(123, 255, 159, 0.10) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* TOP TAGS */
+.tag {
+  position: absolute;
+  top: 56px;
+  left: 80px;
+  font-family: var(--font-mono);
+  font-size: 22px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  z-index: 5;
+}
+.tag::before { content: "▍"; margin-right: 10px; }
+
+.brand-mark {
+  position: absolute;
+  top: 56px;
+  right: 80px;
+  font-family: var(--font-mono);
+  font-size: 22px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  z-index: 5;
+}
+.brand-mark .vsw { color: var(--ink-soft); font-weight: 600; }
+
+/* HERO TITLE BLOCK - dead center */
+.hero {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 10;
+  width: 100%;
+  padding: 0 80px;
+}
+
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 26px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 36px;
+  font-weight: 500;
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 280px;
+  line-height: 0.88;
+  letter-spacing: -0.045em;
+  color: var(--accent);
+  text-transform: lowercase;
+  margin-bottom: 56px;
+  text-shadow: 0 0 80px rgba(123, 255, 159, 0.25);
+}
+
+.hero-title .stack {
+  display: block;
+}
+
+.hero-sub {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 68px;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.hero-sub .lime {
+  color: var(--accent);
+  background: linear-gradient(180deg, transparent 70%, var(--accent-soft) 70%);
+  padding: 0 0.12em;
+}
+
+/* SIDE FAN-OUT VISUAL HINTS */
+.nodes {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+}
+.nodes.left { top: 50%; left: 60px; transform: translateY(-50%); }
+.nodes.right { top: 50%; right: 60px; transform: translateY(-50%); }
+.nodes svg { display: block; }
+
+/* BOTTOM STRIP */
+.foot {
+  position: absolute;
+  bottom: 56px;
+  left: 80px;
+  right: 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 22px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  z-index: 5;
+}
+.foot .author {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.foot .author .name { color: var(--ink); font-weight: 700; letter-spacing: 0.04em; text-transform: none; font-size: 26px; font-family: var(--font-display); }
+.foot .author .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: inline-block; }
+.foot .episode {
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+</style>
+</head>
+<body>
+<div class="cover">
+
+  <div class="tag">{{TAG_LEFT}}</div>
+  <div class="brand-mark"><span class="vsw">{{BRAND}}</span> · {{DATE}}</div>
+
+  <!-- left fan-out hint -->
+  <div class="nodes left">
+    <svg width="180" height="320" viewBox="0 0 180 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="20" cy="160" r="8" fill="#7bff9f"/>
+      <line x1="28" y1="160" x2="150" y2="40" stroke="#7bff9f" stroke-width="2" stroke-opacity="0.5"/>
+      <line x1="28" y1="160" x2="150" y2="110" stroke="#7bff9f" stroke-width="2" stroke-opacity="0.5"/>
+      <line x1="28" y1="160" x2="150" y2="160" stroke="#7bff9f" stroke-width="2" stroke-opacity="0.5"/>
+      <line x1="28" y1="160" x2="150" y2="210" stroke="#7bff9f" stroke-width="2" stroke-opacity="0.5"/>
+      <line x1="28" y1="160" x2="150" y2="280" stroke="#7bff9f" stroke-width="2" stroke-opacity="0.5"/>
+      <circle cx="158" cy="40" r="5" fill="#7bff9f" opacity="0.7"/>
+      <circle cx="158" cy="110" r="5" fill="#7bff9f" opacity="0.7"/>
+      <circle cx="158" cy="160" r="5" fill="#7bff9f" opacity="0.7"/>
+      <circle cx="158" cy="210" r="5" fill="#7bff9f" opacity="0.7"/>
+      <circle cx="158" cy="280" r="5" fill="#7bff9f" opacity="0.7"/>
+    </svg>
+  </div>
+
+  <!-- right fan-out hint, mirrored -->
+  <div class="nodes right">
+    <svg width="180" height="320" viewBox="0 0 180 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="160" cy="160" r="8" fill="#7bff9f"/>
+      <line x1="152" y1="160" x2="30" y2="40" stroke="#7bff9f" stroke-width="2" stroke-opacity="0.5"/>
+      <line x1="152" y1="160" x2="30" y2="110" stroke="#7bff9f" stroke-width="2" stroke-opacity="0.5"/>
+      <line x1="152" y1="160" x2="30" y2="160" stroke="#7bff9f" stroke-width="2" stroke-opacity="0.5"/>
+      <line x1="152" y1="160" x2="30" y2="210" stroke="#7bff9f" stroke-width="2" stroke-opacity="0.5"/>
+      <line x1="152" y1="160" x2="30" y2="280" stroke="#7bff9f" stroke-width="2" stroke-opacity="0.5"/>
+      <circle cx="22" cy="40" r="5" fill="#7bff9f" opacity="0.7"/>
+      <circle cx="22" cy="110" r="5" fill="#7bff9f" opacity="0.7"/>
+      <circle cx="22" cy="160" r="5" fill="#7bff9f" opacity="0.7"/>
+      <circle cx="22" cy="210" r="5" fill="#7bff9f" opacity="0.7"/>
+      <circle cx="22" cy="280" r="5" fill="#7bff9f" opacity="0.7"/>
+    </svg>
+  </div>
+
+  <div class="hero">
+    <div class="hero-eyebrow">{{EYEBROW}}</div>
+    <h1 class="hero-title">
+      <span class="stack">{{TITLE_LINE_1}}</span>
+      <span class="stack">{{TITLE_LINE_2}}</span>
+    </h1>
+    <div class="hero-sub">{{SUBTITLE_HTML}}</div>
+  </div>
+
+  <div class="foot">
+    <div class="author">
+      <span class="name">{{AUTHOR_NAME}}</span>
+      <span class="dot"></span>
+      <span>{{CHANNEL}}</span>
+    </div>
+    <div class="episode">{{EPISODE_CHIP}}</div>
+  </div>
+
+</div>
+</body>
+</html>
