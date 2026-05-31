@@ -1,0 +1,61 @@
+<!--
+  Template: terminal (横屏族 / horizontal family)
+  风格: 终端黑 - 纯黑 + 等宽荧光字 + 扫描线 + 光标 (CRT / 黑客 / CLI)
+  支持比例: 16:9 (1920×1080, 默认) / 16:10 (1920×1200, 把 --cv-h 改 1200px)
+  适配: YouTube / Bilibili / 横屏短视频 ; 竖屏用 terminal-vertical.html
+  identity test: ①纯黑底 ②全等宽字体 ③绿/琥珀荧光色带 text-shadow glow ④有扫描线 + 命令提示符 + 闪烁光标块
+  换琥珀色: 把 --term 改 #ffb000
+  占位符同其他模板
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" /><meta name="color-scheme" content="dark">
+<title>{{TITLE}} · Cover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#000000;--ink:#d7ffe3;--muted:#3f7a55;
+  --term:#33ff77;--term-dim:#1f7a44;
+  --font-mono:'JetBrains Mono',monospace;--font-zh:'Noto Sans SC',sans-serif;
+  --cv-w:1920px; --cv-h:1080px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--font-mono);-webkit-font-smoothing:antialiased;}
+.cover{width:var(--cv-w);height:var(--cv-h);position:relative;background:var(--bg);overflow:hidden;}
+/* 扫描线 */
+.cover::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg, rgba(51,255,119,.05) 0 2px, transparent 2px 4px);}
+/* 角落微辉 */
+.cover::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(70% 80% at 50% 60%, rgba(51,255,119,.10), transparent 70%);}
+.content{position:relative;z-index:5;padding:84px 96px;height:100%;display:flex;flex-direction:column;justify-content:space-between;}
+.top{display:flex;justify-content:space-between;align-items:center;font-size:24px;letter-spacing:.12em;color:var(--term-dim);}
+.dot{color:var(--term);}
+.hero{flex:1;display:flex;flex-direction:column;justify-content:center;}
+.prompt{font-size:30px;letter-spacing:.05em;color:var(--term);margin-bottom:26px;}
+.prompt .path{color:var(--term-dim);}
+.title{font-weight:800;font-size:228px;line-height:.96;letter-spacing:-.01em;color:var(--term);text-shadow:0 0 28px rgba(51,255,119,.55);}
+.title .stack{display:block;}
+.title .cur{display:inline-block;width:.5em;height:.86em;background:var(--term);vertical-align:-.06em;margin-left:.12em;box-shadow:0 0 22px rgba(51,255,119,.7);}
+.sub{font-family:var(--font-zh);font-weight:500;font-size:50px;line-height:1.2;margin-top:34px;color:var(--ink);}
+.sub::before{content:"// ";color:var(--term-dim);}
+.foot{display:flex;justify-content:space-between;align-items:center;font-size:24px;letter-spacing:.1em;color:var(--muted);}
+.foot .name{font-family:var(--font-zh);color:var(--term);}
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="content">
+    <div class="top"><span>{{KICKER}}</span><span>[ <span class="dot">●</span> {{INDEX}} ]</span></div>
+    <div class="hero">
+      <div class="prompt"><span class="path">vsw@coder</span>:~$ ./{{EYEBROW}}</div>
+      <h1 class="title"><span class="stack">{{TITLE_LINE_1}}</span><span class="stack">{{TITLE_LINE_2}}<span class="cur"></span></span></h1>
+      <div class="sub">{{SUBTITLE_HTML}}</div>
+    </div>
+    <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span><span>{{DATE}}</span></div>
+  </div>
+</div>
+</body>
+</html>

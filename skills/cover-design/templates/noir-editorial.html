@@ -1,0 +1,57 @@
+<!--
+  Template: noir-editorial (横屏族 / horizontal family)
+  风格: 暗调杂志 - 近黑底 + 衬线大标题 + 暖金强调 + 胶片颗粒 (editorial 的暗黑高级版)
+  支持比例: 16:9 (1920×1080, 默认) / 16:10 (1920×1200, 把 --cv-h 改 1200px)
+  适配: YouTube / Bilibili / 横屏短视频 ; 竖屏用 noir-editorial-vertical.html
+  identity test: ①近黑底 (非纯黑) ②大标题用衬线字族 ③恰好一个暖金强调色 (eyebrow / hairline) ④背景有颗粒/纸纹氛围, "越大越细"
+  占位符同其他模板
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" /><meta name="color-scheme" content="dark">
+<title>{{TITLE}} · Cover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Noto+Serif+SC:wght@500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0b09;--ink:#f3ede1;--ink-soft:#bdb4a4;--muted:#7d7565;
+  --gold:#d4af6a;
+  --font-serif:'Playfair Display','Noto Serif SC',serif;--font-zh:'Noto Serif SC',serif;
+  --font-sans:'Inter','Noto Sans SC',sans-serif;--font-mono:'JetBrains Mono',monospace;
+  --cv-w:1920px; --cv-h:1080px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--font-sans);-webkit-font-smoothing:antialiased;}
+.cover{width:var(--cv-w);height:var(--cv-h);position:relative;background:
+  radial-gradient(80% 90% at 30% 20%, #16140f, var(--bg) 70%);overflow:hidden;}
+/* 颗粒 */
+.cover::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");}
+.content{position:relative;z-index:5;padding:84px 100px;height:100%;display:flex;flex-direction:column;justify-content:space-between;}
+.top{display:flex;justify-content:space-between;align-items:center;font-family:var(--font-mono);font-size:23px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);}
+.rule{width:100%;height:1px;background:linear-gradient(90deg,var(--gold),transparent);margin-top:14px;}
+.hero{flex:1;display:flex;flex-direction:column;justify-content:center;max-width:88%;}
+.eyebrow{font-family:var(--font-mono);font-size:25px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:30px;}
+.title{font-family:var(--font-serif);font-weight:500;font-size:252px;line-height:.94;letter-spacing:-.01em;color:var(--ink);}
+.title .stack{display:block;}
+.title .alt{font-style:italic;color:var(--gold);}
+.sub{font-family:var(--font-zh);font-weight:500;font-size:52px;line-height:1.25;margin-top:38px;color:var(--ink-soft);}
+.foot{display:flex;justify-content:space-between;align-items:center;font-family:var(--font-mono);font-size:23px;letter-spacing:.12em;color:var(--muted);}
+.foot .name{font-family:var(--font-zh);color:var(--ink);font-weight:500;}
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="content">
+    <div><div class="top"><span>{{KICKER}}</span><span>№ {{INDEX}}</span></div><div class="rule"></div></div>
+    <div class="hero">
+      <div class="eyebrow">{{EYEBROW}}</div>
+      <h1 class="title"><span class="stack">{{TITLE_LINE_1}}</span><span class="stack alt">{{TITLE_LINE_2}}</span></h1>
+      <div class="sub">{{SUBTITLE_HTML}}</div>
+    </div>
+    <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span><span>{{DATE}}</span></div>
+  </div>
+</div>
+</body>
+</html>

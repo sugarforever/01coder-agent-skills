@@ -1,0 +1,52 @@
+<!--
+  Template: spotlight-vertical (竖屏族 / vertical family)
+  风格: 聚光戏剧光 - 全黑 + 单束聚光 + 强暗角 + 高对比
+  支持比例: 9:16 (1080×1920, 默认) / 3:4 (1080×1440, 把 --cv-h 改 1440px)
+  适配: 抖音 / 视频号 竖屏短视频 ; 横屏用 spotlight.html
+  文字收在中央安全带 (加 body.show-guide 看辅助线)
+  identity test 同 spotlight.html
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" /><meta name="color-scheme" content="dark">
+<title>{{TITLE}} · Cover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Noto+Sans+SC:wght@500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#020203;--ink:#f7f8fa;--ink-soft:#aeb3bd;--muted:#5c606b;--accent:#ffd36b;
+  --font-display:'Archivo','Noto Sans SC',sans-serif;--font-zh:'Noto Sans SC',sans-serif;--font-mono:'JetBrains Mono',monospace;
+  --cv-w:1080px; --cv-h:1920px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--font-display);-webkit-font-smoothing:antialiased;}
+.cover{width:var(--cv-w);height:var(--cv-h);position:relative;background:var(--bg);overflow:hidden;}
+.cover::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(44% 34% at 50% 45%, rgba(255,243,216,.34), rgba(255,236,196,.10) 40%, transparent 64%);}
+.cover::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(58% 48% at 50% 45%, transparent 30%, rgba(0,0,0,.93) 92%);}
+.content{position:relative;z-index:5;padding:90px 78px;height:100%;display:flex;flex-direction:column;justify-content:center;}
+.top{position:absolute;top:90px;left:78px;right:78px;display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:25px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);}
+.eyebrow{font-family:var(--font-mono);font-size:27px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);margin-bottom:30px;}
+.title{font-weight:900;font-size:262px;line-height:.92;letter-spacing:-.03em;color:#ffffff;text-shadow:0 0 90px rgba(255,238,205,.5),0 0 30px rgba(255,240,210,.35);}
+.title .stack{display:block;}
+.title .alt{color:var(--accent);text-shadow:0 0 90px rgba(255,211,107,.5),0 0 28px rgba(255,211,107,.4);}
+.sub{font-family:var(--font-zh);font-weight:500;font-size:56px;line-height:1.22;margin-top:38px;color:var(--ink-soft);}
+.foot{position:absolute;bottom:90px;left:78px;right:78px;display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:25px;letter-spacing:.12em;color:var(--muted);}
+.foot .name{font-family:var(--font-zh);color:var(--ink);font-weight:500;}
+.guide{position:absolute;left:40px;right:40px;top:228px;bottom:228px;border:2px dashed rgba(255,120,120,.7);display:none;z-index:9;}
+body.show-guide .guide{display:block;}
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="top"><span>{{KICKER}}</span><span>{{INDEX}}</span></div>
+  <div class="content">
+    <div class="eyebrow">{{EYEBROW}}</div>
+    <h1 class="title"><span class="stack">{{TITLE_LINE_1}}</span><span class="stack alt">{{TITLE_LINE_2}}</span></h1>
+    <div class="sub">{{SUBTITLE_HTML}}</div>
+  </div>
+  <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span><span>{{DATE}}</span></div>
+  <div class="guide"></div>
+</div>
+</body>
+</html>

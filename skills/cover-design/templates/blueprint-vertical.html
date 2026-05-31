@@ -1,0 +1,65 @@
+<!--
+  Template: blueprint-vertical (竖屏族 / vertical family)
+  风格: 深蓝图 - 深藏青底 + 白色网格/线稿 + 等宽标注
+  支持比例: 9:16 (1080×1920, 默认) / 3:4 (1080×1440, 把 --cv-h 改 1440px)
+  适配: 抖音 / 视频号 竖屏短视频 ; 横屏用 blueprint.html
+  文字收在中央安全带 (加 body.show-guide 看辅助线)
+  identity test 同 blueprint.html
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" /><meta name="color-scheme" content="dark">
+<title>{{TITLE}} · Cover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+SC:wght@500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a1f3c;--bg2:#0c2546;--ink:#eaf2ff;--ink-soft:#a9c2e6;--muted:#5f7aa6;
+  --line:rgba(160,200,255,.16);--line-strong:rgba(160,200,255,.4);--accent:#7fd3ff;
+  --font-display:'Inter','Noto Sans SC',sans-serif;--font-zh:'Noto Sans SC',sans-serif;--font-mono:'JetBrains Mono',monospace;
+  --cv-w:1080px; --cv-h:1920px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--font-display);-webkit-font-smoothing:antialiased;}
+.cover{width:var(--cv-w);height:var(--cv-h);position:relative;overflow:hidden;background:linear-gradient(160deg,var(--bg2),var(--bg));}
+.cover::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:
+   linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px),
+   linear-gradient(var(--line-strong) 1.5px,transparent 1.5px),linear-gradient(90deg,var(--line-strong) 1.5px,transparent 1.5px);
+  background-size:48px 48px,48px 48px,240px 240px,240px 240px;}
+/* 中央压暗，把网格从标题区域擦掉，托住文字 */
+.cover::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(70% 42% at 50% 50%, rgba(7,20,40,.92) 0%, rgba(7,20,40,.72) 48%, transparent 80%);}
+.content{position:relative;z-index:5;padding:90px 76px;height:100%;display:flex;flex-direction:column;justify-content:center;}
+.top{position:absolute;top:90px;left:76px;right:76px;display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:25px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);}
+.eyebrow{font-family:var(--font-mono);font-size:26px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:26px;}
+.eyebrow::before{content:"⌖ ";color:var(--accent);}
+.title{font-weight:800;font-size:252px;line-height:.94;letter-spacing:-.02em;color:var(--ink);}
+.title .stack{display:block;}
+.title .alt{color:var(--accent);}
+.sub{font-family:var(--font-zh);font-weight:500;font-size:52px;line-height:1.25;margin-top:34px;color:var(--ink-soft);}
+.dimline{display:flex;align-items:center;gap:14px;margin-top:28px;color:var(--muted);font-family:var(--font-mono);font-size:24px;letter-spacing:.1em;}
+.dimline .bar{flex:1;height:1px;background:var(--line-strong);position:relative;}
+.dimline .bar::before,.dimline .bar::after{content:"";position:absolute;top:-5px;width:1px;height:11px;background:var(--line-strong);}
+.dimline .bar::before{left:0;}.dimline .bar::after{right:0;}
+.foot{position:absolute;bottom:90px;left:76px;right:76px;display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:25px;letter-spacing:.1em;color:var(--muted);}
+.foot .name{font-family:var(--font-zh);color:var(--ink);font-weight:500;}
+.guide{position:absolute;left:40px;right:40px;top:228px;bottom:228px;border:2px dashed rgba(255,120,120,.7);display:none;z-index:9;}
+body.show-guide .guide{display:block;}
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="top"><span>{{KICKER}}</span><span>REV {{INDEX}}</span></div>
+  <div class="content">
+    <div class="eyebrow">{{EYEBROW}}</div>
+    <h1 class="title"><span class="stack">{{TITLE_LINE_1}}</span><span class="stack alt">{{TITLE_LINE_2}}</span></h1>
+    <div class="sub">{{SUBTITLE_HTML}}</div>
+    <div class="dimline"><span>SCALE 1:1</span><span class="bar"></span><span>{{DATE}}</span></div>
+  </div>
+  <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span><span>DWG · {{INDEX}}</span></div>
+  <div class="guide"></div>
+</div>
+</body>
+</html>

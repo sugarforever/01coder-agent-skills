@@ -1,0 +1,54 @@
+<!--
+  Template: editorial (横屏族 / horizontal family)
+  风格: 杂志风 - 暖纸底 + 衬线大标题 + 安静无衬线正文 + 氛围背景(纸纹/墨晕) + 细线分栏/pull quote
+  支持比例: 16:9 (1920×1080, 默认) / 16:10 (1920×1200, 把 --cv-h 改 1200px)
+  适配: YouTube / Bilibili / 横屏短视频 ; 竖屏用 editorial-vertical.html
+  identity test: ①大标题用衬线字族 ②背景有氛围层(grain/纸纹/墨色),非纯平色 ③越大越细(display ~500 + 宽字距) ④有杂志感元素(栏线/引文/页眉 ledger)
+  占位符同其他模板
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" /><meta name="color-scheme" content="light">
+<title>{{TITLE}} · Cover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500&family=Noto+Serif+SC:wght@500;600&family=Noto+Sans+SC:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ece6da;--ink:#1c1a17;--ink-soft:#5c574e;--line:#b3ac9e;--accent:#7a2e1e;
+  --font-serif:'Playfair Display','Noto Serif SC',serif;
+  --font-serif-zh:'Noto Serif SC',serif;
+  --font-sans:'Inter','Noto Sans SC',sans-serif;
+  --cv-w:1920px; --cv-h:1080px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--font-sans);-webkit-font-smoothing:antialiased;}
+.cover{width:var(--cv-w);height:var(--cv-h);position:relative;background:var(--bg);overflow:hidden;padding:80px 104px;display:flex;flex-direction:column;}
+/* 氛围层: 墨晕 + grain */
+.cover::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 1200px 700px at 75% 25%, rgba(122,46,30,0.10), transparent 60%),radial-gradient(ellipse 900px 600px at 10% 90%, rgba(28,26,23,0.10), transparent 60%);pointer-events:none;}
+.cover::after{content:"";position:absolute;inset:0;opacity:.5;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");}
+.ledger{position:relative;z-index:5;display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--ink);padding-bottom:18px;font-family:var(--font-sans);font-size:24px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink);}
+.ledger .index{color:var(--ink-soft);letter-spacing:.16em;}
+.hero{position:relative;z-index:5;flex:1;display:flex;flex-direction:column;justify-content:center;max-width:80%;}
+.eyebrow{font-family:var(--font-sans);font-size:26px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:30px;}
+.title{font-family:var(--font-serif);font-weight:500;font-size:228px;line-height:.94;letter-spacing:.005em;color:var(--ink);}
+.title .stack{display:block;}
+.title .alt{font-style:italic;color:var(--accent);}
+.sub{font-family:var(--font-serif-zh);font-weight:500;font-size:58px;line-height:1.3;margin-top:36px;color:var(--ink);max-width:90%;}
+.sub .mark{color:var(--accent);border-bottom:3px solid var(--accent);}
+.foot{position:relative;z-index:5;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:22px;font-family:var(--font-sans);font-size:24px;color:var(--ink-soft);letter-spacing:.04em;}
+.foot .name{color:var(--ink);font-weight:500;}
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="ledger"><span>{{KICKER}}</span><span class="index">{{INDEX}}</span></div>
+  <div class="hero">
+    <div class="eyebrow">{{EYEBROW}}</div>
+    <h1 class="title"><span class="stack">{{TITLE_LINE_1}}</span><span class="stack alt">{{TITLE_LINE_2}}</span></h1>
+    <div class="sub">{{SUBTITLE_HTML}}</div>
+  </div>
+  <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span><span>{{DATE}}</span></div>
+</div>
+</body>
+</html>

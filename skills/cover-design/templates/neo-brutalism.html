@@ -1,0 +1,57 @@
+<!--
+  Template: neo-brutalism (横屏族 / horizontal family)
+  风格: 新粗野 - 高饱和撞色 + 粗黑描边 + 硬阴影(无模糊) + 圆角块
+  支持比例: 16:9 (1920×1080, 默认) / 16:10 (1920×1200, 把 --cv-h 改 1200px)
+  适配平台: YouTube / Bilibili / 横屏短视频 ; 竖屏用 neo-brutalism-vertical.html
+  identity test: ①主元素 ≥4px 纯黑 border ②阴影是 Npx Npx 0 #000 (硬,无 blur) ③≥2 高饱和色块 ④无渐变/无柔阴影
+  占位符: {{KICKER}} {{INDEX}} {{TITLE_LINE_1}} {{TITLE_LINE_2}} {{SUBTITLE_HTML}} {{AUTHOR_NAME}} {{CHANNEL}} {{DATE}}
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" /><meta name="color-scheme" content="light">
+<title>{{TITLE}} · Cover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&family=Noto+Sans+SC:wght@500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ffe14d;            /* 高饱和黄底，可换 #ff5ea8 粉 / #4d8cff 蓝 */
+  --panel:#ffffff;
+  --ink:#111111;
+  --accent:#ff4d2e;        /* 第二撞色 */
+  --accent2:#2e6bff;
+  --font-display:'Archivo','Noto Sans SC',sans-serif;
+  --font-zh:'Noto Sans SC',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --cv-w:1920px; --cv-h:1080px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--font-display);-webkit-font-smoothing:antialiased;}
+.cover{width:var(--cv-w);height:var(--cv-h);position:relative;background:var(--bg);overflow:hidden;padding:88px 96px;display:flex;flex-direction:column;gap:40px;}
+.top{display:flex;justify-content:space-between;align-items:stretch;gap:24px;}
+.kicker{background:var(--ink);color:#fff;font-family:var(--font-mono);font-weight:700;font-size:28px;letter-spacing:.14em;text-transform:uppercase;padding:16px 28px;border:5px solid var(--ink);box-shadow:10px 10px 0 var(--accent2);}
+.index{background:var(--panel);font-family:var(--font-mono);font-weight:700;font-size:26px;letter-spacing:.1em;text-transform:uppercase;padding:16px 28px;border:5px solid var(--ink);box-shadow:10px 10px 0 var(--ink);}
+.hero{flex:1;display:flex;flex-direction:column;justify-content:center;}
+.eyebrow{display:inline-block;align-self:flex-start;background:var(--accent);color:#fff;font-family:var(--font-mono);font-weight:700;font-size:26px;letter-spacing:.1em;text-transform:uppercase;padding:10px 20px;border:4px solid var(--ink);margin-bottom:32px;}
+.title{font-weight:900;font-size:248px;line-height:.86;letter-spacing:-.03em;text-transform:lowercase;color:var(--ink);text-shadow:8px 8px 0 var(--accent);}
+.title .stack{display:block;}
+.title .alt{color:var(--panel);-webkit-text-stroke:6px var(--ink);text-shadow:8px 8px 0 var(--accent2);}
+.sub{align-self:flex-start;margin-top:40px;background:var(--panel);font-family:var(--font-zh);font-weight:700;font-size:58px;line-height:1.1;color:var(--ink);padding:18px 28px;border:5px solid var(--ink);box-shadow:12px 12px 0 var(--ink);}
+.sub .mark{color:var(--accent);}
+.foot{display:flex;justify-content:space-between;align-items:center;background:var(--ink);color:#fff;font-family:var(--font-mono);font-weight:700;font-size:24px;letter-spacing:.08em;padding:18px 28px;border:5px solid var(--ink);}
+.foot .name{font-family:var(--font-zh);}
+.foot .accent{color:var(--bg);}
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="top"><div class="kicker">{{KICKER}}</div><div class="index">{{INDEX}}</div></div>
+  <div class="hero">
+    <div class="eyebrow">{{EYEBROW}}</div>
+    <h1 class="title"><span class="stack">{{TITLE_LINE_1}}</span><span class="stack alt">{{TITLE_LINE_2}}</span></h1>
+    <div class="sub">{{SUBTITLE_HTML}}</div>
+  </div>
+  <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span><span class="accent">{{DATE}}</span></div>
+</div>
+</body>
+</html>

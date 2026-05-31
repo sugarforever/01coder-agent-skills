@@ -1,0 +1,48 @@
+<!--
+  Template: brutalism (横屏族 / horizontal family)
+  风格: 粗野 - 白底 + 系统/等宽字体 + 硬黑边框 + 刻意未加工排版 + 裸链接感
+  支持比例: 16:9 (1920×1080, 默认) / 16:10 (1920×1200, 把 --cv-h 改 1200px)
+  适配: YouTube / Bilibili / 横屏短视频 ; 竖屏用 brutalism-vertical.html
+  identity test: ①系统默认/等宽字体(不加载花哨 web font) ②硬边框/无圆角/无阴影 ③高对比黑白为主, 强调色至多一个且生硬 ④排版刻意朴素
+  占位符同其他模板
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" /><meta name="color-scheme" content="light">
+<title>{{TITLE}} · Cover</title>
+<style>
+:root{
+  --bg:#ffffff;--ink:#000000;--accent:#ff2200;
+  --font-mono:ui-monospace,'Courier New',Courier,monospace;
+  --font-sys:-apple-system,'Helvetica Neue',Arial,'PingFang SC','Microsoft YaHei',sans-serif;
+  --cv-w:1920px; --cv-h:1080px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--font-sys);}
+.cover{width:var(--cv-w);height:var(--cv-h);position:relative;background:var(--bg);overflow:hidden;padding:64px;border:8px solid var(--ink);display:flex;flex-direction:column;}
+.top{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:26px;text-transform:uppercase;border-bottom:3px solid var(--ink);padding-bottom:20px;letter-spacing:.04em;}
+.top .index{text-decoration:underline;text-underline-offset:6px;}
+.hero{flex:1;display:flex;flex-direction:column;justify-content:center;}
+.eyebrow{font-family:var(--font-mono);font-size:28px;text-transform:uppercase;margin-bottom:24px;background:var(--ink);color:var(--bg);display:inline-block;align-self:flex-start;padding:6px 14px;letter-spacing:.06em;}
+.title{font-family:var(--font-mono);font-weight:700;font-size:236px;line-height:.9;letter-spacing:-.02em;text-transform:uppercase;color:var(--ink);}
+.title .stack{display:block;}
+.title .alt{color:var(--accent);}
+.sub{font-family:var(--font-sys);font-weight:700;font-size:60px;line-height:1.1;margin-top:36px;color:var(--ink);}
+.sub .mark{text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:8px;text-underline-offset:4px;}
+.foot{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:24px;text-transform:uppercase;border-top:3px solid var(--ink);padding-top:20px;letter-spacing:.04em;}
+.foot .name{font-family:var(--font-sys);font-weight:700;}
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="top"><span>{{KICKER}}</span><span class="index">{{INDEX}}</span></div>
+  <div class="hero">
+    <div class="eyebrow">{{EYEBROW}}</div>
+    <h1 class="title"><span class="stack">{{TITLE_LINE_1}}</span><span class="stack alt">{{TITLE_LINE_2}}</span></h1>
+    <div class="sub">{{SUBTITLE_HTML}}</div>
+  </div>
+  <div class="foot"><span class="name">{{AUTHOR_NAME}} / {{CHANNEL}}</span><span>{{DATE}}</span></div>
+</div>
+</body>
+</html>

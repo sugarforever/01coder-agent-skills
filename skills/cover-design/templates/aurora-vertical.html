@@ -1,0 +1,62 @@
+<!--
+  Template: aurora-vertical (竖屏族 / vertical family)
+  风格: 极光渐变 - 深底 + 多彩光晕
+  支持比例: 9:16 (1080×1920, 默认) / 3:4 (1080×1440, 把 --cv-h 改 1440px)
+  适配: 抖音 / 视频号 ; 文字收在中央安全带, body.show-guide 看显示带
+  identity test 同 aurora.html
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" /><meta name="color-scheme" content="dark">
+<title>{{TITLE}} · Cover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05060a;--ink:#f3f5fa;--ink-soft:#aab3c5;--muted:#6b7488;
+  --a1:#5b8cff;--a2:#9b5bff;--a3:#33e0d0;--accent:#8aa0ff;
+  --font-display:'Inter','Noto Sans SC',sans-serif;--font-zh:'Noto Sans SC',sans-serif;--font-mono:'JetBrains Mono',monospace;
+  --cv-w:1080px; --cv-h:1920px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--font-display);-webkit-font-smoothing:antialiased;}
+.cover{width:var(--cv-w);height:var(--cv-h);position:relative;background:var(--bg);overflow:hidden;}
+.cover::before{content:"";position:absolute;inset:0;background:
+  radial-gradient(45% 30% at 20% 22%, rgba(91,140,255,0.55), transparent 60%),
+  radial-gradient(45% 28% at 84% 38%, rgba(155,91,255,0.45), transparent 60%),
+  radial-gradient(55% 32% at 55% 82%, rgba(51,224,208,0.32), transparent 60%);
+  filter:blur(8px);pointer-events:none;}
+.cover::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.04) 1px,transparent 1px);background-size:80px 80px;mask-image:radial-gradient(ellipse 80% 70% at 50% 50%,#000 40%,transparent 78%);pointer-events:none;}
+.content{position:relative;z-index:5;padding:170px 76px;height:100%;display:flex;flex-direction:column;}
+.top{display:flex;justify-content:space-between;align-items:center;}
+.kicker{font-family:var(--font-mono);font-size:24px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);}
+.index{font-family:var(--font-mono);font-size:22px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+.hero{flex:1;display:flex;flex-direction:column;justify-content:center;}
+.eyebrow{font-family:var(--font-mono);font-size:25px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:28px;}
+.title{font-weight:500;font-size:212px;line-height:.92;letter-spacing:-.035em;text-transform:lowercase;color:var(--ink);}
+.title .stack{display:block;}
+.title .alt{background:linear-gradient(110deg,var(--a1),var(--a2) 45%,var(--a3));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.sub{font-family:var(--font-zh);font-weight:500;font-size:62px;line-height:1.18;margin-top:36px;color:var(--ink-soft);}
+.sub .mark{color:var(--ink);font-weight:700;}
+.foot{display:flex;justify-content:space-between;align-items:center;font-family:var(--font-mono);font-size:24px;letter-spacing:.08em;color:var(--muted);}
+.foot .name{font-family:var(--font-zh);color:var(--ink);font-weight:500;}
+.guide{display:none;position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:1464px;border:2px dashed var(--a3);z-index:60;pointer-events:none;}
+body.show-guide .guide{display:block;}
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="guide"></div>
+  <div class="content">
+    <div class="top"><div class="kicker">{{KICKER}}</div><div class="index">{{INDEX}}</div></div>
+    <div class="hero">
+      <div class="eyebrow">{{EYEBROW}}</div>
+      <h1 class="title"><span class="stack">{{TITLE_LINE_1}}</span><span class="stack alt">{{TITLE_LINE_2}}</span></h1>
+      <div class="sub">{{SUBTITLE_HTML}}</div>
+    </div>
+    <div class="foot"><span class="name">{{AUTHOR_NAME}}</span><span>{{CHANNEL}}</span></div>
+  </div>
+</div>
+</body>
+</html>

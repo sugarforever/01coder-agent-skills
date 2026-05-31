@@ -1,0 +1,170 @@
+<!--
+  Template: swiss (横屏族 / horizontal family)
+  风格: 瑞士国际主义 - 网格 + 极轻大字 + 单一强调色 + 1px 细线，无圆角/阴影/渐变
+  支持比例: 16:9 (1920×1080, 默认) / 16:10 (1920×1200, 把 --cv-h 改 1200px)
+  适配平台: YouTube (16:9) · Bilibili (16:10) · 横屏短视频
+  竖屏 (9:16 / 3:4) 用 swiss-vertical.html
+
+  When to use:
+    - 技术解读 / 评测 / 数据类，想要冷静、专业、信息感强的封面
+    - 跟 hero-typography 的「黑底霓虹」相反 - 这是浅底、克制、编辑设计感
+  核心铁律 (Swiss identity):
+    - 大标题字重 ≤ 300 (越大越细)，小标签字重才加粗
+    - 只用一个强调色 (--accent)，不混多色
+    - 分隔用 1-2px 细线 (hairline)，不用卡片/阴影/圆角
+    - 左对齐 + 非对称留白
+
+  Customization points:
+    1. CSS :root - --accent 换强调色；--cv-h 切 16:9 / 16:10
+    2. .kicker     - 顶部小标签 (来源 / 系列)
+    3. .index      - 顶部右编号 (如 "NOTE / 03")
+    4. .title      - 主标题大字 (英文小写，weight 极轻)
+    5. .sub        - 中文副标 (一句话点题)
+    6. .meta-*     - 底部三栏 meta (作者 / 主题 / 日期)
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="color-scheme" content="light">
+<title>{{TITLE}} · Cover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:           #f4f3ee;   /* warm off-white paper */
+  --ink:          #111111;
+  --ink-soft:     #555555;
+  --line:         #c9c7bd;   /* hairline grey */
+  --accent:       #0a1cff;   /* IKB Klein blue - 可换 safety orange #ff5a1f / lemon green #b6ff3b */
+  --font-display: 'Inter', 'Noto Sans SC', sans-serif;
+  --font-zh:      'Noto Sans SC', 'Inter', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+  /* 16:9 默认；16:10 把 --cv-h 改 1200px */
+  --cv-w:         1920px;
+  --cv-h:         1080px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--ink); font-family: var(--font-display); -webkit-font-smoothing: antialiased; }
+
+.cover {
+  width: var(--cv-w);
+  height: var(--cv-h);
+  position: relative;
+  background: var(--bg);
+  overflow: hidden;
+  padding: 96px 112px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 顶部行：kicker + index，下方一条 hairline */
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 28px;
+  border-bottom: 2px solid var(--ink);
+}
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 26px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink);
+  font-weight: 500;
+}
+.kicker .dot { color: var(--accent); }
+.index {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* 主体：左对齐 hero，垂直居中偏上 */
+.body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 28px;
+  font-weight: 500;
+}
+.title {
+  font-family: var(--font-display);
+  font-weight: 300;          /* 越大越细 */
+  font-size: 280px;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  text-transform: lowercase;
+}
+.title .stack { display: block; }
+.title .accent { color: var(--accent); }
+.sub {
+  font-family: var(--font-zh);
+  font-weight: 500;
+  font-size: 64px;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  margin-top: 40px;
+  max-width: 80%;
+}
+.sub .mark {
+  color: var(--bg);
+  background: var(--accent);
+  padding: 0 0.18em;
+}
+
+/* 底部三栏 meta，上方一条 hairline */
+.foot {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 24px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 22px;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+}
+.foot .label { text-transform: uppercase; font-size: 18px; letter-spacing: 0.18em; color: var(--ink-soft); display: block; margin-bottom: 8px; }
+.foot .val { color: var(--ink); font-weight: 500; font-size: 26px; letter-spacing: 0.02em; }
+.foot .right { text-align: right; }
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="top">
+    <div class="kicker">{{KICKER}}</div>
+    <div class="index">{{INDEX}}</div>
+  </div>
+
+  <div class="body">
+    <div class="eyebrow">{{EYEBROW}}</div>
+    <h1 class="title">
+      <span class="stack">{{TITLE_LINE_1}}</span>
+      <span class="stack accent">{{TITLE_LINE_2}}</span>
+    </h1>
+    <div class="sub">{{SUBTITLE_HTML}}</div>
+  </div>
+
+  <div class="foot">
+    <div><span class="label">Author</span><span class="val">{{AUTHOR_NAME}}</span></div>
+    <div><span class="label">Channel</span><span class="val">{{CHANNEL}}</span></div>
+    <div class="right"><span class="label">Date</span><span class="val">{{DATE}}</span></div>
+  </div>
+</div>
+</body>
+</html>

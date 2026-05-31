@@ -1,0 +1,115 @@
+<!--
+  Template: swiss-vertical (竖屏族 / vertical family)
+  风格: 瑞士国际主义 - 网格 + 极轻大字 + 单一强调色 + 1px 细线
+  支持比例: 9:16 (1080×1920, 默认) / 3:4 (1080×1440, 把 --cv-h 改 1440px)
+  适配平台: 抖音 / 视频号 竖屏封面
+
+  安全区: 抖音/视频号首尾会叠 UI 或被裁。这里用 flex 把内容压在中央纵向带里，
+  顶部 kicker、底部 meta 都留足边距 (padding 上下各 ≥160px)。
+  设计时给 <body> 加 class="show-guide" 看 ~1080×1464 显示带；最终渲染去掉。
+
+  核心铁律同 swiss.html：大标题字重 ≤300、单一强调色、1px 细线、无圆角/阴影/渐变。
+  Render: 见 references/render-pipeline.md
+    9:16 → window-size 1080×1940；3:4 → 改 --cv-h:1440px, window-size 1080×1460
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="color-scheme" content="light">
+<title>{{TITLE}} · Cover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:           #f4f3ee;
+  --ink:          #111111;
+  --ink-soft:     #555555;
+  --line:         #c9c7bd;
+  --accent:       #0a1cff;
+  --font-display: 'Inter', 'Noto Sans SC', sans-serif;
+  --font-zh:      'Noto Sans SC', 'Inter', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+  /* 9:16 默认；3:4 把 --cv-h 改 1440px */
+  --cv-w:         1080px;
+  --cv-h:         1920px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--ink); font-family: var(--font-display); -webkit-font-smoothing: antialiased; }
+
+.cover {
+  width: var(--cv-w);
+  height: var(--cv-h);
+  position: relative;
+  background: var(--bg);
+  overflow: hidden;
+  padding: 180px 80px;
+  display: flex;
+  flex-direction: column;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 24px;
+  border-bottom: 2px solid var(--ink);
+}
+.kicker { font-family: var(--font-mono); font-size: 26px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink); font-weight: 500; }
+.kicker .dot { color: var(--accent); }
+.index { font-family: var(--font-mono); font-size: 24px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-soft); }
+
+.body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.eyebrow { font-family: var(--font-mono); font-size: 28px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin-bottom: 28px; font-weight: 500; }
+.title { font-family: var(--font-display); font-weight: 300; font-size: 220px; line-height: 0.94; letter-spacing: -0.03em; color: var(--ink); text-transform: lowercase; }
+.title .stack { display: block; }
+.title .accent { color: var(--accent); }
+.sub { font-family: var(--font-zh); font-weight: 500; font-size: 66px; line-height: 1.22; letter-spacing: 0.01em; color: var(--ink); margin-top: 40px; }
+.sub .mark { color: var(--bg); background: var(--accent); padding: 0 0.18em; }
+
+.foot {
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: var(--font-mono);
+  font-size: 24px;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+}
+.foot .val { color: var(--ink); font-weight: 500; font-family: var(--font-zh); }
+
+/* 设计辅助线 - body.show-guide 显示 ~1080×1464 抖音显示带 */
+.guide { display: none; position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); height: 1464px; border: 2px dashed var(--accent); z-index: 50; pointer-events: none; }
+body.show-guide .guide { display: block; }
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="guide"></div>
+  <div class="top">
+    <div class="kicker">{{KICKER}}</div>
+    <div class="index">{{INDEX}}</div>
+  </div>
+  <div class="body">
+    <div class="eyebrow">{{EYEBROW}}</div>
+    <h1 class="title">
+      <span class="stack">{{TITLE_LINE_1}}</span>
+      <span class="stack accent">{{TITLE_LINE_2}}</span>
+    </h1>
+    <div class="sub">{{SUBTITLE_HTML}}</div>
+  </div>
+  <div class="foot">
+    <span class="val">{{AUTHOR_NAME}}</span>
+    <span>{{CHANNEL}}</span>
+  </div>
+</div>
+</body>
+</html>

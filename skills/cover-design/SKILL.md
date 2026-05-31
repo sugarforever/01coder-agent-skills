@@ -57,7 +57,7 @@ description: Design typography-driven video cover images using HTML/CSS + Chrome
 
 每种风格落地为一个 HTML 模板,所有可变内容(主标题、副标、accent 色、作者署名等)通过 CSS 变量或文本占位符暴露。新增风格 = 新增一个模板,不动 skill 主流程。
 
-可用模板见 `templates/` 目录。当前只有 `hero-typography`,后续会补 bento、split、editorial 等。
+可用模板见 `templates/` 目录，每个风格一对（横屏 + 竖屏）。当前有 13 个风格（见 Step 2 列表），风格目录与扩展规格见 `references/design-styles.md`。
 
 ### 3. 固定像素画布 + 浏览器陷阱
 
@@ -75,8 +75,9 @@ description: Design typography-driven video cover images using HTML/CSS + Chrome
 4. **品牌信息** - 频道名 / 作者名 / 日期 (可读 auto memory 的 `video-promo.md`)
 5. **强调色** - 默认 lime `#7bff9f`,可换 (可选)
 6. **背景** - 默认纯黑 `#000`,可换 (可选)
-7. **额外元素** - 比如版本号、tagline、装饰图形 (可选)
-8. **输出路径** - 默认输出到视频目录,文件名带比例后缀 (`cover-16x9.html/.png` 等)
+7. **品牌 logo** - 要不要带某个模型/产品/厂商的官方 logo (Claude / OpenAI / Gemini / DeepSeek / Ollama……)?来源是 `@lobehub/icons`,取图标和放置见 `references/brand-logos.md` (可选)
+8. **额外元素** - 比如版本号、tagline、装饰图形 (可选)
+9. **输出路径** - 默认输出到视频目录,文件名带比例后缀 (`cover-16x9.html/.png` 等)
 
 如果用户给了文章 / 脚本路径,先 Read 抽取主标题和副标题,再确认。
 
@@ -84,15 +85,28 @@ description: Design typography-driven video cover images using HTML/CSS + Chrome
 
 根据 Step 1 要的比例选模板族:
 
-- 要横屏 (16:9 / 16:10) → `hero-typography`(横屏族)
-- 要竖屏 (9:16 / 3:4) → `hero-typography-vertical`(竖屏族)
-- 两个都要 → 两个模板各做一版,共享同一套标题 / 副标 / 品牌信息
+先按朝向选模板族，再按风格选具体模板（每个风格都有横屏 + 竖屏两版）:
 
-当前可用:
-- **`hero-typography`**(横屏) - 大字 hero + 两侧 fan-out 节点 + 顶/底品牌行。技术解读 / 概念 / 新功能发布。
-- **`hero-typography-vertical`**(竖屏) - 大字 hero 垂直居中 + 安全区。抖音 / 视频号短视频封面。
+- 要横屏 (16:9 / 16:10) → `{style}.html`
+- 要竖屏 (9:16 / 3:4) → `{style}-vertical.html`
+- 两个都要 → 两版各做一份,共享同一套标题 / 副标 / 品牌信息
 
-未来可能添加:bento、split、editorial、photo-overlay 等。
+当前可用风格（每个都有横屏 `{style}.html` + 竖屏 `{style}-vertical.html`）:
+- **`hero-typography`** - 黑底霓虹大字 + fan-out 节点。技术解读 / 新功能发布，强视觉钩子。
+- **`swiss`** - 瑞士国际主义：暖纸底 + 网格 + 极轻大字 + 单一强调色 + 1px 细线。冷静专业，技术拆解 / 评测 / 数据。
+- **`neo-brutalism`** - 新粗野：高饱和撞色 + 粗黑描边 + 硬阴影 + 圆角块。玩味醒目，产品发布 / 工具类。
+- **`bauhaus`** - 包豪斯：米白底 + 红黄蓝几何色块 + 粗网格。经典感，设计 / 理论 / 艺术类。
+- **`editorial`** - 杂志风：暖纸底 + 衬线大标题 + 氛围背景 + 细线引文。有质感，观点 / 深度长文 / 人物。
+- **`brutalism`** - 粗野：白底 + 系统/等宽字体 + 硬黑边框 + 刻意朴素。黑客 / 独立开发 / 逆向工程气质。
+- **`aurora`** - 极光渐变：深底 + 多彩光晕 + 通透细字。AI / SaaS / 现代科技，当下感最强。
+- **`glass-dark`** - 深色玻璃拟态：深底 + 背后柔光 + 磨砂玻璃面板。AI / 产品 / 现代科技，通透高级。
+- **`terminal`** - 终端黑：纯黑 + 等宽荧光 + 扫描线 + 光标。CLI / 开发 / 黑客 / 逆向。
+- **`noir-editorial`** - 暗调杂志：近黑 + 衬线大标题 + 暖金强调 + 颗粒。观点 / 深度 / 人物。
+- **`spotlight`** - 聚光戏剧光：全黑 + 单束聚光 + 强暗角 + 高对比。发布 / 悬念 / 重磅。
+- **`blueprint`** - 深蓝图：深藏青 + 白色网格线稿 + 等宽标注。架构 / 原理 / 技术拆解。
+- **`holographic`** - 暗调全息：深底 + 油膜虹彩大字 + 全息箔 + 噪点。前沿 / 概念 / 潮流科技。
+
+每个风格的视觉锚点、identity test、适用场景见 `references/design-styles.md`。
 
 ### Step 3 · 定制内容
 
@@ -109,10 +123,25 @@ description: Design typography-driven video cover images using HTML/CSS + Chrome
 | `.foot .episode` | 底部右侧 chip |
 | `--accent` (CSS var) | 强调色 |
 | `--bg` (CSS var) | 背景色 |
+| 品牌 logo (可选) | 顶部品牌行 / 标题前 lockup / 角标，来源 `@lobehub/icons`，做法见下「品牌 Logo」节 |
 
 两个模板族共享上面这套占位符（竖屏族没有侧边 `.nodes` 和 `.episode`，其余一致）。**竖屏族**：所有文字已在 `.safe` 列里垂直居中，落在安全带内，不要把文字往画布上下边缘挪。
 
 用 `Write` 工具把定制后的 HTML 写到输出路径（与最终 PNG 同目录）。横屏一版、竖屏一版分别写。
+
+#### 品牌 Logo（@lobehub/icons）
+
+用户要带某个模型/产品/厂商 logo 时（讲 Claude、OpenAI、Gemini、DeepSeek、Ollama 等），从 **[@lobehub/icons](https://lobehub.com/icons)** 取官方 logo 融进模板。**完整说明（CDN URL、变体、放法、避坑、identity test）见 `references/brand-logos.md`**，要点:
+
+1. **取图标**：跑 helper 下载到封面同目录的 `assets/`（离线可渲染，最稳）:
+   ```bash
+   scripts/fetch-brand-icon.sh claude color svg ./assets   # 官方配色
+   scripts/fetch-brand-icon.sh openai mono  svg ./assets   # 单色，可 CSS 重新着色
+   ```
+   也可直接引 CDN：`https://unpkg.com/@lobehub/icons-static-svg@latest/icons/{id}.svg`（快速预览用）。
+2. **选变体**：要官方配色用 `color`；要跟封面同色系用 `mono`（`fill=currentColor`，内联后父级 `color` 着色）。注意不是每个 id 都有 `-color`，脚本会自动回退 mono。
+3. **放置**：首选**内联 SVG**（可着色、最清晰），放顶部品牌行（`hero-typography`/`swiss` 是 `.topbar .tag`；其余风格是 `.top .kicker`）旁，或标题前做 lockup，或角标。**深色底别用 mono `<img>`（会变黑看不见），用 `color` 变体或内联着色。**
+4. logo 是辅助识别，标题仍是第一焦点 - 缩到 160px 要先看到标题。
 
 ### Step 4 · 渲染成 PNG（每个比例一张）
 
@@ -180,3 +209,4 @@ description: Design typography-driven video cover images using HTML/CSS + Chrome
 5. **不替 cover-image 做事** - 用户要插画 / AI 生图,转 `cover-image` skill,本 skill 只做代码驱动的排版型封面
 6. **不自动发布** - 只产 PNG,不动用户的发布渠道
 7. **品牌信息从 auto memory** - 频道名 / 作者名优先读 `video-promo.md`,首次没有再问用户
+8. **品牌 logo 用官方来源** - 需要模型/产品/厂商 logo 时从 `@lobehub/icons` 取(见 `references/brand-logos.md` + `scripts/fetch-brand-icon.sh`),不要手搓或随便找网图;深色底别用 mono `<img>`(会变黑),用 color 变体或内联着色

@@ -1,0 +1,61 @@
+<!--
+  Template: glass-dark (横屏族 / horizontal family)
+  风格: 深色玻璃拟态 - 深底 + 磨砂玻璃面板 + 背后柔光 (visionOS / Apple 通透质感)
+  支持比例: 16:9 (1920×1080, 默认) / 16:10 (1920×1200, 把 --cv-h 改 1200px)
+  适配: YouTube / Bilibili / 横屏短视频 ; 竖屏用 glass-dark-vertical.html
+  identity test: ①深色底 ②背后 2-3 团柔光透出 ③磨砂玻璃面板 (backdrop-blur + 半透明 + 1px 高光描边 + 圆角) ④面板内大字偏白, 整体通透高级
+  占位符同其他模板
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" /><meta name="color-scheme" content="dark">
+<title>{{TITLE}} · Cover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070b16;--ink:#f1f4fb;--ink-soft:#b9c2d6;--muted:#7b85a0;
+  --g1:#3b82f6;--g2:#8b5cf6;--g3:#22d3ee;
+  --accent:#9db4ff;
+  --font-display:'Inter','Noto Sans SC',sans-serif;--font-zh:'Noto Sans SC',sans-serif;--font-mono:'JetBrains Mono',monospace;
+  --cv-w:1920px; --cv-h:1080px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--font-display);-webkit-font-smoothing:antialiased;}
+.cover{width:var(--cv-w);height:var(--cv-h);position:relative;background:
+  radial-gradient(60% 70% at 16% 20%, rgba(59,130,246,.55), transparent 62%),
+  radial-gradient(55% 65% at 88% 26%, rgba(139,92,246,.5), transparent 62%),
+  radial-gradient(60% 70% at 70% 100%, rgba(34,211,238,.35), transparent 62%),
+  var(--bg);overflow:hidden;}
+.content{position:relative;z-index:5;padding:80px 96px;height:100%;display:flex;flex-direction:column;justify-content:space-between;}
+.top{display:flex;justify-content:space-between;align-items:center;}
+.kicker{font-family:var(--font-mono);font-size:24px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-soft);}
+.index{font-family:var(--font-mono);font-size:22px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);}
+.hero{align-self:flex-start;max-width:80%;background:rgba(255,255,255,.07);
+  backdrop-filter:blur(42px) saturate(140%);-webkit-backdrop-filter:blur(42px) saturate(140%);
+  border:1px solid rgba(255,255,255,.18);border-radius:34px;padding:62px 72px;
+  box-shadow:0 40px 120px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.35);}
+.eyebrow{font-family:var(--font-mono);font-size:25px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:26px;}
+.title{font-weight:600;font-size:236px;line-height:.92;letter-spacing:-.03em;color:var(--ink);}
+.title .stack{display:block;}
+.title .alt{background:linear-gradient(110deg,var(--g3),var(--g1) 50%,var(--g2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.sub{font-family:var(--font-zh);font-weight:400;font-size:54px;line-height:1.15;margin-top:32px;color:var(--ink-soft);}
+.foot{display:flex;justify-content:space-between;align-items:center;font-family:var(--font-mono);font-size:24px;letter-spacing:.1em;color:var(--muted);}
+.foot .name{font-family:var(--font-zh);color:var(--ink);font-weight:500;}
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="content">
+    <div class="top"><div class="kicker">{{KICKER}}</div><div class="index">{{INDEX}}</div></div>
+    <div class="hero">
+      <div class="eyebrow">{{EYEBROW}}</div>
+      <h1 class="title"><span class="stack">{{TITLE_LINE_1}}</span><span class="stack alt">{{TITLE_LINE_2}}</span></h1>
+      <div class="sub">{{SUBTITLE_HTML}}</div>
+    </div>
+    <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span><span>{{DATE}}</span></div>
+  </div>
+</div>
+</body>
+</html>

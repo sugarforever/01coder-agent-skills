@@ -1,0 +1,64 @@
+<!--
+  Template: bauhaus (横屏族 / horizontal family)
+  风格: 包豪斯 - 米白底 + 三原色(红黄蓝)色块 + 圆/三角/方几何构成 + 粗网格 + 大写几何无衬线
+  支持比例: 16:9 (1920×1080, 默认) / 16:10 (1920×1200, 把 --cv-h 改 1200px)
+  适配: YouTube / Bilibili / 横屏短视频 ; 竖屏用 bauhaus-vertical.html
+  identity test: ①只用红黄蓝+黑(不加其他色相) ②画面有圆/三角/矩形几何元素参与构图 ③几何无衬线字体 ④构图基于网格
+  占位符同其他模板
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" /><meta name="color-scheme" content="light">
+<title>{{TITLE}} · Cover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Noto+Sans+SC:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f2ece1;--ink:#1a1a1a;--red:#e63329;--yellow:#f7c52b;--blue:#1f4ed8;
+  --font-display:'Poppins','Noto Sans SC',sans-serif;--font-zh:'Noto Sans SC',sans-serif;
+  --cv-w:1920px; --cv-h:1080px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--font-display);-webkit-font-smoothing:antialiased;}
+.cover{width:var(--cv-w);height:var(--cv-h);position:relative;background:var(--bg);overflow:hidden;}
+/* 几何构成 - 参与构图的圆/三角/方 */
+.geo{position:absolute;z-index:1;}
+.g-circle{top:0;right:0;width:560px;height:560px;border-radius:50%;background:var(--blue);}
+.g-quarter{top:0;right:0;width:280px;height:280px;background:var(--yellow);border-bottom-left-radius:280px;}
+.g-tri{bottom:0;left:0;width:0;height:0;border-left:360px solid transparent;border-bottom:300px solid var(--red);}
+.g-bar{bottom:120px;right:0;width:760px;height:36px;background:var(--ink);}
+.content{position:relative;z-index:5;padding:96px 112px;height:100%;display:flex;flex-direction:column;}
+.top{display:flex;justify-content:space-between;align-items:center;border-bottom:4px solid var(--ink);padding-bottom:24px;}
+.kicker{font-weight:700;font-size:28px;letter-spacing:.12em;text-transform:uppercase;}
+.kicker .sq{display:inline-block;width:22px;height:22px;background:var(--red);margin-right:14px;vertical-align:middle;}
+.index{font-weight:600;font-size:24px;letter-spacing:.1em;text-transform:uppercase;}
+.hero{flex:1;display:flex;flex-direction:column;justify-content:center;max-width:72%;}
+.eyebrow{font-weight:600;font-size:28px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:28px;}
+.title{font-weight:800;font-size:252px;line-height:.86;letter-spacing:-.03em;text-transform:lowercase;color:var(--ink);}
+.title .stack{display:block;}
+.title .alt{color:var(--red);}
+.sub{font-family:var(--font-zh);font-weight:700;font-size:60px;line-height:1.12;margin-top:36px;color:var(--ink);}
+.sub .mark{color:var(--bg);background:var(--blue);padding:0 .14em;}
+.foot{display:flex;justify-content:space-between;align-items:center;border-top:4px solid var(--ink);padding-top:24px;font-weight:600;font-size:24px;letter-spacing:.06em;}
+.foot .name{font-family:var(--font-zh);font-weight:700;}
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="geo g-circle"></div>
+  <div class="geo g-quarter"></div>
+  <div class="geo g-tri"></div>
+  <div class="geo g-bar"></div>
+  <div class="content">
+    <div class="top"><div class="kicker"><span class="sq"></span>{{KICKER}}</div><div class="index">{{INDEX}}</div></div>
+    <div class="hero">
+      <div class="eyebrow">{{EYEBROW}}</div>
+      <h1 class="title"><span class="stack">{{TITLE_LINE_1}}</span><span class="stack alt">{{TITLE_LINE_2}}</span></h1>
+      <div class="sub">{{SUBTITLE_HTML}}</div>
+    </div>
+    <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span><span>{{DATE}}</span></div>
+  </div>
+</div>
+</body>
+</html>

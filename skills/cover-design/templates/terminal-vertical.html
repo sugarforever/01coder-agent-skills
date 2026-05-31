@@ -1,0 +1,55 @@
+<!--
+  Template: terminal-vertical (竖屏族 / vertical family)
+  风格: 终端黑 - 纯黑 + 等宽荧光字 + 扫描线 + 光标
+  支持比例: 9:16 (1080×1920, 默认) / 3:4 (1080×1440, 把 --cv-h 改 1440px)
+  适配: 抖音 / 视频号 竖屏短视频 ; 横屏用 terminal.html
+  文字收在中央安全带 (加 body.show-guide 看辅助线)
+  identity test 同 terminal.html
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" /><meta name="color-scheme" content="dark">
+<title>{{TITLE}} · Cover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#000000;--ink:#d7ffe3;--muted:#3f7a55;--term:#33ff77;--term-dim:#1f7a44;
+  --font-mono:'JetBrains Mono',monospace;--font-zh:'Noto Sans SC',sans-serif;
+  --cv-w:1080px; --cv-h:1920px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--font-mono);-webkit-font-smoothing:antialiased;}
+.cover{width:var(--cv-w);height:var(--cv-h);position:relative;background:var(--bg);overflow:hidden;}
+.cover::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg, rgba(51,255,119,.05) 0 2px, transparent 2px 4px);}
+.cover::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(70% 50% at 50% 50%, rgba(51,255,119,.10), transparent 70%);}
+.content{position:relative;z-index:5;padding:90px 72px;height:100%;display:flex;flex-direction:column;justify-content:center;}
+.top{position:absolute;top:90px;left:72px;right:72px;display:flex;justify-content:space-between;font-size:26px;letter-spacing:.12em;color:var(--term-dim);}
+.dot{color:var(--term);}
+.prompt{font-size:32px;letter-spacing:.04em;color:var(--term);margin-bottom:28px;}
+.prompt .path{color:var(--term-dim);}
+.title{font-weight:800;font-size:248px;line-height:.98;letter-spacing:-.01em;color:var(--term);text-shadow:0 0 28px rgba(51,255,119,.55);}
+.title .stack{display:block;}
+.title .cur{display:inline-block;width:.5em;height:.84em;background:var(--term);vertical-align:-.06em;margin-left:.1em;box-shadow:0 0 22px rgba(51,255,119,.7);}
+.sub{font-family:var(--font-zh);font-weight:500;font-size:54px;line-height:1.22;margin-top:36px;color:var(--ink);}
+.sub::before{content:"// ";color:var(--term-dim);}
+.foot{position:absolute;bottom:90px;left:72px;right:72px;display:flex;justify-content:space-between;font-size:26px;letter-spacing:.1em;color:var(--muted);}
+.foot .name{font-family:var(--font-zh);color:var(--term);}
+.guide{position:absolute;left:40px;right:40px;top:228px;bottom:228px;border:2px dashed rgba(255,120,120,.7);display:none;z-index:9;}
+body.show-guide .guide{display:block;}
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="top"><span>{{KICKER}}</span><span>[ <span class="dot">●</span> {{INDEX}} ]</span></div>
+  <div class="content">
+    <div class="prompt"><span class="path">vsw@coder</span>:~$ ./{{EYEBROW}}</div>
+    <h1 class="title"><span class="stack">{{TITLE_LINE_1}}</span><span class="stack">{{TITLE_LINE_2}}<span class="cur"></span></span></h1>
+    <div class="sub">{{SUBTITLE_HTML}}</div>
+  </div>
+  <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span><span>{{DATE}}</span></div>
+  <div class="guide"></div>
+</div>
+</body>
+</html>

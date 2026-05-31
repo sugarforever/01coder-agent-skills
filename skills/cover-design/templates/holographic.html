@@ -1,0 +1,58 @@
+<!--
+  Template: holographic (横屏族 / horizontal family)
+  风格: 暗调全息 - 深底 + 油膜虹彩渐变大字 + 微噪点 (premium 科技潮)
+  支持比例: 16:9 (1920×1080, 默认) / 16:10 (1920×1200, 把 --cv-h 改 1200px)
+  适配: YouTube / Bilibili / 横屏短视频 ; 竖屏用 holographic-vertical.html
+  identity test: ①深色底 ②大字填充油膜虹彩 (青/品红/黄/绿 多色渐变) ③有一条全息箔色带 ④微噪点/微光, 整体 premium 不廉价
+  占位符同其他模板
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" /><meta name="color-scheme" content="dark">
+<title>{{TITLE}} · Cover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Noto+Sans+SC:wght@500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08080d;--ink:#f4f5fa;--ink-soft:#b6b9c7;--muted:#6c6f80;
+  --holo:linear-gradient(110deg,#7af9ff 0%,#b98bff 28%,#ff8ad1 52%,#ffe27a 74%,#8affc4 100%);
+  --accent:#c9b8ff;
+  --font-display:'Space Grotesk','Noto Sans SC',sans-serif;--font-zh:'Noto Sans SC',sans-serif;--font-mono:'JetBrains Mono',monospace;
+  --cv-w:1920px; --cv-h:1080px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--font-display);-webkit-font-smoothing:antialiased;}
+.cover{width:var(--cv-w);height:var(--cv-h);position:relative;background:
+  radial-gradient(60% 70% at 78% 18%, rgba(120,90,200,.30), transparent 60%),
+  radial-gradient(55% 65% at 20% 95%, rgba(40,180,170,.22), transparent 60%),
+  var(--bg);overflow:hidden;}
+/* 噪点 */
+.cover::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.content{position:relative;z-index:5;padding:82px 100px;height:100%;display:flex;flex-direction:column;justify-content:space-between;}
+.top{display:flex;justify-content:space-between;align-items:center;font-family:var(--font-mono);font-size:23px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);}
+.foil{height:10px;border-radius:6px;margin-top:16px;background:var(--holo);filter:saturate(140%);box-shadow:0 0 40px rgba(180,150,255,.35);}
+.hero{flex:1;display:flex;flex-direction:column;justify-content:center;max-width:84%;}
+.eyebrow{font-family:var(--font-mono);font-size:25px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:26px;}
+.title{font-weight:700;font-size:250px;line-height:.92;letter-spacing:-.03em;background:var(--holo);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 40px rgba(170,140,255,.3));}
+.title .stack{display:block;}
+.sub{font-family:var(--font-zh);font-weight:500;font-size:54px;line-height:1.16;margin-top:34px;color:var(--ink-soft);}
+.foot{display:flex;justify-content:space-between;align-items:center;font-family:var(--font-mono);font-size:23px;letter-spacing:.12em;color:var(--muted);}
+.foot .name{font-family:var(--font-zh);color:var(--ink);font-weight:500;}
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="content">
+    <div><div class="top"><span>{{KICKER}}</span><span>{{INDEX}}</span></div><div class="foil"></div></div>
+    <div class="hero">
+      <div class="eyebrow">{{EYEBROW}}</div>
+      <h1 class="title"><span class="stack">{{TITLE_LINE_1}}</span><span class="stack">{{TITLE_LINE_2}}</span></h1>
+      <div class="sub">{{SUBTITLE_HTML}}</div>
+    </div>
+    <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span><span>{{DATE}}</span></div>
+  </div>
+</div>
+</body>
+</html>

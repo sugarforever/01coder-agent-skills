@@ -1,0 +1,50 @@
+<!--
+  Template: brutalism-vertical (竖屏族 / vertical family)
+  风格: 粗野 - 白底 + 系统/等宽字体 + 硬黑边框 + 刻意未加工
+  支持比例: 9:16 (1080×1920, 默认) / 3:4 (1080×1440, 把 --cv-h 改 1440px)
+  适配: 抖音 / 视频号 ; 文字收在中央安全带, body.show-guide 看显示带
+  identity test 同 brutalism.html
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" /><meta name="color-scheme" content="light">
+<title>{{TITLE}} · Cover</title>
+<style>
+:root{
+  --bg:#ffffff;--ink:#000000;--accent:#ff2200;
+  --font-mono:ui-monospace,'Courier New',Courier,monospace;
+  --font-sys:-apple-system,'Helvetica Neue',Arial,'PingFang SC','Microsoft YaHei',sans-serif;
+  --cv-w:1080px; --cv-h:1920px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--font-sys);}
+.cover{width:var(--cv-w);height:var(--cv-h);position:relative;background:var(--bg);overflow:hidden;padding:150px 56px;border:8px solid var(--ink);display:flex;flex-direction:column;}
+.top{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:24px;text-transform:uppercase;border-bottom:3px solid var(--ink);padding-bottom:18px;letter-spacing:.03em;}
+.top .index{text-decoration:underline;text-underline-offset:5px;}
+.hero{flex:1;display:flex;flex-direction:column;justify-content:center;}
+.eyebrow{font-family:var(--font-mono);font-size:26px;text-transform:uppercase;margin-bottom:22px;background:var(--ink);color:var(--bg);align-self:flex-start;padding:6px 12px;letter-spacing:.05em;}
+.title{font-family:var(--font-mono);font-weight:700;font-size:188px;line-height:.92;letter-spacing:-.02em;text-transform:uppercase;}
+.title .stack{display:block;}
+.title .alt{color:var(--accent);}
+.sub{font-family:var(--font-sys);font-weight:700;font-size:62px;line-height:1.12;margin-top:32px;}
+.sub .mark{text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:8px;text-underline-offset:4px;}
+.foot{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:23px;text-transform:uppercase;border-top:3px solid var(--ink);padding-top:18px;letter-spacing:.03em;}
+.foot .name{font-family:var(--font-sys);font-weight:700;}
+.guide{display:none;position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:1464px;border:3px dashed var(--accent);z-index:50;pointer-events:none;}
+body.show-guide .guide{display:block;}
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="guide"></div>
+  <div class="top"><span>{{KICKER}}</span><span class="index">{{INDEX}}</span></div>
+  <div class="hero">
+    <div class="eyebrow">{{EYEBROW}}</div>
+    <h1 class="title"><span class="stack">{{TITLE_LINE_1}}</span><span class="stack alt">{{TITLE_LINE_2}}</span></h1>
+    <div class="sub">{{SUBTITLE_HTML}}</div>
+  </div>
+  <div class="foot"><span class="name">{{AUTHOR_NAME}}</span><span>{{CHANNEL}}</span></div>
+</div>
+</body>
+</html>
