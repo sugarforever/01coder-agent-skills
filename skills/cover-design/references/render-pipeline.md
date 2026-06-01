@@ -2,6 +2,28 @@
 
 把 HTML 封面渲染成 PNG 的标准三步加陷阱说明。
 
+## 最快路径：用 `scripts/render-cover.sh`
+
+多比例渲染 + 生成可 Read 的预览图，已打包成一个脚本，**优先用它**，别每次手搓 headless 命令：
+
+```bash
+scripts/render-cover.sh <定制好的.html> <持久输出目录> [比例...]
+# 横屏自动出 16x9 + 16x10；竖屏自动出 9x16 + 3x4；也可显式指定
+scripts/render-cover.sh cover-h.html ~/covers/demo
+scripts/render-cover.sh cover-v.html ~/covers/demo 9x16
+```
+
+产物：`cover-<ratio>.png`（2x 成品）+ `cover-<ratio>.preview.png`（≤1400px，给 Read 工具看验收）。脚本把下面这些坑都内置了。要手动渲染时，照这些坑做。
+
+## 踩过的坑（务必避开）
+
+1. **输出别用 `/tmp`** —— 会被清空，渲染到一半文件就没了。永远输出到持久目录（如 `~/covers/<slug>`）。
+2. **zsh 不对 `$VAR` 分词** —— `for s in $STYLES`（STYLES 是空格分隔的变量）在 zsh 里只迭代一次，会把整串当一个文件名。脚本里用**字面量列表**或数组，别靠变量分词。
+3. **渲染和 `sips` 缩图分两段** —— headless Chrome 写完 PNG 常不退出，把渲染 + 缩图串在一条命令里，整条会被后台化/截断，缩图永远不执行。先渲染、`wait` + **有界轮询确认 PNG 落地**，再单独缩图。
+4. **2x 成品 >2000px，Read 工具读不了** —— 每张成品配一张 `sips -Z` 缩到 ≤1400px 的预览再 Read。
+5. **`wait` 早返回** —— headless Chrome 常在截图落盘前就让 `wait` 返回。落盘后再处理要轮询文件存在（`until [ -s "$png" ]`，加超时），不要 `wait` 完立刻读。
+6. **`set -e` + `read <<<(...)` 会误中断** —— 进程替换里的 `read` 读到无换行结尾返回非零，在 `set -e` 下会炸。批处理脚本别开 `-e`，零星非零退出码不该中断整批。
+
 ## 标准命令序列
 
 ```

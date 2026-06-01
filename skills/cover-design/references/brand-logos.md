@@ -105,7 +105,7 @@ https://unpkg.com/@lobehub/icons-static-png@latest/light/{id}-color.png
 
 封面是「单焦点 + 大标题」，logo 是**辅助识别**，别喧宾夺主：
 
-1. **顶部品牌行**（最常用）：放在 kicker / eyebrow 旁，小尺寸（≈ kicker 字号的 1.1 倍）。各模板的品牌行 class 不同：
+1. **顶部品牌行**（单 logo 点缀）：放在 kicker / eyebrow 旁，小尺寸（≈ kicker 字号的 1.1 倍）。各模板的品牌行 class 不同：
    - `hero-typography` / `swiss`：`.topbar` 里的 `.tag`
    - `aurora` / `glass-dark` / `terminal` / `noir-editorial` / `spotlight` / `blueprint` / `holographic`：`.top` 里的 `.kicker`
    - 把 `.brand-logo` 作为该 span 的第一个 child，`gap:.4em` 与文字分开。
@@ -113,6 +113,32 @@ https://unpkg.com/@lobehub/icons-static-png@latest/light/{id}-color.png
 3. **角标水印**：右上或右下角小 logo（≈ 56-72px，低透明度），适合系列内容统一标识。
 
 尺寸建议（1920×1080 横屏画布）：品牌行 36-48px、标题 lockup 80-120px、角标 56-72px。竖屏（1080 宽）等比缩到约 0.7×，且仍要落在中央安全带内。
+
+### 对比类选题（X vs Y）：双 logo 当主视觉，别塞进 kicker 小字行
+
+讲「Codex vs Claude Code」「GPT vs Gemini」这类对决/对比时，**两个 logo 是内容的核心，应该放大成标题上方的 lockup**（≈ 110-130px 一个，中间夹 `VS`），而不是缩成 kicker 行里的小图标 —— 那样在 16:9 缩略图里几乎看不清，竖屏更糊（实测踩过）。
+
+```html
+<!-- 标题上方，作为 .hero 的第一个 child（在 .eyebrow 之前） -->
+<div class="vs-lockup">
+  <span class="blogo mono"><svg>...openai mono...</svg></span>
+  <span class="vs">VS</span>
+  <span class="blogo"><svg>...claude color...</svg></span>
+</div>
+```
+
+```css
+.vs-lockup{display:inline-flex;align-items:center;gap:34px;margin-bottom:40px;}
+.vs-lockup .blogo{display:inline-flex;align-items:center;justify-content:center;
+  width:128px;height:128px;background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.16);border-radius:28px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22);}   /* 玻璃徽章托住 logo，深底/花底都清晰 */
+.vs-lockup .blogo svg{width:78px;height:78px;display:block;}
+.vs-lockup .blogo.mono{color:#fff;}                   /* openai 等 mono → 白 */
+.vs-lockup .vs{font-family:var(--font-mono);font-weight:700;font-size:40px;color:var(--ink);}
+```
+
+竖屏把尺寸缩到约 0.85×（blogo ≈112px、VS ≈34px），仍落在安全带内。
 
 ## 不要做
 

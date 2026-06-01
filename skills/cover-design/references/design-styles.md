@@ -10,6 +10,31 @@ cover-design 的每个风格都落成一对模板：横屏（`{style}.html`，16
 
 ---
 
+## 中文大标题的行高（line-height）
+
+**这是个真坑，不是品味问题。** 拉丁字母的字身框（em box）上下自带留白（ascender 上方、descender 下方），所以西文 display 大字用 0.9 行高仍有呼吸感；**中日韩方块字几乎填满整个 em box**，同样 0.9 行高，两行的笔画就会贴脸甚至相撞（带 辶 / 宀 / 廴 这类上下伸展部首时最明显）。所以**同字号下中文标题要比拉丁标题松一档**。
+
+两个约束的交集决定取值：
+- 中文比拉丁需要更大行高（[Typotheque](https://www.typotheque.com/articles/typesetting-cjk-text)：CJK 填满 em box；[Material Design](https://m1.material.io/style/typography.html)：CJK 行高比西文统一 +0.1em）。
+- display 越大行高越紧（headline 安全区 1.1–1.4；[Pimp my Type](https://pimpmytype.com/line-length-line-height/) / [Material 3](https://m3.material.io/styles/typography/applying-type)）。
+- 中文正文是 1.5–1.7（[W3C clreq](https://www.w3.org/TR/clreq/)：行距取字身 50%–100%）——标题要比这紧得多。
+
+**落点：中文 display 标题 ≈ 1.05–1.10**。字重越重 / 笔画越粗 / 衬线，越要往高取：
+
+| 档 | 风格（按字重·字体） | 中文标题 line-height |
+|---|---|---|
+| 轻（weight ≤500） | swiss(300)、aurora(500) | **1.06** |
+| 中（weight 600） | glass-dark(600) | **1.08** |
+| 重（weight ≥700）/ 衬线 | hero-typography、neo-brutalism、bauhaus、brutalism、spotlight、blueprint、terminal、holographic、editorial、noir-editorial | **1.10** |
+
+注意：
+- line-height **只影响多行标题**。这些模板标题都是两行 `.stack`，所以都生效；单行标题取多少都无所谓。
+- 取值按**中文最坏情况**定；纯英文标题在同一行高下只是略松，不影响。
+- 副标 / 正文（`.sub`）保持 1.1–1.25，不动。
+- 改完务必渲染验证：横屏挑一个重字重风格（如 neo-brutalism）确认不撞行，竖屏确认三行标题仍在安全带内。
+
+---
+
 ## 已实现
 
 ### hero-typography（黑底霓虹）
