@@ -13,7 +13,7 @@ description: Design typography-driven video cover images using HTML/CSS + Chrome
 |---|---|---|
 | 渲染方式 | AI 生图 (Replicate gpt-image-2) | HTML/CSS + 浏览器截图 |
 | 视觉风格 | 手绘 / 插画 / 编辑设计 | 排版驱动 / typography hero |
-| 文字精度 | AI 渲染的文字常常糊 / 错字 | 100% 精确 |
+| 文字精度 | AI 渲染的文字常常模糊 / 错字 | 100% 精确 |
 | 适合 | 文章题图 / 抽象概念 / 美术导向 | 视频缩略图 / 大标题 / 品牌一致性 |
 | 风格扩展 | 通过 prompt 调整 | 通过新增 HTML 模板扩展 |
 
@@ -233,7 +233,7 @@ scripts/extract-brand-theme.sh https://产品官网
 5. **不替 cover-image 做事** - 用户要插画 / AI 生图,转 `cover-image` skill,本 skill 只做代码驱动的排版型封面
 6. **不自动发布** - 只产 PNG,不动用户的发布渠道
 7. **品牌信息从 auto memory** - 频道名 / 作者名优先读 `video-promo.md`,首次没有再问用户
-8. **品牌 logo 用官方来源** - 需要模型/产品/厂商 logo 时从 `@lobehub/icons` 取(见 `references/brand-logos.md` + `scripts/fetch-brand-icon.sh`),不要手搓或随便找网图;深色底别用 mono `<img>`(会变黑),用 color 变体或内联着色;对比类选题(X vs Y)双 logo 放大成标题上方 lockup,别缩成 kicker 小图标
+8. **品牌 logo 用官方来源** - 需要模型/产品/厂商 logo 时从 `@lobehub/icons` 取(见 `references/brand-logos.md` + `scripts/fetch-brand-icon.sh`),不要自行制作或随意使用网络图片;深色底别用 mono `<img>`(会变黑),用 color 变体或内联着色;对比类选题(X vs Y)双 logo 放大成标题上方 lockup,别缩成 kicker 小图标
 9. **中文标题行高** - 中文大标题 line-height ≈1.05–1.10,别用拉丁 display 的 0.9(会撞行);见 `references/design-styles.md`
 10. **渲染输出别用 `/tmp`** - headless 渲染输出到持久目录(`/tmp` 会被清);优先用 `scripts/render-cover.sh`,坑见 `references/render-pipeline.md`
 11. **封面要传达选题,不止好看** - 定稿前过三信号自检(是什么/品类/领域)、品牌署名只一次、精简次要 chrome、转变类放 before/after;见 `references/cover-composition.md`
