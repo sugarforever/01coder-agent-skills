@@ -63,6 +63,10 @@ description: Design typography-driven video cover images using HTML/CSS + Chrome
 
 `.cover` 元素**必须用固定像素**（通过 `--cv-w` / `--cv-h` 变量 - 横屏 1920 宽、竖屏 1080 宽，高度按比例取值），**不要用 `vw` / `vh` / `%`**。原因见 `references/render-pipeline.md` 里的浏览器视口陷阱章节 - 简单说,resize_page 设的高度不等于实际视口高度,Chrome 工具栏 / 标签栏会吃掉 200-400px。固定像素 + fullPage 截图才稳。
 
+### 4. 传达 > 好看
+
+封面读得清还不够,要 3 秒说清**是什么 / 什么品类 / 什么领域**:产品名做主元素、品类给信号(agent skill→斜杠命令条、模型→logo)、领域给锚(设计→before/after、安全→告警)。品牌署名只出现一次,砍掉次要 chrome。这是手搓封面能超过纯模板套用的关键一环 - 详见 `references/cover-composition.md`。
+
 ## 工作流
 
 ### Step 1 · 收集信息
@@ -78,8 +82,19 @@ description: Design typography-driven video cover images using HTML/CSS + Chrome
 7. **品牌 logo** - 要不要带某个模型/产品/厂商的官方 logo (Claude / OpenAI / Gemini / DeepSeek / Ollama……)?来源是 `@lobehub/icons`,取图标和放置见 `references/brand-logos.md` (可选)
 8. **额外元素** - 比如版本号、tagline、装饰图形 (可选)
 9. **输出路径** - 默认输出到视频目录,文件名带比例后缀 (`cover-16x9.html/.png` 等)
+10. **是不是讲某个具体产品/工具?** - 是的话拿到官网 URL,进**品牌匹配模式**(见下),用产品自己的色 + 字 + logo,比频道默认 lime 更原生
 
 如果用户给了文章 / 脚本路径,先 Read 抽取主标题和副标题,再确认。
+
+#### 品牌匹配模式(选题是某个具体产品 / 工具 / 开源项目时)
+
+封面套**产品官网自己的品牌色和字体**,封面气质和被介绍的东西一致。跑:
+
+```bash
+scripts/extract-brand-theme.sh https://产品官网
+```
+
+它输出可直接抄进模板 `:root` 的 Google Fonts + 颜色 token(含 oklch 原值,Chrome 原生支持,原样搬即可)。用提取值覆盖模板默认的 `--accent`/`--bg`/`--ink`/`--font-display`/`--font-mono`,风格按官网调性从 `design-styles.md` 选最接近的。**方法、字体中文配对、避坑、兜底见 `references/brand-theme.md`**。这和 `brand-logos.md`(取 logo)互补,凑齐「色 + 字 + logo」一整套。
 
 ### Step 2 · 选模板（按朝向选模板族）
 
@@ -158,12 +173,21 @@ description: Design typography-driven video cover images using HTML/CSS + Chrome
 
 ### Step 5 · 验收 + 迭代
 
-`open` 在 macOS 默认查看器里打开所有 PNG 给用户看。问反馈:
+`open` 在 macOS 默认查看器里打开所有 PNG 给用户看。
 
+**先过内容传达自检（见 `references/cover-composition.md`）**:
+- [ ] **三信号**都到位?逐条指认画面里哪个元素负责:**是什么**(主角是不是最显眼)/ **什么品类**(agent skill→命令条、模型→logo)/ **什么领域**(设计→before/after、安全→告警…)
+- [ ] **品牌署名只出现一次**?(注意区分:产品名=选题主角要显眼,频道署名=低调一次。两者不算重复)
+- [ ] 有没有可删的**次要 chrome**(日期 / `Ep·`胶囊 / 分隔横线 / 装饰标签)?空白处是有意义视觉还是纯空?
+- [ ] 转变类选题(把 X 变 Y / 治某病 / 优化前后)有没有上 **before→after 装置**?
+
+再问视觉反馈:
 - 文字位置 / 字号合不合适?
 - **缩略图测试** - 缩到 ~320px / 160px 宽,主标题还读得出吗?(3 秒原则)
-- **竖屏安全区** - 9:16 / 3:4 的核心文字是否都在中央安全带、没贴边?(抖音/视频号首尾会叠 UI / 被裁)
-- accent / 背景色调要不要换?装饰元素多不多?是否换模板?
+- **竖屏安全区** - 9:16 / 3:4 的核心文字是否都在中央安全带、没贴边?
+- accent / 背景色调要不要换?是否换模板?
+
+> **多方向预览**:定稿前不确定方向时,**一次出 3-4 个差异化方向让用户挑**(不同风格/配色),比单版反复改收敛更快。存档命名 `cover-styles/{字母}-{风格}.html/.png`。
 
 迭代时优先改 CSS 变量和占位符文本,不要重新写整个 HTML(节省 token,改动可见)。竖屏调试若用了 `body.show-guide` 看安全带,**最终渲染前去掉这个 class**。
 
@@ -212,3 +236,5 @@ description: Design typography-driven video cover images using HTML/CSS + Chrome
 8. **品牌 logo 用官方来源** - 需要模型/产品/厂商 logo 时从 `@lobehub/icons` 取(见 `references/brand-logos.md` + `scripts/fetch-brand-icon.sh`),不要手搓或随便找网图;深色底别用 mono `<img>`(会变黑),用 color 变体或内联着色;对比类选题(X vs Y)双 logo 放大成标题上方 lockup,别缩成 kicker 小图标
 9. **中文标题行高** - 中文大标题 line-height ≈1.05–1.10,别用拉丁 display 的 0.9(会撞行);见 `references/design-styles.md`
 10. **渲染输出别用 `/tmp`** - headless 渲染输出到持久目录(`/tmp` 会被清);优先用 `scripts/render-cover.sh`,坑见 `references/render-pipeline.md`
+11. **封面要传达选题,不止好看** - 定稿前过三信号自检(是什么/品类/领域)、品牌署名只一次、砍次要 chrome、转变类上 before/after;见 `references/cover-composition.md`
+12. **讲具体产品时做品牌匹配** - 用产品官网真实色 + 字(`scripts/extract-brand-theme.sh` + `references/brand-theme.md`),别一律套默认 lime;封面气质和被介绍的产品一致更专业
