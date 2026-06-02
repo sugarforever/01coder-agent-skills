@@ -59,11 +59,13 @@ try_download() {
   local url="$1" dest="$2"
   local code
   code=$(curl -sL -A "Mozilla/5.0" -o "$dest" -w "%{http_code}" "$url" || echo 000)
-  # lobehub 的 404 会返回一个很小的纯文本占位（"Couldn't find..."），按大小 + 内容兜底校验
+  # 404 / 错误响应常返回 200 + 一个 JSON 或纯文本错误体（如 npmmirror 的 {"error":"[NOT_FOUND]"}）。
+  # 按大小 + 内容校验；任何不合格的下载都删掉写坏的文件，绝不把错误响应体留在磁盘当 logo。
   if [ "$code" = "200" ] && [ -s "$dest" ]; then
-    if [ "$ext" = "svg" ] && ! grep -q "<svg" "$dest"; then return 1; fi
+    if [ "$ext" = "svg" ] && ! grep -q "<svg" "$dest"; then rm -f "$dest"; return 1; fi
     return 0
   fi
+  rm -f "$dest"
   return 1
 }
 
