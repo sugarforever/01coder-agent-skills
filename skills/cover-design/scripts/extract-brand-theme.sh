@@ -52,16 +52,27 @@ while IFS= read -r href; do
   curl -sL --max-time 20 "$url" >> "$CSSALL" 2>/dev/null || true
 done < <(rg -oiP '<link[^>]+rel="stylesheet"[^>]+href="\K[^"]+|href="\K[^"]+\.css[^"]*' "$TMP" | sort -u)
 
-echo "## 颜色：CSS 变量定义（含 oklch 原值，可原样写入 Chrome）"
-rg -oiP '\-\-[a-z0-9-]+:\s*(oklch\([^)]+\)|#[0-9a-f]{3,8}\b)' "$CSSALL" 2>/dev/null | sort -u | head -60
+# 噪声来源：站点搜索框(DocSearch/Algolia)、代码高亮主题(Dracula/Shiki/Prism/highlight.js)、
+# 文档框架(Docusaurus --ifm-*)、灰阶色阶(gray/slate/zinc/neutral/stone)。这些常压过真正的品牌色。
+NOISE='docsearch|algolia|inkeep|--ifm|shiki|prism|hljs|highlight|token|gray|grey|slate|zinc|neutral|stone'
+
+echo "## 颜色：品牌相关的 CSS 变量（已过滤搜索框 / 代码高亮 / 灰阶噪声）"
+rg -oiP '\-\-[a-z0-9-]+:\s*(oklch\([^)]+\)|#[0-9a-f]{3,8}\b)' "$CSSALL" 2>/dev/null \
+  | rg -ivP "$NOISE" | sort -u | head -50
 echo
-echo "## 颜色：裸字面量（备查）"
-rg -oiP '(oklch\([^)]+\)|#[0-9a-f]{6}\b)' "$CSSALL" 2>/dev/null | sort -u | head -40
+echo "## ⚠️  频率最高 ≠ 品牌色。机器抓取仍可能混入噪声（代码高亮、搜索框、灰阶）。"
+echo "##     真正的品牌色以官网 hero / 页头实际呈现为准 - 打开官网，肉眼确认背景、主按钮、强调色，"
+echo "##     不要只取这里出现次数最多的几个。"
 echo
-echo "## 语义品牌变量名（反推调性 - 如 kinpaku/lacquer/champagne 暗示暖金漆器风）"
+echo "## 颜色：裸字面量（噪声更多，仅在上面变量没取到时参考）"
+rg -oiP '(oklch\([^)]+\)|#[0-9a-f]{6}\b)' "$CSSALL" 2>/dev/null | rg -ivP "$NOISE" | sort -u | head -30
+echo
+echo "## 语义品牌变量名（反推调性 - 如 kinpaku/lacquer 暗示暖金漆器；docsearch/gray 等噪声已过滤）"
 rg -oiP '\-\-[a-z]+(?:-[a-z0-9]+)*(?=:\s*(oklch|#|rgb))' "$CSSALL" 2>/dev/null \
   | rg -ivP '^--(color|bg|fg|ink|text|border|card|cat|demo|font|space|size|radius|shadow|gap|width|height|x|y|c)$' \
-  | sort -u | head -40
+  | rg -ivP "$NOISE" | sort -u | head -40
 
 echo
-echo "# 下一步：选 accent/bg/ink + display/body/mono，覆盖模板 :root；风格按调性从 design-styles.md 选。详见 references/brand-theme.md"
+echo "# 下一步：选 accent/bg/ink + display/body/mono，覆盖模板 :root；风格按调性从 design-styles.md 选。"
+echo "# 拿不准就打开官网肉眼对一遍（频率≠品牌）。无 Google Fonts（自托管 system 字体）时回退模板默认字体。"
+echo "# 详见 references/brand-theme.md"

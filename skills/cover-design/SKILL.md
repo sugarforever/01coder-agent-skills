@@ -148,6 +148,8 @@ scripts/extract-brand-theme.sh https://产品官网
 
 用户要带某个模型/产品/厂商 logo 时（讲 Claude、OpenAI、Gemini、DeepSeek、Ollama 等），从 **[@lobehub/icons](https://lobehub.com/icons)** 取官方 logo 融进模板。**完整说明（CDN URL、变体、放法、避坑、identity test）见 `references/brand-logos.md`**，要点:
 
+> **`@lobehub/icons` 只覆盖 AI / LLM 厂商。** 讲非 AI 产品（开发工具、运行时、框架、SaaS，如 Bun、Vite、Zed）时它多半没有对应图标，`fetch-brand-icon.sh` 会报 FAIL。**这时不要勉强拼一个 logo，也不要随意找网络图片（Critical Rule 8）** - 改走**无 logo 的排版 / 品牌色识别**：产品名做大字主元素 + 品牌色 + 命令条 / 领域装置，照样能建立清晰的品牌识别（Bun 封面就是这么做的，见 `references/cover-composition.md`）。
+
 1. **取图标**：跑 helper 下载到封面同目录的 `assets/`（离线可渲染，最稳）:
    ```bash
    scripts/fetch-brand-icon.sh claude color svg ./assets   # 官方配色
@@ -160,16 +162,16 @@ scripts/extract-brand-theme.sh https://产品官网
 
 ### Step 4 · 渲染成 PNG（每个比例一张）
 
-对 Step 1 选定的**每个比例**渲染一次。改 HTML `:root` 的 `--cv-h` 切比例（横屏 1080↔1200，竖屏 1920↔1440），resize 到对应尺寸，截图存成带后缀的文件。逐比例的 resize 尺寸 + 输出文件名见 `references/render-pipeline.md` 的多比例表。
+**默认用脚本 `scripts/render-cover.sh`** - 它把多比例、2x retina、降采样预览、以及 headless Chrome 的所有坑（输出别用 /tmp、截图落盘时序、`--headless=new` 不自退要主动收进程、独立 profile）都封好了。一条命令搞定一期的横屏或竖屏全比例：
 
-标准三步（每个比例重复，同一页面可复用 - 改 `--cv-h` 后 reload 再截）:
+```bash
+scripts/render-cover.sh cover.html ~/covers/<slug>            # 横屏 HTML → 自动出 16x9 + 16x10
+scripts/render-cover.sh cover-v.html ~/covers/<slug> 9x16 3x4 # 竖屏显式指定比例
+```
 
-1. `mcp__chrome-devtools__new_page` 打开 `file://` 路径
-2. `mcp__chrome-devtools__resize_page` 设到 `画布宽 ×（画布高 + 20）`
-3. `mcp__chrome-devtools__navigate_page` reload(确保新尺寸下重新布局)
-4. `mcp__chrome-devtools__take_screenshot` `fullPage: true` → `cover-{比例}.png`
+产物：`cover-<比例>.png`（2x retina，如 16:9 → 3840×2160）+ `cover-<比例>.preview.png`（≤1400px，给 Read / 验收看）。运行 `scripts/render-cover.sh` 无参看完整用法；坑的来由见 `references/render-pipeline.md`。
 
-每张 PNG 是 2x retina（如 16:9 → 3840×2160，9:16 → 2160×3840），缩到平台落点尺寸都清晰。
+**交互式微调时**可改用 chrome-devtools MCP 逐张截（适合一边看一边调 CSS）：`new_page` 打开 `file://` → `resize_page` 到 `画布宽 ×（画布高 + 20）` → `navigate_page` reload → `take_screenshot` `fullPage: true`。但批量出图、最终交付一律走脚本（见 Critical Rule 10）。
 
 ### Step 5 · 验收 + 迭代
 
@@ -179,7 +181,7 @@ scripts/extract-brand-theme.sh https://产品官网
 - [ ] **三信号**都到位?逐条指认画面里哪个元素负责:**是什么**(主角是不是最显眼)/ **什么品类**(agent skill→命令条、模型→logo)/ **什么领域**(设计→before/after、安全→告警…)
 - [ ] **品牌署名只出现一次**?(注意区分:产品名=选题主角要显眼,频道署名=低调一次。两者不算重复)
 - [ ] 有没有可删的**次要 chrome**(日期 / `Ep·`胶囊 / 分隔横线 / 装饰标签)?空白处是有信息量的视觉还是纯空?
-- [ ] 转变类选题(把 X 变成 Y / 优化前后)有没有放 **before→after 装置**?
+- [ ] 空白处放了**领域装置**没有?(转变类→before/after,整合类→N 个 ✕ → 一个 ✓,对比类→vs,数据类→大数字;partial 见 `templates/partials/before-after.html`)
 
 再问视觉反馈:
 - 文字位置 / 字号合不合适?

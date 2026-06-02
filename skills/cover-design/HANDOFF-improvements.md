@@ -78,3 +78,29 @@ for css in $(rg -oP 'href="\K/[^"]+\.css' /tmp/site.html); do curl -sL "https://
 2. （高）`references/brand-theme.md` + `scripts/extract-brand-theme.sh` —— 解锁品牌匹配。
 3. （中）before/after partial + 一个品牌匹配样例模板（把 impeccable 这版泛化）。
 4. （低）Step 5 加「多方向预览」工作法。
+
+## Verification（agent 验证，2026-06-02）
+
+按 superpowers:writing-skills 的「用 subagent 测 skill」方法验证（technique/reference 型 → 应用 + 缺口测试）。
+
+**方法**：派全新 subagent（无本次上下文、看不到任何手工成品），三组：
+- **A 基线**：只给选题需求，不给 skill。
+- **B 用 skill**：严格按 `SKILL.md` 走，同一个 impeccable 话题，方便和手工版比对。
+- **C 泛化**：用 skill 做一个**完全不同**的话题（Bun，`bun.sh`）—— 领域（JS 运行时）、品类（CLI 工具）、品牌（浅色奶油 + 粉）三轴都和 skill 内置例子不同。
+
+**结果**：
+- **B 通过**：在没看过手工版的情况下，自己走到了同一套方案 —— 跑 `extract-brand-theme.sh` 拿金箔 / 漆器色、选 `noir-editorial`、三信号构图 + 命令条 + before/after。产出与手工版基本一致。
+- **基线对比**：A 也自己想到了 before/after，但**漏了品牌匹配和品类信号**（用了通用紫 + 奶白，没有命令条）—— 这两项正是 skill 的独特价值。
+- **C 通过**：方法泛化成功，产出浅色 + 粉的 neo-brutalism、bun 主元素、品类 + 领域信号、品牌一次，且把 before/after 灵活换成了更贴题的「N→1 整合装置」。
+
+**暴露的缺口 → 已修**：
+| 缺口（验证发现） | 修法 |
+|---|---|
+| `extract-brand-theme.sh` 对 bun.sh 抓出大量噪声（DocSearch / Dracula 高亮 / 灰阶压过真品牌色） | 加噪声过滤 + 「频率≠品牌，以官网肉眼为准」警示 |
+| 所有 reference 只贴 impeccable 一个例子，泛化要靠自己翻译 | `brand-theme.md` 加 Bun 第二例；`cover-composition.md` 把 before/after 泛化成「领域装置」并给整合型例子 |
+| `fetch-brand-icon.sh` 对非 AI 产品（无 lobehub 图标）会把 404 JSON 体写成 `*.svg` 当 logo | 任何失败下载都 `rm` 掉；SKILL.md Step 3 加「无图标 → 走无 logo 排版识别」分支 |
+| `render-cover.sh` 在 `--headless=new` 不自退时被 `wait` 永久阻塞，要手动 pkill | 去掉阻塞 `wait`，改 PID 跟踪 + 按本次 profile 目录精确收进程（实测 6s 完成、无残留） |
+| Step 4 正文先讲 chrome-devtools MCP，与 Critical Rule 10「优先脚本」矛盾 | Step 4 改为默认走 `render-cover.sh`，MCP 降为交互微调备选 |
+| before/after 只有内联 CSS，没有可复用件 | 新增 `templates/partials/before-after.html`（含 N→1 变体） |
+
+产物存档：`~/cover-verify/{baseline,skill,skill-bun}/`。
