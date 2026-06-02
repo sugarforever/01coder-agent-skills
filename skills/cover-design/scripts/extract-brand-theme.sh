@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# extract-brand-theme.sh — 从产品官网扒真实品牌色 + 字体，供封面做「品牌匹配」。
+# extract-brand-theme.sh — 从产品官网提取品牌色 + 字体，供封面做「品牌匹配」。
 #
 # 当选题是某个具体产品/工具/开源项目时，用它官网自己的品牌色和字体做封面，
 # 比套频道默认 lime + Manrope 更原生。配方与避坑见 references/brand-theme.md。
@@ -8,9 +8,9 @@
 #   extract-brand-theme.sh <url>
 #     <url>  产品官网首页，如 https://impeccable.style
 #
-# 输出（stdout，可直接抄进模板 :root）:
+# 输出（stdout，可直接写入模板 :root）:
 #   - Google Fonts 链接 + 解析出的 family 列表（按 display/body/mono 自己分工）
-#   - 颜色变量与字面量（含 oklch 原值，可原样搬进 Chrome）
+#   - 颜色变量与字面量（含 oklch 原值，可原样写入 Chrome）
 #   - 语义化品牌变量名（反推调性，如 kinpaku/lacquer → 日式漆器暖金）
 #
 # 依赖: curl + rg(ripgrep)。
@@ -31,7 +31,7 @@ echo "# Brand theme extracted from: $URL"
 echo "# origin: $ORIGIN"
 echo
 
-echo "## Google Fonts 链接（直接抄进 <head>）"
+echo "## Google Fonts 链接（直接写入 <head>）"
 rg -oiP 'https://fonts\.googleapis\.com/css2\?family=[^"'\'' )]+' "$TMP" | sort -u
 echo
 echo "## 字体 family（自己按 display / body / mono 分工，中文另配 Noto Serif/Sans SC）"
@@ -40,7 +40,7 @@ echo
 
 # 收集所有 CSS：内联 <style> + 链接的样式表
 CSSALL="$(mktemp)"; trap 'rm -f "$TMP" "$CSSALL"' EXIT
-cat "$TMP" >> "$CSSALL"   # 内联 style / CSS-in-HTML 也一并扒
+cat "$TMP" >> "$CSSALL"   # 内联 style / CSS-in-HTML 也一并纳入
 # 链接的样式表（相对 / 绝对 / 协议相对）
 while IFS= read -r href; do
   case "$href" in
@@ -52,7 +52,7 @@ while IFS= read -r href; do
   curl -sL --max-time 20 "$url" >> "$CSSALL" 2>/dev/null || true
 done < <(rg -oiP '<link[^>]+rel="stylesheet"[^>]+href="\K[^"]+|href="\K[^"]+\.css[^"]*' "$TMP" | sort -u)
 
-echo "## 颜色：CSS 变量定义（含 oklch 原值，可原样搬进 Chrome）"
+echo "## 颜色：CSS 变量定义（含 oklch 原值，可原样写入 Chrome）"
 rg -oiP '\-\-[a-z0-9-]+:\s*(oklch\([^)]+\)|#[0-9a-f]{3,8}\b)' "$CSSALL" 2>/dev/null | sort -u | head -60
 echo
 echo "## 颜色：裸字面量（备查）"
@@ -64,4 +64,4 @@ rg -oiP '\-\-[a-z]+(?:-[a-z0-9]+)*(?=:\s*(oklch|#|rgb))' "$CSSALL" 2>/dev/null \
   | sort -u | head -40
 
 echo
-echo "# 下一步：挑 accent/bg/ink + display/body/mono，覆盖模板 :root；风格按调性从 design-styles.md 选。详见 references/brand-theme.md"
+echo "# 下一步：选 accent/bg/ink + display/body/mono，覆盖模板 :root；风格按调性从 design-styles.md 选。详见 references/brand-theme.md"
