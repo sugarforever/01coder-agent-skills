@@ -1,0 +1,74 @@
+<!--
+  Partial · 领域装置「设备框对照」 — 不是完整封面，是塞进任意封面右半/一侧的可复用图示。
+  用法：把 <style> 并进封面的 <style>，把 .device 块放进封面布局；改文案 + 改 --acc 即用。
+  覆盖的两种装置（同一套盒子）：
+    1) 转变型 before→after：左框堆该领域「坏味道」，右框放干净版（设计类示例如下）
+    2) 整合/替代型 N→1：把右侧单框换成「N 个 ✕ 列表 → 一个 ✓」（见底部变体注释）
+  颜色：默认吃封面的 --acc / --ink / --bg / --muted；没有就用下面 :root 的回退值。
+-->
+<style>
+.device { --acc:#7bff9f; --ink:#0b0b0b; --paper:#f3efe6; --muted:#8a8a8a; --bad:#ff5a6e;
+  display:flex; align-items:center; gap:28px; font-family:'Noto Sans SC',sans-serif; }
+.device .frame { width:330px; height:360px; border-radius:18px; padding:24px; position:relative; overflow:hidden; }
+.device .clab { font-family:'JetBrains Mono',monospace; font-size:22px; letter-spacing:.06em; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+.device .arrow { font-family:'Alumni Sans','Archivo',sans-serif; font-weight:800; font-size:56px; color:var(--acc); }
+
+/* before 框：该领域典型问题（这里给设计类「AI 味」的样子，换领域就换里头元素） */
+.device .before .clab { color:var(--muted); }
+.device .before .clab .x { color:var(--bad); font-weight:700; }
+.device .before .frame.bad { background:linear-gradient(140deg,#6366f1,#a855f7); }   /* 设计类坏味道：紫蓝渐变 */
+.device .before .nest { background:#fff; border-radius:14px; height:100%; padding:20px; }
+.device .before .nest .nest2 { background:#f1f2f4; border-radius:10px; height:120px; margin-bottom:16px; }  /* 卡片套卡片 */
+.device .before .ln { height:12px; border-radius:6px; background:#d1d5db; margin-bottom:10px; }            /* 灰字 */
+.device .before .ln.s { width:60%; }
+.device .before .pill { margin-top:14px; display:inline-block; background:#7c3aed; color:#c4b5fd; font-family:Arial; font-size:18px; padding:7px 16px; border-radius:8px; } /* Inter/低对比 */
+
+/* after 框：本期品牌色 + 字体的干净版 */
+.device .after .clab { color:var(--acc); }
+.device .after .frame.good { background:#161310; border:1px solid color-mix(in oklch, var(--acc) 35%, transparent); }
+.device .after .h { font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:600; font-size:70px; color:var(--acc); line-height:.9; }
+.device .after .rule { height:2px; width:78px; background:var(--acc); margin:18px 0 22px; }
+.device .after .ln { height:12px; border-radius:6px; background:#b3b3b3; margin-bottom:12px; }
+.device .after .ln.s { width:54%; background:#6b6b6b; }
+.device .after .tag2 { position:absolute; bottom:22px; left:24px; font-family:'JetBrains Mono',monospace; font-size:18px; color:var(--muted); letter-spacing:.08em; }
+</style>
+
+<!-- 装置 1 · 转变型 before → after（改 .clab 文案、坏味道元素、品牌色即可换领域） -->
+<div class="device">
+  <div class="before">
+    <div class="clab"><span class="x">✕</span> 改之前</div>
+    <div class="frame bad">
+      <div class="nest">
+        <div class="nest2"></div>
+        <div class="ln"></div><div class="ln s"></div>
+        <div class="pill">Inter</div>
+      </div>
+    </div>
+  </div>
+  <div class="arrow">→</div>
+  <div class="after">
+    <div class="clab"><span>✓</span> 改之后</div>
+    <div class="frame good">
+      <div class="h">Aa</div>
+      <div class="rule"></div>
+      <div class="ln"></div><div class="ln s"></div>
+      <div class="tag2">本期品牌色 · 对比达标</div>
+    </div>
+  </div>
+</div>
+
+<!--
+  ── 变体：整合/替代型 N → 1（把上面整个 .device 换成这个）──────────────
+  <div class="combine" style="font-family:'Noto Sans SC',sans-serif;">
+    <div style="font-family:'JetBrains Mono',monospace;color:var(--muted);font-size:20px;margin-bottom:14px;">// 一个工具替掉</div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="item">node      ✕</div>
+      <div class="item">npm       ✕</div>
+      <div class="item">bundler   ✕</div>
+      <div class="item">test      ✕</div>
+    </div>
+    <div style="font-size:40px;color:var(--acc);text-align:center;margin:10px 0;">▼</div>
+    <div class="solo">$ bun &nbsp; 一个搞定</div>
+  </div>
+  各 .item = 带 ✕ 的描边框；.solo = accent 实底 + 黑字的「答案」框。颜色同样吃 --acc。
+-->

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # render-cover.sh — 把定制好的封面 HTML 渲染成多比例 2x PNG，并各生成一张可 Read 的小图预览。
 #
-# 这是 headless Chrome 兜底管线的「打包版」，把本仓库踩过的坑都内置了：
+# 这是 headless Chrome 回退管线的「打包版」，把本仓库遇到过的问题都内置了：
 #   - 用字面 ratio 列表，不靠 shell 变量分词（zsh 不会对 $VAR 分词，老 bug）
 #   - 输出到调用方给的持久目录，绝不用 /tmp（会被清）
 #   - 渲染与降采样分两段：先确认 PNG 落地（有界轮询，因为 headless Chrome 常在
@@ -69,17 +69,21 @@ pkill -9 -f "Google Chrome.*--headless" 2>/dev/null || true
 sleep 1
 
 # 1) 渲染阶段：每个比例并行，独立 profile
+PIDS=()
 for r in "${VALID[@]}"; do
   read -r cvh W H _ <<< "$(dims "$r")"
   src="$OUTDIR/.render-$r.html"
   sed -E "s/--cv-h: *[0-9]+px/--cv-h:${cvh}px/" "$HTML" > "$src"
   "$CHROME" --headless=new --disable-gpu --force-device-scale-factor=2 --hide-scrollbars \
     --default-background-color=00000000 --user-data-dir="$OUTDIR/.prof-$r" \
-    --window-size="$W,$H" --screenshot="$OUTDIR/cover-$r.png" "file://$src" >/dev/null 2>&1 &
+    --window-size="$W,$H" --virtual-time-budget=8000 \
+    --screenshot="$OUTDIR/cover-$r.png" "file://$src" >/dev/null 2>&1 &
+  PIDS+=($!)
 done
-wait 2>/dev/null || true
 
-# 2) 等所有 PNG 落地（headless Chrome 常在写盘前就让 wait 返回）—— 有界轮询
+# 2) 等所有 PNG 落地 —— 有界轮询。
+#    关键：不要 `wait` 这些 Chrome 进程。--headless=new 截图后常不自退（render-pipeline.md 记录的坑），
+#    `wait` 会永久阻塞，后面的收尾就永远到不了。改为只等文件落地，再主动收掉进程。
 deadline=$((SECONDS + 40))
 while [ "$SECONDS" -lt "$deadline" ]; do
   missing=0
@@ -87,7 +91,13 @@ while [ "$SECONDS" -lt "$deadline" ]; do
   [ "$missing" -eq 0 ] && break
   sleep 1
 done
-pkill -9 -f "Google Chrome.*--headless" 2>/dev/null || true
+
+# 主动收掉本次起的 Chrome：先按 PID，再按本次 OUTDIR 的 profile 目录精确收掉残留
+#（用 profile 路径匹配，不会误杀别处正在跑的其它 headless Chrome 实例）
+for pid in "${PIDS[@]}"; do kill "$pid" 2>/dev/null || true; done
+sleep 1
+pkill -9 -f "user-data-dir=$OUTDIR/.prof-" 2>/dev/null || true
+for pid in "${PIDS[@]}"; do kill -9 "$pid" 2>/dev/null || true; done
 
 # 3) 降采样 + 计数（此时文件已落地）
 ok=0; fail=0

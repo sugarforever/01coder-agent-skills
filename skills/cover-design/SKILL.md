@@ -13,7 +13,7 @@ description: Design typography-driven video cover images using HTML/CSS + Chrome
 |---|---|---|
 | 渲染方式 | AI 生图 (Replicate gpt-image-2) | HTML/CSS + 浏览器截图 |
 | 视觉风格 | 手绘 / 插画 / 编辑设计 | 排版驱动 / typography hero |
-| 文字精度 | AI 渲染的文字常常糊 / 错字 | 100% 精确 |
+| 文字精度 | AI 渲染的文字常常模糊 / 错字 | 100% 精确 |
 | 适合 | 文章题图 / 抽象概念 / 美术导向 | 视频缩略图 / 大标题 / 品牌一致性 |
 | 风格扩展 | 通过 prompt 调整 | 通过新增 HTML 模板扩展 |
 
@@ -63,6 +63,10 @@ description: Design typography-driven video cover images using HTML/CSS + Chrome
 
 `.cover` 元素**必须用固定像素**（通过 `--cv-w` / `--cv-h` 变量 - 横屏 1920 宽、竖屏 1080 宽，高度按比例取值），**不要用 `vw` / `vh` / `%`**。原因见 `references/render-pipeline.md` 里的浏览器视口陷阱章节 - 简单说,resize_page 设的高度不等于实际视口高度,Chrome 工具栏 / 标签栏会吃掉 200-400px。固定像素 + fullPage 截图才稳。
 
+### 4. 传达 > 好看
+
+封面读得清还不够,要在三秒内说清**是什么 / 什么品类 / 什么领域**:产品名做主元素、品类给信号(agent skill→斜杠命令条、模型→logo)、领域给锚(设计→before/after、安全→告警)。品牌署名只出现一次,精简次要 chrome。这是封面质量能超过纯模板套用的关键一环 - 详见 `references/cover-composition.md`。
+
 ## 工作流
 
 ### Step 1 · 收集信息
@@ -78,8 +82,19 @@ description: Design typography-driven video cover images using HTML/CSS + Chrome
 7. **品牌 logo** - 要不要带某个模型/产品/厂商的官方 logo (Claude / OpenAI / Gemini / DeepSeek / Ollama……)?来源是 `@lobehub/icons`,取图标和放置见 `references/brand-logos.md` (可选)
 8. **额外元素** - 比如版本号、tagline、装饰图形 (可选)
 9. **输出路径** - 默认输出到视频目录,文件名带比例后缀 (`cover-16x9.html/.png` 等)
+10. **是不是讲某个具体产品 / 工具?** - 是的话拿到官网 URL,进入**品牌匹配模式**(见下),用产品自己的色 + 字 + logo,比频道默认 lime 更贴合产品
 
 如果用户给了文章 / 脚本路径,先 Read 抽取主标题和副标题,再确认。
+
+#### 品牌匹配模式(选题是某个具体产品 / 工具 / 开源项目时)
+
+封面采用**产品官网的品牌色和字体**,封面气质和被介绍的产品一致。运行:
+
+```bash
+scripts/extract-brand-theme.sh https://产品官网
+```
+
+它输出可直接写入模板 `:root` 的 Google Fonts + 颜色 token(含 oklch 原值,Chrome 原生支持,原样写入即可)。用提取值覆盖模板默认的 `--accent`/`--bg`/`--ink`/`--font-display`/`--font-mono`,风格按官网调性从 `design-styles.md` 选最接近的。**方法、字体中文搭配、取不到时的处理见 `references/brand-theme.md`**。这和 `brand-logos.md`(取 logo)互补,配齐「色 + 字 + logo」一整套。
 
 ### Step 2 · 选模板（按朝向选模板族）
 
@@ -133,6 +148,8 @@ description: Design typography-driven video cover images using HTML/CSS + Chrome
 
 用户要带某个模型/产品/厂商 logo 时（讲 Claude、OpenAI、Gemini、DeepSeek、Ollama 等），从 **[@lobehub/icons](https://lobehub.com/icons)** 取官方 logo 融进模板。**完整说明（CDN URL、变体、放法、避坑、identity test）见 `references/brand-logos.md`**，要点:
 
+> **`@lobehub/icons` 只覆盖 AI / LLM 厂商。** 讲非 AI 产品（开发工具、运行时、框架、SaaS，如 Bun、Vite、Zed）时它多半没有对应图标，`fetch-brand-icon.sh` 会报 FAIL。**这时不要勉强拼一个 logo，也不要随意找网络图片（Critical Rule 8）** - 改走**无 logo 的排版 / 品牌色识别**：产品名做大字主元素 + 品牌色 + 命令条 / 领域装置，照样能建立清晰的品牌识别（Bun 封面就是这么做的，见 `references/cover-composition.md`）。
+
 1. **取图标**：跑 helper 下载到封面同目录的 `assets/`（离线可渲染，最稳）:
    ```bash
    scripts/fetch-brand-icon.sh claude color svg ./assets   # 官方配色
@@ -145,25 +162,34 @@ description: Design typography-driven video cover images using HTML/CSS + Chrome
 
 ### Step 4 · 渲染成 PNG（每个比例一张）
 
-对 Step 1 选定的**每个比例**渲染一次。改 HTML `:root` 的 `--cv-h` 切比例（横屏 1080↔1200，竖屏 1920↔1440），resize 到对应尺寸，截图存成带后缀的文件。逐比例的 resize 尺寸 + 输出文件名见 `references/render-pipeline.md` 的多比例表。
+**默认用脚本 `scripts/render-cover.sh`** - 它把多比例、2x retina、降采样预览、以及 headless Chrome 的所有坑（输出别用 /tmp、截图落盘时序、`--headless=new` 不自退要主动收进程、独立 profile）都封好了。一条命令搞定一期的横屏或竖屏全比例：
 
-标准三步（每个比例重复，同一页面可复用 - 改 `--cv-h` 后 reload 再截）:
+```bash
+scripts/render-cover.sh cover.html ~/covers/<slug>            # 横屏 HTML → 自动出 16x9 + 16x10
+scripts/render-cover.sh cover-v.html ~/covers/<slug> 9x16 3x4 # 竖屏显式指定比例
+```
 
-1. `mcp__chrome-devtools__new_page` 打开 `file://` 路径
-2. `mcp__chrome-devtools__resize_page` 设到 `画布宽 ×（画布高 + 20）`
-3. `mcp__chrome-devtools__navigate_page` reload(确保新尺寸下重新布局)
-4. `mcp__chrome-devtools__take_screenshot` `fullPage: true` → `cover-{比例}.png`
+产物：`cover-<比例>.png`（2x retina，如 16:9 → 3840×2160）+ `cover-<比例>.preview.png`（≤1400px，给 Read / 验收看）。运行 `scripts/render-cover.sh` 无参看完整用法；坑的来由见 `references/render-pipeline.md`。
 
-每张 PNG 是 2x retina（如 16:9 → 3840×2160，9:16 → 2160×3840），缩到平台落点尺寸都清晰。
+**交互式微调时**可改用 chrome-devtools MCP 逐张截（适合一边看一边调 CSS）：`new_page` 打开 `file://` → `resize_page` 到 `画布宽 ×（画布高 + 20）` → `navigate_page` reload → `take_screenshot` `fullPage: true`。但批量出图、最终交付一律走脚本（见 Critical Rule 10）。
 
 ### Step 5 · 验收 + 迭代
 
-`open` 在 macOS 默认查看器里打开所有 PNG 给用户看。问反馈:
+`open` 在 macOS 默认查看器里打开所有 PNG 给用户看。
 
+**先过内容传达自检（见 `references/cover-composition.md`）**:
+- [ ] **三信号**都到位?逐条指认画面里哪个元素负责:**是什么**(主角是不是最显眼)/ **什么品类**(agent skill→命令条、模型→logo)/ **什么领域**(设计→before/after、安全→告警…)
+- [ ] **品牌署名只出现一次**?(注意区分:产品名=选题主角要显眼,频道署名=低调一次。两者不算重复)
+- [ ] 有没有可删的**次要 chrome**(日期 / `Ep·`胶囊 / 分隔横线 / 装饰标签)?空白处是有信息量的视觉还是纯空?
+- [ ] 空白处放了**领域装置**没有?(转变类→before/after,整合类→N 个 ✕ → 一个 ✓,对比类→vs,数据类→大数字;partial 见 `templates/partials/before-after.html`)
+
+再问视觉反馈:
 - 文字位置 / 字号合不合适?
 - **缩略图测试** - 缩到 ~320px / 160px 宽,主标题还读得出吗?(3 秒原则)
-- **竖屏安全区** - 9:16 / 3:4 的核心文字是否都在中央安全带、没贴边?(抖音/视频号首尾会叠 UI / 被裁)
-- accent / 背景色调要不要换?装饰元素多不多?是否换模板?
+- **竖屏安全区** - 9:16 / 3:4 的核心文字是否都在中央安全带、没贴边?
+- accent / 背景色调要不要换?是否换模板?
+
+> **多方向预览**:定稿前不确定方向时,**一次给出 3-4 个不同方向供用户选择**(不同风格 / 配色),比单版反复改收敛更快。存档命名 `cover-styles/{字母}-{风格}.html/.png`。
 
 迭代时优先改 CSS 变量和占位符文本,不要重新写整个 HTML(节省 token,改动可见)。竖屏调试若用了 `body.show-guide` 看安全带,**最终渲染前去掉这个 class**。
 
@@ -209,6 +235,8 @@ description: Design typography-driven video cover images using HTML/CSS + Chrome
 5. **不替 cover-image 做事** - 用户要插画 / AI 生图,转 `cover-image` skill,本 skill 只做代码驱动的排版型封面
 6. **不自动发布** - 只产 PNG,不动用户的发布渠道
 7. **品牌信息从 auto memory** - 频道名 / 作者名优先读 `video-promo.md`,首次没有再问用户
-8. **品牌 logo 用官方来源** - 需要模型/产品/厂商 logo 时从 `@lobehub/icons` 取(见 `references/brand-logos.md` + `scripts/fetch-brand-icon.sh`),不要手搓或随便找网图;深色底别用 mono `<img>`(会变黑),用 color 变体或内联着色;对比类选题(X vs Y)双 logo 放大成标题上方 lockup,别缩成 kicker 小图标
+8. **品牌 logo 用官方来源** - 需要模型/产品/厂商 logo 时从 `@lobehub/icons` 取(见 `references/brand-logos.md` + `scripts/fetch-brand-icon.sh`),不要自行制作或随意使用网络图片;深色底别用 mono `<img>`(会变黑),用 color 变体或内联着色;对比类选题(X vs Y)双 logo 放大成标题上方 lockup,别缩成 kicker 小图标
 9. **中文标题行高** - 中文大标题 line-height ≈1.05–1.10,别用拉丁 display 的 0.9(会撞行);见 `references/design-styles.md`
 10. **渲染输出别用 `/tmp`** - headless 渲染输出到持久目录(`/tmp` 会被清);优先用 `scripts/render-cover.sh`,坑见 `references/render-pipeline.md`
+11. **封面要传达选题,不止好看** - 定稿前过三信号自检(是什么/品类/领域)、品牌署名只一次、精简次要 chrome、转变类放 before/after;见 `references/cover-composition.md`
+12. **讲具体产品时做品牌匹配** - 用产品官网真实色 + 字(`scripts/extract-brand-theme.sh` + `references/brand-theme.md`),不要一律采用默认 lime;封面气质和被介绍的产品一致更专业
