@@ -28,9 +28,15 @@ If `codex` is missing, the skill tells the user it's unavailable and stops — i
 | Machine-readable events | `--json` |
 | Long prompts | pipe via stdin: `codex exec - < prompt.txt` |
 | Resume a session | `codex exec resume <session-id> "..."` |
+| Image input | attach with `-i`: `codex exec -i a.png,b.png "compare these"` |
+| File input | read from `-C` workspace, or pipe text via stdin |
 | Image generation | `codex exec "Generate ... 16:9"` + locating the output file |
 
 For non-trivial work it shapes the delegated prompt with Codex's recommended structure (`Goal / Context / Constraints / Done when:`) and, for complex implementation, asks Codex for a `read-only` plan first before running a separate write pass.
+
+### Image and file input note
+
+Codex can't browse files on its own — images must be attached explicitly with `-i`/`--image` (single, comma-separated, or a repeated flag), paired with a text instruction. For non-image files, the skill points Codex at the file via the `-C` workspace or pipes contents through stdin (appended to the prompt as a `<stdin>` block).
 
 ### Image generation note
 
