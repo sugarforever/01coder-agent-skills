@@ -1,4 +1,4 @@
-# personal-chinese-writing-style
+# Personal Chinese Writing Style
 
 Apply the author's personal Chinese writing style when writing, translating, editing, proofreading, polishing, or publishing **Chinese** content — blog posts, articles, subtitles/captions, tweets, threads, newsletters, and social posts.
 
