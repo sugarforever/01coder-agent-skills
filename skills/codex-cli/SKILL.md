@@ -1,6 +1,6 @@
 ---
 name: codex-cli
-description: Use when an agent needs to delegate a task to the OpenAI Codex CLI from another agent environment such as Claude Code, OpenClaw, or similar. Covers checking whether Codex CLI is installed, running one-off Codex prompts with `codex exec`, resuming sessions, collecting outputs, and handling Codex image generation including finding and reporting generated image file paths.
+description: Use when an agent needs to delegate a task to the OpenAI Codex CLI from another agent environment such as Claude Code, OpenClaw, or similar. Covers checking whether Codex CLI is installed, running one-off Codex prompts with `codex exec`, resuming sessions, collecting outputs, attaching images or files as input with `-i`/stdin, and handling Codex image generation including finding and reporting generated image file paths.
 ---
 
 # Codex CLI
@@ -87,6 +87,39 @@ codex exec resume <session-id> "Continue from the previous task"
 ```
 
 If the installed CLI supports a different resume syntax, follow `codex exec resume --help`.
+
+## Image and File Input
+
+Codex cannot browse or read image files on its own. To let Codex *see* an image, attach it explicitly with `-i`/`--image`. This is the input side; image generation (below) is the output side.
+
+Attach a single image:
+
+```bash
+codex exec -C "$PWD" -s read-only -i screenshot.png "Explain the error shown here"
+```
+
+Attach multiple images. Both forms work — comma-separated or a repeated flag:
+
+```bash
+codex exec -i before.png,after.png "Compare these two UI states"
+codex exec -i mock1.png -i mock2.png "Which layout is closer to the spec?"
+```
+
+Best practices:
+
+- Put `-i` flags before the prompt text.
+- Use common raster formats: PNG (best for screenshots/UI, lossless) or JPEG. Keep images reasonably small; very large images slow the request.
+- Combine images with a clear text instruction — the image alone is rarely enough context.
+- For visual review/analysis, pair with `-s read-only` so Codex inspects but does not edit.
+
+For **non-image files** there is no attach flag. Two options:
+
+- Let Codex read the file from the workspace: point it at the directory with `-C "$PWD"` and name the file in the prompt (`"Review src/auth.ts"`). Use this for files already in the repo.
+- Pipe file contents via stdin. With a prompt also present, stdin is appended to the prompt as a `<stdin>` block:
+
+```bash
+codex exec -C "$PWD" "Summarize the attached log" < /tmp/build.log
+```
 
 ## Image Generation Workflow
 
