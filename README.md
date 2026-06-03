@@ -53,8 +53,25 @@ New skills are picked up automatically on marketplace update — no reinstall ne
 
 ### Utilities
 
+- **codex-cli** — Delegate one-off tasks to OpenAI Codex CLI, including coding reviews, implementation passes, and image generation with proactive image path discovery.
 - **diagram-to-image** — Convert Mermaid diagrams and Markdown tables to PNG / SVG images for platforms that don't support rich formatting.
 - **interactive-input** — Embed interactive UI components (multiple choice, forms, surveys) in chat responses on compatible clients.
+
+#### codex-cli Development Direction
+
+The `codex-cli` skill is intended to let other agents, such as Claude Code or OpenClaw, deliberately consult OpenAI Codex CLI for scoped one-off work. It should behave like a bridge workflow, not a replacement for the host agent: first verify that `codex` is installed, delegate a clearly framed task through `codex exec`, then inspect and report the concrete result.
+
+When improving this skill, keep it focused on practical Codex CLI operation:
+
+- Prefer non-interactive `codex exec` workflows over interactive sessions.
+- Shape delegated prompts with Codex best-practices sections: `Goal`, `Context`, `Constraints`, and `Done when`.
+- Use `read-only` for planning, review, critique, and image generation unless the user explicitly wants Codex to edit files.
+- For implementation tasks, encourage plan-first delegation before write-mode execution.
+- For image generation, always locate the generated file under `$CODEX_HOME/generated_images/<session-id>/` or `~/.codex/generated_images/<session-id>/`, verify dimensions when an aspect ratio was requested, and report the path proactively.
+- Do not claim a specific image backend model unless Codex output, logs, or metadata prove it.
+- Do not trust Codex's final message alone when file changes matter; inspect Git status, diffs, or output files.
+
+Future additions should be small and evidence-oriented: better session-id extraction, safer output parsing, known CLI flag changes, and stronger image/file discovery are aligned with the skill. Broad Codex product documentation, general prompt engineering, or host-agent-specific behavior should stay out unless it directly improves this delegation workflow.
 
 ### Integrations
 

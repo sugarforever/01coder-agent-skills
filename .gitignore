@@ -10,3 +10,7 @@ skills/lark-stock-tracker/
 # Local Codex CLI config (per-machine)
 .codex/
 
+# Local agent runtime dirs (per-machine, not part of the marketplace)
+.claude/
+.agents/
+

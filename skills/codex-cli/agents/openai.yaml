@@ -1,0 +1,7 @@
+interface:
+  display_name: "Codex CLI"
+  short_description: "Delegate tasks to the Codex CLI"
+  default_prompt: "Use $codex-cli to ask Codex CLI for a one-off review, implementation pass, or image generation task."
+
+policy:
+  allow_implicit_invocation: true
