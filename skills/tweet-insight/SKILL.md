@@ -92,7 +92,7 @@ description: 从推文出发，深度阅读关联内容，整理成原创分享�
 
 ### Step 6: 应用个人写作风格
 
-调用 `personal-writing-style` skill，对生成的文字做最后一轮润色：
+调用 `personal-chinese-writing-style` skill，对生成的文字做最后一轮润色：
 
 - 标点符号（破折号用 ` - `，省略号用 `......`，引号用 `""`）
 - 文章结构（结构隐于文中，用散文连接而非硬切）

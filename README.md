@@ -27,7 +27,7 @@ New skills are picked up automatically on marketplace update — no reinstall ne
 
 ### Content & Writing
 
-- **personal-writing-style** — Personal writing-style preferences (punctuation, structure, voice). Reference when writing, translating, or editing content.
+- **personal-chinese-writing-style** — Personal writing-style preferences (punctuation, structure, voice). Reference when writing, translating, or editing content.
 - **video-script** — Create video scripts and publishing materials (title, description, tags, chapter timestamps) for YouTube and Bilibili.
 - **cover-image** — Hand-drawn style article cover image generator with 17 style options and 10 composition layouts.
 - **tweet-insight** — Read a tweet plus its linked papers / blogs / system cards, then write an original Chinese share-post in your own words.

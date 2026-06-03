@@ -46,7 +46,7 @@
 
 ### 标题排版细节
 
-这些属于**作者的 typography 偏好**,由 `personal-writing-style` skill 负责,本 skill 不重复规定。
+这些属于**作者的 typography 偏好**,由 `personal-chinese-writing-style` skill 负责,本 skill 不重复规定。
 
 ---
 

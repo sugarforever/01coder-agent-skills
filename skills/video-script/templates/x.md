@@ -18,4 +18,4 @@
 
 - 链接位置放在开头 1-2 句之后（X 卡片预览会正常渲染，放最前或最后都不行）
 - 替换 `[视频链接]` 为实际 YouTube 或 B 站 URL
-- 参考 `personal-writing-style` skill 的 social-media-style 章节决定语气和分点策略
+- 参考 `personal-chinese-writing-style` skill 的 social-media-style 章节决定语气和分点策略

@@ -99,7 +99,7 @@ Ask user to pick one, or mix elements from multiple candidates.
 ### General Style
 
 - Write in the same language as the source content (Chinese article → Chinese post, English → English)
-- If the user has a personal-writing-style skill, follow those preferences
+- If the user has a personal-chinese-writing-style skill, follow those preferences
 - Avoid hype words ("revolutionary", "game-changing") — be genuine
 - Be specific rather than vague ("reduces build time by 40%" > "makes things faster")
 

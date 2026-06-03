@@ -20,7 +20,7 @@ description: Produce slides-driven narration videos (口播视频) where each sl
 
 使用前先确认这两个可调用。**任一不可用立即告知用户并停止** —— 不要自己重写 PPT / 脚本生成逻辑(那样会失去与生态的一致性)。
 
-建议并行调用 `personal-writing-style` 确保语言风格跟作者一致。
+建议并行调用 `personal-chinese-writing-style` 确保语言风格跟作者一致。
 
 ---
 

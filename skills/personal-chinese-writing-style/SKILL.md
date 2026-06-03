@@ -1,9 +1,9 @@
 ---
-name: personal-writing-style
+name: personal-chinese-writing-style
 description: Apply the user's Chinese writing style when writing, translating, editing, proofreading, polishing, or publishing Chinese content, including blog posts, articles, subtitles, captions, tweets/X posts, threads, newsletters, and social posts. Enforce punctuation rules, especially Chinese curved quotes, halfwidth dash " - ", ASCII ellipsis "......", and no leftover fullwidth/English punctuation in Chinese body text.
 ---
 
-# Personal Writing Style
+# Personal Chinese Writing Style
 
 Use this skill for Chinese content. The goal is not to explain the style back to the user; the goal is to apply it and verify the final text.
 

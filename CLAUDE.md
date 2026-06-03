@@ -89,7 +89,7 @@ New skills are picked up automatically on marketplace update — no reinstall ne
 - `description`: Must clearly describe **when** to trigger. Include trigger phrases in both Chinese and English if applicable.
 
 ### Content Guidelines
-- Follow `personal-writing-style` skill conventions when writing Chinese content
+- Follow `personal-chinese-writing-style` skill conventions when writing Chinese content
 - Use fictional examples in skill files, not real user data
 - Include interactive workflows (ask user for input before acting)
 - Reference external tools/scripts with relative paths from the skill directory
