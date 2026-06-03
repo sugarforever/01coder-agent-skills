@@ -175,7 +175,7 @@ platform: "..."
 **这些是作者的个人资产,不是 slides-video 的 skill 属性**。
 
 处理方式:
-- 第一次使用作者资产时,从用户那里收集(`video-script` skill 会引导)
+- 第一次使用作者资产时,从用户那里收集(`video-planner` skill 会引导)
 - 保存到 auto memory 的 `video-promo.md`
 - 后续自动复用
 

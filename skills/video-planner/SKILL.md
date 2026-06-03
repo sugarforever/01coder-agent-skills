@@ -1,9 +1,9 @@
 ---
-name: video-script
-description: Create video scripts and publishing materials for YouTubers/UP主. Use when user wants to prepare a video, write a script (口播稿), generate video title, description, tags, or chapter timestamps. Triggers on "写视频脚本", "视频口播稿", "video script", "prepare video", "视频发布素材", or mentions creating content for YouTube/Bilibili.
+name: video-planner
+description: Plan videos and prepare publishing materials for YouTubers/UP主. Use when user wants to plan a video, write a script (口播稿) with on-screen / screen-share cues, generate video title, description, tags, or YouTube chapter timestamps. Triggers on "策划视频", "写视频脚本", "视频口播稿", "video planner", "video script", "prepare video", "视频发布素材", or mentions creating content for YouTube/Bilibili.
 ---
 
-# Video Script & Publishing Materials
+# Video Planner & Publishing Materials
 
 Help YouTubers/UP主 prepare video content: write structured scripts (口播稿), blog posts, platform-specific publishing materials, and an X (Twitter) promo tweet.
 
@@ -69,11 +69,16 @@ The `short-slug` should be a brief, descriptive kebab-case label derived from th
 
 ### Step 4: Write Script (script.md)
 
-Write a structured 口播稿 in the user's preferred language. The script should be conversational and natural for speaking.
+Write a structured 口播稿 in the user's preferred language. The script is what the user **reads aloud while recording**, so two things matter as much as the content:
 
-- See `templates/script.md` for the output format template
-- See `references/script-guidelines.md` for detailed writing rules
-- See `references/examples-tutorial.md` for the canonical 教程 / 配置类 sample script - **read it before writing if the topic is a configuration / how-to / setup video**
+- **照着念友好（read-aloud first）**：每一句都要是「能顺口念出来」的话，不是写出来给人读的文章。太书面、太像技术文档的句子会拖慢录制 - 写完后过一遍，把长定语、术语堆砌、嵌套从句改成短句口语（详见 `references/script-guidelines.md` 的「照着念友好」规则）。
+- **屏上呈现推荐（screen-share cues）**：作为 AI，你要**逐段智能判断**这段口播配什么画面最好 - 某个网页的某一段、某个应用 / 终端界面、一段代码、还是一张对比 / 速查卡 - 并写成 `（屏幕：……）` 备注。目的：用户照着口播稿念的同时，一眼知道该在屏幕上呈现什么。在脚本开头加一张「屏上呈现总则」总表（画面来源 + 逐段映射），正文每段再用内联 `（屏幕：……）` 落到具体内容。不是每段都要切画面 - 判断「需不需要」也是你的工作，纯口播段就标「纯口播」。
+
+参考：
+
+- `templates/script.md` - 输出格式模板（含「屏上呈现总则」表与内联屏幕备注）
+- `references/script-guidelines.md` - 详细写作规则（含「照着念友好」「屏上呈现推荐」两条）
+- `references/examples-tutorial.md` - 教程 / 配置类标准范本，**配置 / how-to / setup 类视频开写前先读**
 
 ### Step 5: Write Blog Post (blog.md)
 
@@ -89,6 +94,8 @@ Generate separate publishing materials for each platform. The two platforms shar
 
 - See `templates/youtube.md` and `templates/bilibili.md` for output format templates
 - See `references/platform-differences.md` for platform-specific rules and guidelines
+- **YouTube 章节**：YouTube 描述里放章节时间戳（从 `00:00` 开始，按脚本结构估算），列表上方先放一行免责声明「时间戳为按脚本结构的估算，剪辑完成后按实际时长调整」。Bilibili 描述不放章节。
+- **参考资料块**：含外部链接（repo / 官网 / 文档）的视频，在 YouTube 描述末尾附一个「参考资料」块，列出链接，以及封面源文件路径（`cover.html` / `cover.png`）便于复用。
 
 ### Step 7: Write X/Twitter Promo (x.md)
 
@@ -114,6 +121,7 @@ After every file is written and fact-audited, run a dedicated polish pass over *
 
 - **Invoke the `personal-chinese-writing-style` skill** and apply it to every generated file: `script.md`, `blog.md`, `youtube.md`, `bilibili.md`, `x.md`
 - **口播稿不例外**：`script.md` 虽然是用来「说」的，也要完整套用标点与风格规则 — 中文弯引号、半角破折号 " - "、ASCII 省略号 "......"、无标题编号、简洁标题，且不留全角/英文标点
+- **额外做一遍「照着念」复核**（口播稿专属，standalone-style 之外）：标点统一不等于好念。再过一遍 `script.md`，确保每句都顺口 - 把太书面 / 太技术文档化的句子（长定语、术语堆砌、嵌套从句、被动腔）改成短句口语；可以默念一遍，卡壳的地方就改。判断标准见 `references/script-guidelines.md` 的「照着念友好」。`（屏幕：……）` 屏上备注保留，不要被风格校对删掉。
 - **保留口语化与自然语流**：personal-chinese-writing-style 只做标点与语气的统一，不强加模板结构（不要把 script.md 改成 Hook/引言/正文/CTA 那种套路）
 - `x.md` 仍以 personal-chinese-writing-style 的 `references/social-media-style.md` 为准（链接位置、bullet vs prose、语气）
 
@@ -162,7 +170,7 @@ Users should configure their promotion block. On first use, ask the user for the
 When asking:
 
 ```
-我注意到这是你第一次使用视频脚本 skill。请提供你的个人推广信息，我会记住以便后续使用：
+我注意到这是你第一次使用视频策划 skill。请提供你的个人推广信息，我会记住以便后续使用：
 
 - 社交媒体链接（Twitter、Bilibili、YouTube 等）
 - 知识星球/社群链接
@@ -179,12 +187,13 @@ See `references/examples.md` for detailed examples of different usage scenarios.
 ## Critical Rules
 
 1. **先问后写** — 信息不足时必须追问，不要猜测用户意图
-2. **口语化脚本** — 脚本是用来说的，不是用来读的
-3. **不要加时间戳** — 脚本章节标题和 YouTube 描述里都不要估算时间戳，节奏由作者自己掌控
-4. **不要自动发布** — 只生成文件，不执行任何发布操作
-5. **保留用户风格** — 如果用户提供了之前的视频风格参考，尽量保持一致
-6. **推广信息复用** — 首次询问后保存到 auto memory，后续自动填充
-7. **日期目录** — 每期视频按当天日期创建独立目录
-8. **技术内容先审后发** — 技术解读/评测等含技术事实的视频，发布前必须逐条事实审核（见 Step 8），无官方来源的点要么删、要么屏上给可见引用，绝不让模型的猜测/幻觉进稿，并出 `fact-check.md` 留档
-9. **统一风格收尾** — 所有生成的中文文稿（含口播稿）在收尾时必须用 `personal-chinese-writing-style` 过一遍，见 Step 9，不可跳过
-10. **封面按需生成** — 封面不是默认产物，先问用户；缩略图用 `cover-design`，文章头图用 `cover-image`（见 Step 10）
+2. **照着念友好** — 口播稿是作者照着念的，每句都要顺口；太书面 / 太技术文档化的句子必须改成短句口语（见 Step 4、Step 9 与 `references/script-guidelines.md` 的「照着念友好」）
+3. **屏上呈现推荐** — 逐段智能判断这段口播配什么画面（网页某段 / 应用 / 终端 / 代码 / 对比卡），写成内联 `（屏幕：……）` 备注，并在脚本开头给一张「屏上呈现总则」总表；纯口播段标「纯口播」（见 Step 4）
+4. **脚本不加时间戳；章节只在 YouTube 描述** — `script.md` 章节标题不标时间戳（节奏由作者录制时掌控）；YouTube 描述放估算章节时间戳（从 `00:00` 起）并在列表上方加免责声明（剪辑后按实际时长调整）；Bilibili 描述不放章节
+5. **不要自动发布** — 只生成文件，不执行任何发布操作
+6. **保留用户风格** — 如果用户提供了之前的视频风格参考，尽量保持一致
+7. **推广信息复用** — 首次询问后保存到 auto memory，后续自动填充
+8. **日期目录** — 每期视频按当天日期创建独立目录
+9. **技术内容先审后发** — 技术解读/评测等含技术事实的视频，发布前必须逐条事实审核（见 Step 8），无官方来源的点要么删、要么屏上给可见引用，绝不让模型的猜测/幻觉进稿，并出 `fact-check.md` 留档
+10. **统一风格收尾** — 所有生成的中文文稿（含口播稿）在收尾时必须用 `personal-chinese-writing-style` 过一遍，见 Step 9，不可跳过
+11. **封面按需生成** — 封面不是默认产物，先问用户；缩略图用 `cover-design`，文章头图用 `cover-image`（见 Step 10）

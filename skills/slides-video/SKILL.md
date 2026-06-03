@@ -1,6 +1,6 @@
 ---
 name: slides-video
-description: Produce slides-driven narration videos (口播视频) where each slide maps 1:1 to one voiceover section. Orchestrates `magazine-web-ppt` (PPT) and `video-script` (script + publishing materials) with a method-focused production workflow. Use when user wants to make a video that uses slides to explain a topic - e.g. 发布解读 / 产品评测 / 行业观察 / 技术解读 / 趋势分析. Triggers on "做一期视频 + PPT", "slides 视频", "发布解读视频", "深度讲解视频", or similar requests for structured narration videos.
+description: Produce slides-driven narration videos (口播视频) where each slide maps 1:1 to one voiceover section. Orchestrates `magazine-web-ppt` (PPT) and `video-planner` (script + publishing materials) with a method-focused production workflow. Use when user wants to make a video that uses slides to explain a topic - e.g. 发布解读 / 产品评测 / 行业观察 / 技术解读 / 趋势分析. Triggers on "做一期视频 + PPT", "slides 视频", "发布解读视频", "深度讲解视频", or similar requests for structured narration videos.
 ---
 
 # Slides-Video · 幻灯片驱动的口播视频
@@ -16,7 +16,7 @@ description: Produce slides-driven narration videos (口播视频) where each sl
 | 依赖 | 作用 |
 |---|---|
 | `magazine-web-ppt` | 生成单文件 HTML 横向翻页 PPT · 负责所有视觉风格 |
-| `video-script` | 生成 script.md / youtube.md / bilibili.md / x.md 等脚本与发布素材 |
+| `video-planner` | 生成 script.md / youtube.md / bilibili.md / x.md 等脚本与发布素材 |
 
 使用前先确认这两个可调用。**任一不可用立即告知用户并停止** —— 不要自己重写 PPT / 脚本生成逻辑(那样会失去与生态的一致性)。
 
@@ -33,7 +33,7 @@ description: Produce slides-driven narration videos (口播视频) where each sl
 - 多主体横向对比
 - 趋势观察 / 现象评论
 
-**不适合** —— 纯教程(用通用 `video-script` 够了)· 纯屏幕演示(slides 不是主体)· 短视频 / Shorts。
+**不适合** —— 纯教程(用通用 `video-planner` 够了)· 纯屏幕演示(slides 不是主体)· 短视频 / Shorts。
 
 ---
 
@@ -52,7 +52,7 @@ description: Produce slides-driven narration videos (口播视频) where each sl
   - 7-8 分钟 → 约 13-15 页
   - 3-4 分钟 → 约 6-7 页
 
-这个 1:1 约束是本 skill 相对通用 `video-script` 的核心增量,不可妥协。
+这个 1:1 约束是本 skill 相对通用 `video-planner` 的核心增量,不可妥协。
 
 ### 2. 语言面向目标受众,而非内部专家
 
@@ -126,7 +126,7 @@ PPT 生成完必须验证:
 ├── ppt/
 │   ├── index.html         # 由 magazine-web-ppt 生成
 │   └── images/            # (可选)插图
-├── script.md              # 由 video-script 生成,本 skill 加 1:1 标记
+├── script.md              # 由 video-planner 生成,本 skill 加 1:1 标记
 ├── youtube.md
 ├── bilibili.md
 └── x.md
@@ -142,7 +142,7 @@ PPT 生成完必须验证:
 
 **本 skill 不规定主题色、不规定封面 / masthead 样式** —— 这些由用户选择和 `magazine-web-ppt` 负责实现。
 
-### Step 6 · 调用 `video-script` 生成脚本 + 发布素材
+### Step 6 · 调用 `video-planner` 生成脚本 + 发布素材
 
 用 `Skill` 工具调用,并应用本 skill 的方法增强:
 
@@ -198,7 +198,7 @@ PPT 已在浏览器打开,可以开始录制。
 
 ### 复用个人推广信息
 
-`video-script` 会从 auto memory 的 `video-promo.md` 读取作者的固定推广块。本 skill 信任这个机制,不重新发明。
+`video-planner` 会从 auto memory 的 `video-promo.md` 读取作者的固定推广块。本 skill 信任这个机制,不重新发明。
 
 ### 文件夹命名
 

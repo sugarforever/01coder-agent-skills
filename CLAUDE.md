@@ -43,7 +43,7 @@ All skills are bundled in a single plugin `01coder-skills`. The plugin uses:
             "name": "01coder-skills",
             "source": "./",
             "skills": [
-                "./skills/video-script",
+                "./skills/video-planner",
                 "./skills/share-reading"
             ]
         }

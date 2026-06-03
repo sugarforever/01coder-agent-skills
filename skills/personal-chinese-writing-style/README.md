@@ -6,7 +6,7 @@ The skill's job is not to explain the style back to you. It applies the style to
 
 ## When it triggers
 
-Any task that produces or edits Chinese prose. It's also invoked by other skills in this marketplace as a final style pass — `video-script`, `tweet-insight`, `slides-video`, and `share-reading` all hand their generated Chinese text through it.
+Any task that produces or edits Chinese prose. It's also invoked by other skills in this marketplace as a final style pass — `video-planner`, `tweet-insight`, `slides-video`, and `share-reading` all hand their generated Chinese text through it.
 
 ## What it enforces
 

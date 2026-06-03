@@ -12,7 +12,7 @@
 2. **描述**(正文叙述)
 3. **封面建议**(引导封面设计)
 
-**个人推广信息** —— 从 auto memory 的 `video-promo.md` 读取,一字不改粘贴。`video-script` skill 已实现这套机制,**本 skill 不重写** —— 信任现有机制。
+**个人推广信息** —— 从 auto memory 的 `video-promo.md` 读取,一字不改粘贴。`video-planner` skill 已实现这套机制,**本 skill 不重写** —— 信任现有机制。
 
 ---
 
@@ -161,12 +161,12 @@
 
 ---
 
-## 模板对接 `video-script` skill
+## 模板对接 `video-planner` skill
 
-本 skill 的发布素材写作大部分由 `video-script` 生成,本 skill 做的增强有限:
+本 skill 的发布素材写作大部分由 `video-planner` 生成,本 skill 做的增强有限:
 
-- **从 `video-promo.md` 读推广信息** —— `video-script` 已实现,信任它
-- **标题朝"受众视角"倾斜** —— 可以通过给 `video-script` 传提示来引导
+- **从 `video-promo.md` 读推广信息** —— `video-planner` 已实现,信任它
+- **标题朝"受众视角"倾斜** —— 可以通过给 `video-planner` 传提示来引导
 - **封面建议呼应封面 slide** —— 如果 Slide 1 的封面是本 skill 生成,封面建议可以引用其视觉要素(但不强制一致)
 
 ---
