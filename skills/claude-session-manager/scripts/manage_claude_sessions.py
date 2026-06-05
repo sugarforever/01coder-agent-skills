@@ -43,7 +43,7 @@ def main() -> int:
     parser.add_argument(
         "--include-tool-details-inline",
         action="store_true",
-        help="Embed full tool details in the main Markdown instead of a sidecar file.",
+        help="Embed full tool inputs and results in the main Markdown instead of compact details.",
     )
     args = parser.parse_args()
 
@@ -157,7 +157,7 @@ def export_session(session_file: Path, source: Path, output: Path, inline_tools:
     if not inline_tools:
         tool_dir.mkdir(parents=True, exist_ok=True)
 
-    rendered, tool_sections, stats = render_events(events)
+    rendered, tool_sections, stats = render_events(events, inline_tools)
     first_prompt = first_user_prompt(events)
     timestamps = [extract_timestamp(event) for event in events]
     timestamps = [stamp for stamp in timestamps if stamp]
@@ -188,7 +188,10 @@ def export_session(session_file: Path, source: Path, output: Path, inline_tools:
     if tool_sections and not inline_tools:
         digest.append(f"- Tool details: [tool-details/{tool_md.name}](tool-details/{tool_md.name})")
 
-    body = digest + ["", "## Timeline", ""] + rendered
+    if stats.get("skipped_noise"):
+        digest.append(f"- Collapsed metadata/noise events: `{stats['skipped_noise']}`")
+
+    body = digest + ["", "## Conversation", ""] + rendered
     if inline_tools and tool_sections:
         body += ["", "## Tool Details", ""] + tool_sections
     session_md.write_text("\n".join(body).rstrip() + "\n", encoding="utf-8")
@@ -241,38 +244,35 @@ def read_jsonl(path: Path) -> tuple[list[dict[str, Any]], list[str]]:
     return events, warnings
 
 
-def render_events(events: list[dict[str, Any]]) -> tuple[list[str], list[str], dict[str, int]]:
-    rendered: list[str] = []
+def render_events(events: list[dict[str, Any]], inline_tools: bool = False) -> tuple[list[str], list[str], dict[str, int]]:
+    turns: list[dict[str, Any]] = []
     tool_sections: list[str] = []
-    stats = {"messages": 0, "tool_uses": 0, "tool_results": 0}
+    stats = {"messages": 0, "tool_uses": 0, "tool_results": 0, "skipped_noise": 0}
+    pending_tool_results = collect_tool_results(events)
 
     for idx, event in enumerate(events, start=1):
         message = event.get("message") if isinstance(event.get("message"), dict) else {}
         role = message.get("role") or event.get("role") or event.get("type") or "event"
         timestamp = extract_timestamp(event)
-        title = f"### {idx}. {role}"
-        if timestamp:
-            title += f" - {timestamp}"
-        rendered.append(title)
-        rendered.append("")
-        stats["messages"] += 1 if role in {"user", "assistant", "system"} else 0
 
         if role == "tool_use":
             stats["tool_uses"] += 1
+            tool_ref = tool_ref_name(stats["tool_uses"])
             tool_id = event.get("id", f"tool-{idx}-{stats['tool_uses']}")
             name = event.get("name", "unknown_tool")
-            rendered.append(f"- Tool use `{name}` (`{tool_id}`)")
-            rendered.append("")
-            tool_sections.extend(tool_detail_section("Tool Use", idx, tool_id, name, event))
+            result = pending_tool_results.get(str(tool_id))
+            append_turn(turns, "Claude", timestamp, format_tool_reference(tool_ref, name, event, result, inline_tools))
+            tool_sections.extend(tool_detail_section(tool_ref, idx, tool_id, name, event, result))
             continue
 
         if role == "tool_result":
             stats["tool_results"] += 1
             tool_id = event.get("tool_use_id") or event.get("id") or f"tool-result-{idx}"
-            status = "error" if event.get("is_error") else "result"
-            rendered.append(f"- Tool {status} (`{tool_id}`): {shorten(block_text(event), 240)}")
-            rendered.append("")
-            tool_sections.extend(tool_detail_section("Tool Result", idx, tool_id, None, event))
+            pending_tool_results[str(tool_id)] = event
+            continue
+
+        if role not in {"user", "assistant"}:
+            stats["skipped_noise"] += 1
             continue
 
         content = message.get("content", event.get("content", ""))
@@ -281,7 +281,9 @@ def render_events(events: list[dict[str, Any]]) -> tuple[list[str], list[str], d
 
         for block in chunks:
             if isinstance(block, str):
-                if block.strip():
+                if is_noise_text(block):
+                    stats["skipped_noise"] += 1
+                elif block.strip():
                     event_lines.append(block)
                 continue
             if not isinstance(block, dict):
@@ -290,50 +292,223 @@ def render_events(events: list[dict[str, Any]]) -> tuple[list[str], list[str], d
 
             block_type = block.get("type", "object")
             if block_type == "text":
-                event_lines.append(str(block.get("text", "")))
+                text = str(block.get("text", ""))
+                if is_noise_text(text):
+                    stats["skipped_noise"] += 1
+                else:
+                    event_lines.append(text)
             elif block_type == "tool_use":
                 stats["tool_uses"] += 1
+                tool_ref = tool_ref_name(stats["tool_uses"])
                 tool_id = block.get("id", f"tool-{idx}-{stats['tool_uses']}")
                 name = block.get("name", "unknown_tool")
-                event_lines.append(f"- Tool use `{name}` (`{tool_id}`)")
-                tool_sections.extend(tool_detail_section("Tool Use", idx, tool_id, name, block))
+                result = pending_tool_results.get(str(tool_id))
+                event_lines.extend(format_tool_reference(tool_ref, name, block, result, inline_tools))
+                tool_sections.extend(tool_detail_section(tool_ref, idx, tool_id, name, block, result))
             elif block_type == "tool_result":
                 stats["tool_results"] += 1
-                tool_id = block.get("tool_use_id") or block.get("id") or f"tool-result-{idx}"
-                status = "error" if block.get("is_error") else "result"
-                event_lines.append(f"- Tool {status} (`{tool_id}`): {shorten(block_text(block), 240)}")
-                tool_sections.extend(tool_detail_section("Tool Result", idx, tool_id, None, block))
             elif block_type in {"thinking", "redacted_thinking"}:
-                event_lines.append(f"[{block_type}] {shorten(block_text(block), 500)}")
+                stats["skipped_noise"] += 1
             else:
-                event_lines.append(f"[{block_type}] {shorten(block_text(block), 500)}")
-                tool_sections.extend(tool_detail_section("Content Block", idx, block.get("id"), None, block))
+                stats["skipped_noise"] += 1
 
         text = "\n\n".join(part.strip() for part in event_lines if part and part.strip())
+        if role == "user" and message_has_only_tool_results(chunks):
+            stats["skipped_noise"] += 1
+            continue
         if text:
-            rendered.append(text)
-        elif not chunks:
-            rendered.append("_No message content._")
+            speaker = "User" if role == "user" else "Claude"
+            append_turn(turns, speaker, timestamp, [text])
+        else:
+            stats["skipped_noise"] += 1
+
+    rendered: list[str] = []
+    for turn in turns:
+        rendered.extend(render_message_header(turn["speaker"], turn["timestamp"]))
+        rendered.append("\n\n".join(turn["parts"]))
         rendered.append("")
 
+    stats["messages"] = len(turns)
     return rendered, tool_sections, stats
 
 
-def tool_detail_section(
-    label: str, event_index: int, tool_id: Any, name: str | None, payload: dict[str, Any]
+def append_turn(turns: list[dict[str, Any]], speaker: str, timestamp: str, parts: list[str]) -> None:
+    clean_parts = [normalize_message_flow_markdown(part.strip()) for part in parts if part and part.strip()]
+    if not clean_parts:
+        return
+    if turns and turns[-1]["speaker"] == speaker:
+        turns[-1]["parts"].extend(clean_parts)
+        if not turns[-1]["timestamp"] and timestamp:
+            turns[-1]["timestamp"] = timestamp
+        return
+    turns.append({"speaker": speaker, "timestamp": timestamp, "parts": clean_parts})
+
+
+def render_message_header(speaker: str, timestamp: str) -> list[str]:
+    prefix = format_local_timestamp(timestamp) if timestamp else "unknown-time"
+    return [f"**{prefix} {speaker}:**", ""]
+
+
+def format_local_timestamp(timestamp: str) -> str:
+    try:
+        value = timestamp.replace("Z", "+00:00")
+        parsed = dt.datetime.fromisoformat(value)
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=dt.datetime.now().astimezone().tzinfo)
+        local = parsed.astimezone()
+        return local.strftime("%m-%d %H:%M:%S")
+    except ValueError:
+        return timestamp
+
+
+def normalize_message_flow_markdown(text: str) -> str:
+    """Keep transcript message flow readable in common Markdown renderers."""
+    lines = []
+    in_fence = False
+    for line in text.splitlines():
+        stripped = line.lstrip()
+        if stripped.startswith("```"):
+            in_fence = not in_fence
+            lines.append(line)
+            continue
+        if not in_fence and stripped.startswith("#"):
+            marker = stripped.split(maxsplit=1)
+            if marker and set(marker[0]) == {"#"} and len(marker[0]) <= 6:
+                indent = line[: len(line) - len(stripped)]
+                heading_text = marker[1].strip() if len(marker) > 1 else ""
+                lines.append(f"{indent}**{heading_text}**" if heading_text else line)
+                continue
+        lines.append(line)
+    return "\n".join(lines)
+
+
+def collect_tool_results(events: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    results: dict[str, dict[str, Any]] = {}
+    for event in events:
+        role = event.get("role") or event.get("type")
+        if role == "tool_result":
+            tool_id = event.get("tool_use_id") or event.get("id")
+            if tool_id:
+                results[str(tool_id)] = event
+        message = event.get("message") if isinstance(event.get("message"), dict) else {}
+        content = message.get("content", event.get("content", ""))
+        chunks = content if isinstance(content, list) else [content]
+        for block in chunks:
+            if isinstance(block, dict) and block.get("type") == "tool_result":
+                tool_id = block.get("tool_use_id") or block.get("id")
+                if tool_id:
+                    results[str(tool_id)] = block
+    return results
+
+
+def tool_ref_name(index: int) -> str:
+    return f"tool_call_{index:06d}"
+
+
+def format_tool_reference(
+    ref: str, name: str, tool_payload: dict[str, Any], result_payload: dict[str, Any] | None, inline: bool
 ) -> list[str]:
-    heading = f"## {label}: {name or tool_id or 'unknown'}"
-    return [
-        heading,
+    summary = tool_call_summary(name, tool_payload)
+    status = "result pending"
+    if result_payload is not None:
+        status = "error" if result_payload.get("is_error") else "result"
+    label = f"`<{ref}>` {name}"
+    if summary:
+        label += f" - {summary}"
+    label += f" - {status}"
+    if not inline:
+        return [label]
+
+    return [label] + format_inline_tool_details(name, tool_payload, result_payload)
+
+
+def tool_call_summary(name: str, payload: dict[str, Any]) -> str:
+    tool_input = payload.get("input")
+    if not isinstance(tool_input, dict):
+        return ""
+
+    candidates = [
+        ("skill", "skill"),
+        ("description", "description"),
+        ("command", "command"),
+        ("file_path", "file"),
+        ("path", "path"),
+        ("url", "url"),
+        ("query", "query"),
+        ("pattern", "pattern"),
+    ]
+    parts = []
+    for key, label in candidates:
+        value = tool_input.get(key)
+        if value in (None, "", [], {}):
+            continue
+        parts.append(f"{label}: {shorten_summary(value)}")
+        if len(parts) == 2:
+            break
+
+    if not parts and tool_input:
+        key = next(iter(tool_input))
+        parts.append(f"{key}: {shorten_summary(tool_input[key])}")
+    return "; ".join(parts)
+
+
+def shorten_summary(value: Any, limit: int = 120) -> str:
+    if isinstance(value, (dict, list)):
+        text = json.dumps(value, ensure_ascii=False, sort_keys=True)
+    else:
+        text = str(value)
+    return shorten(text, limit)
+
+
+def format_inline_tool_details(name: str, tool_payload: dict[str, Any], result_payload: dict[str, Any] | None) -> list[str]:
+    lines = [
+        "<details>",
+        f"<summary><strong>Tool:</strong> {name}</summary>",
+        "",
+    ]
+    tool_input = tool_payload.get("input")
+    if tool_input not in (None, {}, ""):
+        lines.extend(["**Input:**", "```json", json.dumps(tool_input, ensure_ascii=False, indent=2, sort_keys=True), "```", ""])
+    if result_payload is not None:
+        label = "**Error:**" if result_payload.get("is_error") else "**Result:**"
+        content = block_text(result_payload)
+        lines.extend([label, "```", truncate_preserve_lines(content, 2000), "```", ""])
+    lines.extend(["</details>", ""])
+    return lines
+
+
+def message_has_only_tool_results(chunks: list[Any]) -> bool:
+    if not chunks:
+        return False
+    return all(isinstance(block, dict) and block.get("type") == "tool_result" for block in chunks)
+
+
+def tool_detail_section(
+    ref: str,
+    event_index: int,
+    tool_id: Any,
+    name: str,
+    payload: dict[str, Any],
+    result_payload: dict[str, Any] | None,
+) -> list[str]:
+    lines = [
+        f"## `<{ref}>`",
         "",
         f"- Event: `{event_index}`",
         f"- Id: `{tool_id or 'unknown'}`",
+        f"- Tool: `{name}`",
+        "",
+        "### Input",
         "",
         "```json",
-        json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True),
+        json.dumps(payload.get("input", payload), ensure_ascii=False, indent=2, sort_keys=True),
         "```",
         "",
     ]
+    if result_payload is not None:
+        label = "Error" if result_payload.get("is_error") else "Result"
+        lines.extend([f"### {label}", "", "```", block_text(result_payload), "```", ""])
+    return lines
 
 
 def block_text(block: dict[str, Any]) -> str:
@@ -351,7 +526,7 @@ def first_user_prompt(events: list[dict[str, Any]]) -> str:
             continue
         content = message.get("content", event.get("content", ""))
         text = extract_text(content)
-        if text:
+        if text and not is_noise_text(text):
             return shorten(text, 500)
     return ""
 
@@ -368,6 +543,27 @@ def extract_text(content: Any) -> str:
                 parts.append(str(block.get("text", "")))
         return "\n".join(part.strip() for part in parts if part and part.strip())
     return ""
+
+
+def is_noise_text(text: str) -> bool:
+    stripped = text.strip()
+    if not stripped:
+        return True
+    noise_prefixes = (
+        "<local-command-caveat>",
+        "<command-name>",
+        "<local-command-stdout>",
+        "<local-command-stderr>",
+    )
+    if stripped.startswith(noise_prefixes):
+        return True
+    if stripped.startswith("Base directory for this skill:"):
+        return True
+    if stripped.startswith("The file ") and " has been updated successfully" in stripped:
+        return True
+    if stripped.startswith("Launching skill:"):
+        return True
+    return False
 
 
 def extract_timestamp(event: dict[str, Any]) -> str:
@@ -460,6 +656,12 @@ def shorten(text: str, limit: int) -> str:
     if len(collapsed) <= limit:
         return collapsed
     return collapsed[: limit - 1].rstrip() + "..."
+
+
+def truncate_preserve_lines(text: str, limit: int) -> str:
+    if len(text) <= limit:
+        return text
+    return text[:limit].rstrip() + "\n... (truncated)"
 
 
 def format_scalar(value: Any) -> str:

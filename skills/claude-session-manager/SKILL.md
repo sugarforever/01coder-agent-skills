@@ -7,7 +7,7 @@ description: Manage Claude Code session transcripts from local JSONL storage, in
 
 ## Overview
 
-Claude Code stores session transcripts as JSONL files under `~/.claude/projects/<project-key>/<session-id>.jsonl`. Use the bundled manager to list candidates or export sessions into project-organized Markdown transcripts with a digest, timeline, message text, and linked tool-call details.
+Claude Code stores session transcripts as JSONL files under `~/.claude/projects/<project-key>/<session-id>.jsonl`. Use the bundled manager to list candidates or export sessions into project-organized Markdown transcripts with a digest, a clean user/Claude conversation, and linked tool-call details.
 
 Default output folder: `~/.claude/session-markdown`. Tell the user before exporting there, and mention any custom output folder they requested.
 
@@ -41,7 +41,7 @@ Useful options:
 - `--session <text>`: only export sessions whose id or filename contains this text.
 - `--since YYYY-MM-DD`: only export sessions modified on or after this date.
 - `--limit N`: export the N most recently modified matching sessions.
-- `--include-tool-details-inline`: embed full tool payloads in the main session Markdown instead of sidecar files.
+- `--include-tool-details-inline`: embed full tool inputs/results in the main session Markdown. By default, the main transcript keeps compact collapsible tool summaries and links full payloads through the sidecar file.
 
 ## Specific Mode Candidate Flow
 
@@ -99,8 +99,17 @@ Each session Markdown includes:
 
 - Digest: source path, project key, session id, cwd, timestamps, event/message/tool counts, and first user prompt excerpt.
 - Linked tool details file when tool calls or results exist.
-- Timeline: user, assistant, system, summary, tool use, and tool result entries in timestamp order.
-- Short tool summaries inline, with full JSON or text payloads in the sidecar file by default.
+- Conversation: user and Claude turns in timestamp order, rendered as bold local-time `MM-DD HH:MM:SS User:` and `MM-DD HH:MM:SS Claude:` label lines without Markdown heading syntax.
+- Message content in the main conversation should avoid Markdown heading syntax too; convert headings to bold lines outside code fences so regular Markdown readers do not render oversized headings inside the flow.
+- Compact tool references such as `<tool_call_000001> Bash - command: npm test - result` inside the relevant Claude turn, with matching sections in the sidecar details file by default.
+- Metadata events, attachments, local command wrappers, and thinking blocks are omitted from the main conversation unless represented by a short useful note.
+
+## Reading Exported Sessions
+
+- Read the main session Markdown first. The conversation and compact tool references should be enough to understand the flow.
+- Treat each `<tool_call_000001>` reference as a pointer into `tool-details/<session-id>.tools.md`.
+- Only open the tool details file when exact command input, file content, search results, or full tool output matters.
+- Do not load the whole sidecar by default for large sessions; search for the specific tool reference.
 
 ## Workflow
 
