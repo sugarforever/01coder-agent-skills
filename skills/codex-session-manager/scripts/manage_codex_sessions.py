@@ -14,6 +14,10 @@ DEFAULT_SOURCE = Path("~/.codex/sessions").expanduser()
 DEFAULT_ARCHIVED_SOURCE = Path("~/.codex/archived_sessions").expanduser()
 DEFAULT_OUTPUT = Path("~/.codex/session-markdown").expanduser()
 
+# Cap any single tool input/result payload written to the details file. The raw,
+# untruncated payload always remains in the source JSONL (linked from the digest).
+TOOL_DETAIL_LIMIT = 8000
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(
@@ -94,6 +98,14 @@ def main() -> int:
     print(f"Source: {source}")
     print(f"Output: {output}")
     print(f"Exported sessions: {len(exports)}")
+    if exports:
+        # Print the actual file paths — the folder name is sanitized (slashes and
+        # leading dashes collapsed), so it is not always derivable from the project key.
+        print("Files:")
+        for export in exports[:50]:
+            print(f"- {export['path']}")
+        if len(exports) > 50:
+            print(f"- ... {len(exports) - 50} more")
     if warnings:
         print(f"Warnings: {len(warnings)}")
         for warning in warnings[:20]:
@@ -162,14 +174,19 @@ def export_session(session_file: Path, source: Path, output: Path, inline_tools:
     if not inline_tools:
         tool_dir.mkdir(parents=True, exist_ok=True)
 
-    rendered, tool_sections, stats = render_events(events)
+    session_md = project_dir / f"{safe_name(session_id)}.md"
+    tool_md = tool_dir / f"{safe_name(session_id)}.tools.md"
+
+    # Where an inline `<tool_call_…>` reference should link for full details.
+    # Sidecar mode points at the details file; inline mode points at a same-doc
+    # anchor (the "## Tool Details" section appended to the bottom).
+    details_href = "" if inline_tools else f"tool-details/{tool_md.name}"
+
+    rendered, tool_sections, stats = render_events(events, details_href)
     first_prompt = first_user_prompt(events)
     timestamps = [extract_timestamp(event) for event in events]
     timestamps = [stamp for stamp in timestamps if stamp]
     cwd = first_value(events, "cwd")
-
-    session_md = project_dir / f"{safe_name(session_id)}.md"
-    tool_md = tool_dir / f"{safe_name(session_id)}.tools.md"
 
     digest = [
         f"# Codex Session {session_id}",
@@ -246,10 +263,27 @@ def read_jsonl(path: Path) -> tuple[list[dict[str, Any]], list[str]]:
     return events, warnings
 
 
-def render_events(events: list[dict[str, Any]]) -> tuple[list[str], list[str], dict[str, int]]:
+def render_events(
+    events: list[dict[str, Any]], details_href: str = ""
+) -> tuple[list[str], list[str], dict[str, int]]:
     rendered: list[str] = []
     tool_sections: list[str] = []
     stats = {"messages": 0, "tool_uses": 0, "tool_results": 0}
+
+    # A call and its (later) output share a ref number, so the timeline ties them
+    # together and the details file/section can be linked from both.
+    refs: dict[str, str] = {}
+    counter = {"n": 0}
+
+    def ref_for(call_id: Any) -> str:
+        key = str(call_id)
+        if key not in refs:
+            counter["n"] += 1
+            refs[key] = tool_ref_name(counter["n"])
+        return refs[key]
+
+    def details_link(anchor: str) -> str:
+        return f" · [details]({details_href}#{anchor})"
 
     for idx, event in enumerate(events, start=1):
         payload = event.get("payload") if isinstance(event.get("payload"), dict) else {}
@@ -267,18 +301,22 @@ def render_events(events: list[dict[str, Any]]) -> tuple[list[str], list[str], d
             stats["tool_uses"] += 1
             tool_id = payload.get("call_id") or payload.get("id") or f"tool-{idx}-{stats['tool_uses']}"
             name = payload.get("name") or payload_type or "unknown_tool"
-            rendered.append(f"- Tool use `{name}` (`{tool_id}`)")
-            rendered.append("")
-            tool_sections.extend(tool_detail_section("Tool Use", idx, tool_id, name, payload))
+            ref = ref_for(tool_id)
+            label = codex_tool_label(payload)
+            line = f"- `<{ref}>` Tool use `{name}`"
+            if label:
+                line += f" · {label}"
+            rendered.extend([line + details_link(ref), ""])
+            tool_sections.extend(tool_detail_section("Tool Use", idx, tool_id, name, payload, ref))
             continue
 
         if payload_type in {"function_call_output", "custom_tool_call_output", "tool_search_output"}:
             stats["tool_results"] += 1
             tool_id = payload.get("call_id") or payload.get("id") or f"tool-result-{idx}"
-            status = "error" if payload.get("is_error") else "result"
-            rendered.append(f"- Tool {status} (`{tool_id}`): {shorten(block_text(payload), 240)}")
-            rendered.append("")
-            tool_sections.extend(tool_detail_section("Tool Result", idx, tool_id, None, payload))
+            ref = ref_for(tool_id)
+            anchor = f"{ref}-out"
+            rendered.extend([f"- `<{ref}>` → {codex_result_signal(payload)}" + details_link(anchor), ""])
+            tool_sections.extend(tool_detail_section("Tool Result", idx, tool_id, None, payload, anchor))
             continue
 
         if payload_type == "session_meta":
@@ -307,19 +345,27 @@ def render_events(events: list[dict[str, Any]]) -> tuple[list[str], list[str], d
                 stats["tool_uses"] += 1
                 tool_id = block.get("id", f"tool-{idx}-{stats['tool_uses']}")
                 name = block.get("name", "unknown_tool")
-                event_lines.append(f"- Tool use `{name}` (`{tool_id}`)")
-                tool_sections.extend(tool_detail_section("Tool Use", idx, tool_id, name, block))
+                ref = ref_for(tool_id)
+                label = codex_tool_label(block)
+                line = f"- `<{ref}>` Tool use `{name}`"
+                if label:
+                    line += f" · {label}"
+                event_lines.append(line + details_link(ref))
+                tool_sections.extend(tool_detail_section("Tool Use", idx, tool_id, name, block, ref))
             elif block_type == "tool_result":
                 stats["tool_results"] += 1
                 tool_id = block.get("tool_use_id") or block.get("id") or f"tool-result-{idx}"
-                status = "error" if block.get("is_error") else "result"
-                event_lines.append(f"- Tool {status} (`{tool_id}`): {shorten(block_text(block), 240)}")
-                tool_sections.extend(tool_detail_section("Tool Result", idx, tool_id, None, block))
+                ref = ref_for(tool_id)
+                anchor = f"{ref}-out"
+                event_lines.append(f"- `<{ref}>` → {codex_result_signal(block)}" + details_link(anchor))
+                tool_sections.extend(tool_detail_section("Tool Result", idx, tool_id, None, block, anchor))
             elif block_type in {"thinking", "redacted_thinking"}:
                 event_lines.append(f"[{block_type}] {shorten(block_text(block), 500)}")
             else:
                 event_lines.append(f"[{block_type}] {shorten(block_text(block), 500)}")
-                tool_sections.extend(tool_detail_section("Content Block", idx, block.get("id"), None, block))
+                anchor = ref_for(block.get("id") or f"block-{idx}")
+                event_lines[-1] += details_link(anchor)
+                tool_sections.extend(tool_detail_section("Content Block", idx, block.get("id"), None, block, anchor))
 
         text = "\n\n".join(part.strip() for part in event_lines if part and part.strip())
         if text:
@@ -331,25 +377,93 @@ def render_events(events: list[dict[str, Any]]) -> tuple[list[str], list[str], d
     return rendered, tool_sections, stats
 
 
+def tool_ref_name(index: int) -> str:
+    return f"tool_call_{index:06d}"
+
+
+def codex_tool_label(payload: dict[str, Any]) -> str:
+    """A single human-readable label for the call — the most telling argument field."""
+    args = payload.get("arguments")
+    if args is None:
+        args = payload.get("input")
+    if isinstance(args, str):
+        try:
+            args = json.loads(args)
+        except (ValueError, TypeError):
+            return shorten(args, 90)
+    if isinstance(args, dict):
+        for key in ("description", "command", "file_path", "path", "pattern", "query", "url"):
+            value = args.get(key)
+            if value in (None, "", [], {}):
+                continue
+            if key in ("file_path", "path"):
+                return Path(str(value)).name
+            return shorten_summary(value, 90)
+        if args:
+            key = next(iter(args))
+            return shorten_summary(args[key], 90)
+    return ""
+
+
+def codex_result_signal(payload: dict[str, Any]) -> str:
+    """Smallest useful fact about the result: status, line count, or error."""
+    text = block_text(payload)
+    if payload.get("is_error"):
+        return f"error: {first_line(text)}"
+    n = count_lines(text)
+    if n <= 1:
+        return shorten(text, 80) or "ok"
+    return f"ok · {n} lines"
+
+
+def first_line(text: str, limit: int = 100) -> str:
+    stripped = (text or "").strip()
+    if not stripped:
+        return ""
+    return shorten(stripped.splitlines()[0], limit)
+
+
+def count_lines(text: str) -> int:
+    if not text:
+        return 0
+    return text.count("\n") + (0 if text.endswith("\n") else 1)
+
+
+def shorten_summary(value: Any, limit: int = 120) -> str:
+    if isinstance(value, (dict, list)):
+        text = json.dumps(value, ensure_ascii=False, sort_keys=True)
+    else:
+        text = str(value)
+    return shorten(text, limit)
+
+
 def tool_detail_section(
-    label: str, event_index: int, tool_id: Any, name: str | None, payload: dict[str, Any]
+    label: str, event_index: int, tool_id: Any, name: str | None, payload: dict[str, Any], anchor: str
 ) -> list[str]:
     heading = f"## {label}: {name or tool_id or 'unknown'}"
     return [
+        f'<a id="{anchor}"></a>',
         heading,
         "",
         f"- Event: `{event_index}`",
         f"- Id: `{tool_id or 'unknown'}`",
         "",
         "```json",
-        json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True),
+        truncate_preserve_lines(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True), TOOL_DETAIL_LIMIT),
         "```",
         "",
     ]
 
 
+def truncate_preserve_lines(text: str, limit: int) -> str:
+    if len(text) <= limit:
+        return text
+    kept = text[:limit].rstrip()
+    return f"{kept}\n... (truncated {len(text) - limit} of {len(text)} chars — full payload in source JSONL)"
+
+
 def block_text(block: dict[str, Any]) -> str:
-    value = block.get("content", block.get("text", block.get("input", block)))
+    value = block.get("content", block.get("text", block.get("output", block.get("input", block))))
     if isinstance(value, str):
         return value
     return json.dumps(value, ensure_ascii=False, sort_keys=True)

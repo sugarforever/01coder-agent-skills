@@ -13,6 +13,10 @@ from typing import Any
 DEFAULT_SOURCE = Path("~/.claude/projects").expanduser()
 DEFAULT_OUTPUT = Path("~/.claude/session-markdown").expanduser()
 
+# Cap any single tool input/result payload written to the details file. The raw,
+# untruncated payload always remains in the source JSONL (linked from the digest).
+TOOL_DETAIL_LIMIT = 8000
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(
@@ -86,6 +90,14 @@ def main() -> int:
     print(f"Source: {source}")
     print(f"Output: {output}")
     print(f"Exported sessions: {len(exports)}")
+    if exports:
+        # Print the actual file paths — the folder name is sanitized (leading
+        # dashes stripped), so it is not always derivable from the project key.
+        print("Files:")
+        for export in exports[:50]:
+            print(f"- {export['path']}")
+        if len(exports) > 50:
+            print(f"- ... {len(exports) - 50} more")
     if warnings:
         print(f"Warnings: {len(warnings)}")
         for warning in warnings[:20]:
@@ -157,14 +169,18 @@ def export_session(session_file: Path, source: Path, output: Path, inline_tools:
     if not inline_tools:
         tool_dir.mkdir(parents=True, exist_ok=True)
 
-    rendered, tool_sections, stats = render_events(events, inline_tools)
+    session_md = project_dir / f"{safe_name(session_id)}.md"
+    tool_md = tool_dir / f"{safe_name(session_id)}.tools.md"
+
+    # Where an inline `<tool_call_…>` reference should link for full details.
+    # Sidecar mode points at the details file; inline mode points at a same-doc anchor.
+    details_href = "" if inline_tools else f"tool-details/{tool_md.name}"
+
+    rendered, tool_sections, stats = render_events(events, inline_tools, details_href)
     first_prompt = first_user_prompt(events)
     timestamps = [extract_timestamp(event) for event in events]
     timestamps = [stamp for stamp in timestamps if stamp]
     cwd = first_value(events, "cwd")
-
-    session_md = project_dir / f"{safe_name(session_id)}.md"
-    tool_md = tool_dir / f"{safe_name(session_id)}.tools.md"
 
     digest = [
         f"# Claude Session {session_id}",
@@ -191,9 +207,10 @@ def export_session(session_file: Path, source: Path, output: Path, inline_tools:
     if stats.get("skipped_noise"):
         digest.append(f"- Collapsed metadata/noise events: `{stats['skipped_noise']}`")
 
+    # In inline mode the details ride along in collapsible <details> next to each
+    # call, so there is no separate section or sidecar; in sidecar mode the compact
+    # references link out to tool_md.
     body = digest + ["", "## Conversation", ""] + rendered
-    if inline_tools and tool_sections:
-        body += ["", "## Tool Details", ""] + tool_sections
     session_md.write_text("\n".join(body).rstrip() + "\n", encoding="utf-8")
 
     if tool_sections and not inline_tools:
@@ -244,7 +261,9 @@ def read_jsonl(path: Path) -> tuple[list[dict[str, Any]], list[str]]:
     return events, warnings
 
 
-def render_events(events: list[dict[str, Any]], inline_tools: bool = False) -> tuple[list[str], list[str], dict[str, int]]:
+def render_events(
+    events: list[dict[str, Any]], inline_tools: bool = False, details_href: str = ""
+) -> tuple[list[str], list[str], dict[str, int]]:
     turns: list[dict[str, Any]] = []
     tool_sections: list[str] = []
     stats = {"messages": 0, "tool_uses": 0, "tool_results": 0, "skipped_noise": 0}
@@ -261,14 +280,15 @@ def render_events(events: list[dict[str, Any]], inline_tools: bool = False) -> t
             tool_id = event.get("id", f"tool-{idx}-{stats['tool_uses']}")
             name = event.get("name", "unknown_tool")
             result = pending_tool_results.get(str(tool_id))
-            append_turn(turns, "Claude", timestamp, format_tool_reference(tool_ref, name, event, result, inline_tools))
-            tool_sections.extend(tool_detail_section(tool_ref, idx, tool_id, name, event, result))
+            append_turn(turns, "Claude", timestamp, format_tool_reference(tool_ref, name, event, result, inline_tools, details_href))
+            if not inline_tools:
+                tool_sections.extend(tool_detail_section(tool_ref, idx, tool_id, name, event, result))
             continue
 
         if role == "tool_result":
             stats["tool_results"] += 1
             tool_id = event.get("tool_use_id") or event.get("id") or f"tool-result-{idx}"
-            pending_tool_results[str(tool_id)] = event
+            pending_tool_results[str(tool_id)] = {"block": event, "structured": event.get("toolUseResult")}
             continue
 
         if role not in {"user", "assistant"}:
@@ -303,8 +323,9 @@ def render_events(events: list[dict[str, Any]], inline_tools: bool = False) -> t
                 tool_id = block.get("id", f"tool-{idx}-{stats['tool_uses']}")
                 name = block.get("name", "unknown_tool")
                 result = pending_tool_results.get(str(tool_id))
-                event_lines.extend(format_tool_reference(tool_ref, name, block, result, inline_tools))
-                tool_sections.extend(tool_detail_section(tool_ref, idx, tool_id, name, block, result))
+                event_lines.extend(format_tool_reference(tool_ref, name, block, result, inline_tools, details_href))
+                if not inline_tools:
+                    tool_sections.extend(tool_detail_section(tool_ref, idx, tool_id, name, block, result))
             elif block_type == "tool_result":
                 stats["tool_results"] += 1
             elif block_type in {"thinking", "redacted_thinking"}:
@@ -383,13 +404,20 @@ def normalize_message_flow_markdown(text: str) -> str:
 
 
 def collect_tool_results(events: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Map tool_use_id -> {"block": <flat tool_result>, "structured": <toolUseResult>}.
+
+    The flat block is what the model saw (a string). The structured `toolUseResult`,
+    when present on the same event, carries richer per-tool fields (Bash stdout/stderr,
+    Read line counts, AskUserQuestion answers) that make a better rendering.
+    """
     results: dict[str, dict[str, Any]] = {}
     for event in events:
+        structured = event.get("toolUseResult")
         role = event.get("role") or event.get("type")
         if role == "tool_result":
             tool_id = event.get("tool_use_id") or event.get("id")
             if tool_id:
-                results[str(tool_id)] = event
+                results[str(tool_id)] = {"block": event, "structured": structured}
         message = event.get("message") if isinstance(event.get("message"), dict) else {}
         content = message.get("content", event.get("content", ""))
         chunks = content if isinstance(content, list) else [content]
@@ -397,7 +425,7 @@ def collect_tool_results(events: list[dict[str, Any]]) -> dict[str, dict[str, An
             if isinstance(block, dict) and block.get("type") == "tool_result":
                 tool_id = block.get("tool_use_id") or block.get("id")
                 if tool_id:
-                    results[str(tool_id)] = block
+                    results[str(tool_id)] = {"block": block, "structured": structured}
     return results
 
 
@@ -406,50 +434,47 @@ def tool_ref_name(index: int) -> str:
 
 
 def format_tool_reference(
-    ref: str, name: str, tool_payload: dict[str, Any], result_payload: dict[str, Any] | None, inline: bool
+    ref: str,
+    name: str,
+    tool_payload: dict[str, Any],
+    result_record: dict[str, Any] | None,
+    inline: bool,
+    details_href: str = "",
 ) -> list[str]:
-    summary = tool_call_summary(name, tool_payload)
-    status = "result pending"
-    if result_payload is not None:
-        status = "error" if result_payload.get("is_error") else "result"
+    """One scannable line: what tool ran, what it did, what came back, where the rest is."""
     label = f"`<{ref}>` {name}"
+    summary = tool_label(name, tool_payload)
     if summary:
-        label += f" - {summary}"
-    label += f" - {status}"
+        label += f" · {summary}"
+    label += f" → {inline_result_signal(name, result_record)}"
+    if details_href:
+        label += f" · [details]({details_href}#{ref})"
+
     if not inline:
         return [label]
+    return [label] + format_inline_tool_details(name, tool_payload, result_record)
 
-    return [label] + format_inline_tool_details(name, tool_payload, result_payload)
 
-
-def tool_call_summary(name: str, payload: dict[str, Any]) -> str:
+def tool_label(name: str, payload: dict[str, Any]) -> str:
+    """A single human-readable label for the call — the most telling input field."""
     tool_input = payload.get("input")
     if not isinstance(tool_input, dict):
         return ""
-
-    candidates = [
-        ("skill", "skill"),
-        ("description", "description"),
-        ("command", "command"),
-        ("file_path", "file"),
-        ("path", "path"),
-        ("url", "url"),
-        ("query", "query"),
-        ("pattern", "pattern"),
-    ]
-    parts = []
-    for key, label in candidates:
+    # Per-tool preference order: the field a reader most wants to see inline.
+    for key in ("description", "skill", "command", "file_path", "path", "pattern", "query", "url"):
         value = tool_input.get(key)
         if value in (None, "", [], {}):
             continue
-        parts.append(f"{label}: {shorten_summary(value)}")
-        if len(parts) == 2:
-            break
-
-    if not parts and tool_input:
+        if key in ("file_path", "path"):
+            return Path(str(value)).name
+        return shorten_summary(value, 90)
+    questions = tool_input.get("questions")
+    if isinstance(questions, list) and questions and isinstance(questions[0], dict):
+        return shorten_summary(questions[0].get("question", ""), 90)
+    if tool_input:
         key = next(iter(tool_input))
-        parts.append(f"{key}: {shorten_summary(tool_input[key])}")
-    return "; ".join(parts)
+        return shorten_summary(tool_input[key], 90)
+    return ""
 
 
 def shorten_summary(value: Any, limit: int = 120) -> str:
@@ -460,7 +485,120 @@ def shorten_summary(value: Any, limit: int = 120) -> str:
     return shorten(text, limit)
 
 
-def format_inline_tool_details(name: str, tool_payload: dict[str, Any], result_payload: dict[str, Any] | None) -> list[str]:
+def inline_result_signal(name: str, record: dict[str, Any] | None) -> str:
+    """Smallest useful fact about the result: status, line count, error, or chosen answer."""
+    if record is None:
+        return "pending"
+    block = record.get("block") or {}
+    structured = record.get("structured")
+    is_error = bool(block.get("is_error"))
+    flat = block_text(block)
+
+    # AskUserQuestion: the answer the user picked is the point.
+    if isinstance(structured, dict) and isinstance(structured.get("answers"), dict):
+        picked = "; ".join(str(v) for v in structured["answers"].values() if v)
+        if picked:
+            return shorten(picked, 120)
+
+    # Bash: stdout/stderr split out.
+    if isinstance(structured, dict) and ("stdout" in structured or "stderr" in structured):
+        if structured.get("interrupted"):
+            return "interrupted"
+        stderr = (structured.get("stderr") or "").strip()
+        stdout = structured.get("stdout") or ""
+        if is_error:
+            return f"error: {first_line(stderr or flat)}"
+        n = count_lines(stdout)
+        return f"ok · {n} line{'s' if n != 1 else ''}" if n else "ok"
+
+    # Read: line counts.
+    if isinstance(structured, dict) and isinstance(structured.get("file"), dict):
+        total = structured["file"].get("totalLines") or structured["file"].get("numLines")
+        return f"{total} lines" if total else "ok"
+
+    if is_error:
+        return f"error: {first_line(flat)}"
+
+    n = count_lines(flat)
+    if n <= 1:
+        return shorten(flat, 80) or "ok"
+    return f"ok · {n} lines"
+
+
+def first_line(text: str, limit: int = 100) -> str:
+    stripped = (text or "").strip()
+    if not stripped:
+        return ""
+    return shorten(stripped.splitlines()[0], limit)
+
+
+def count_lines(text: str) -> int:
+    if not text:
+        return 0
+    return text.count("\n") + (0 if text.endswith("\n") else 1)
+
+
+def render_result_detail(record: dict[str, Any] | None, hpre: str = "### ", hsuf: str = "") -> list[str]:
+    """Full result body for the details file / inline block, using structured fields when present."""
+    def heading(text: str) -> str:
+        return f"{hpre}{text}{hsuf}"
+
+    if record is None:
+        return [heading("Result"), "", "_Result pending or not captured._", ""]
+
+    block = record.get("block") or {}
+    structured = record.get("structured")
+    is_error = bool(block.get("is_error"))
+
+    # Bash: separate stdout/stderr and surface interruption.
+    if isinstance(structured, dict) and ("stdout" in structured or "stderr" in structured):
+        out = [heading("Error" if is_error else "Result"), ""]
+        if structured.get("interrupted"):
+            out.append("- Interrupted: `true`")
+            out.append("")
+        stdout = structured.get("stdout") or ""
+        stderr = structured.get("stderr") or ""
+        out += ["**stdout**", "```", truncate_preserve_lines(stdout, TOOL_DETAIL_LIMIT) if stdout.strip() else "(empty)", "```", ""]
+        if stderr.strip():
+            out += ["**stderr**", "```", truncate_preserve_lines(stderr, TOOL_DETAIL_LIMIT), "```", ""]
+        return out
+
+    # Read: file metadata + content.
+    if isinstance(structured, dict) and isinstance(structured.get("file"), dict):
+        fobj = structured["file"]
+        out = [heading("Result"), ""]
+        if fobj.get("filePath"):
+            out.append(f"- File: `{fobj['filePath']}`")
+        if fobj.get("totalLines") is not None:
+            out.append(
+                f"- Lines: `{fobj.get('numLines', '?')}` shown of `{fobj['totalLines']}` "
+                f"total (from line `{fobj.get('startLine', 1)}`)"
+            )
+        out.append("")
+        content = fobj.get("content") or block_text(block)
+        out += ["```", truncate_preserve_lines(content, TOOL_DETAIL_LIMIT), "```", ""]
+        return out
+
+    # AskUserQuestion: list each question and the chosen answer.
+    if isinstance(structured, dict) and isinstance(structured.get("answers"), dict):
+        out = [heading("Result"), ""]
+        for question, answer in structured["answers"].items():
+            out.append(f"- **{question}** → {answer}")
+        out.append("")
+        return out
+
+    # Fallback: the flat string the model saw.
+    return [
+        heading("Error" if is_error else "Result"),
+        "",
+        "```",
+        truncate_preserve_lines(block_text(block), TOOL_DETAIL_LIMIT),
+        "```",
+        "",
+    ]
+
+
+def format_inline_tool_details(name: str, tool_payload: dict[str, Any], result_record: dict[str, Any] | None) -> list[str]:
     lines = [
         "<details>",
         f"<summary><strong>Tool:</strong> {name}</summary>",
@@ -468,11 +606,16 @@ def format_inline_tool_details(name: str, tool_payload: dict[str, Any], result_p
     ]
     tool_input = tool_payload.get("input")
     if tool_input not in (None, {}, ""):
-        lines.extend(["**Input:**", "```json", json.dumps(tool_input, ensure_ascii=False, indent=2, sort_keys=True), "```", ""])
-    if result_payload is not None:
-        label = "**Error:**" if result_payload.get("is_error") else "**Result:**"
-        content = block_text(result_payload)
-        lines.extend([label, "```", truncate_preserve_lines(content, 2000), "```", ""])
+        lines.extend(
+            [
+                "**Input:**",
+                "```json",
+                truncate_preserve_lines(json.dumps(tool_input, ensure_ascii=False, indent=2, sort_keys=True), TOOL_DETAIL_LIMIT),
+                "```",
+                "",
+            ]
+        )
+    lines.extend(render_result_detail(result_record, hpre="**", hsuf="**"))
     lines.extend(["</details>", ""])
     return lines
 
@@ -489,10 +632,11 @@ def tool_detail_section(
     tool_id: Any,
     name: str,
     payload: dict[str, Any],
-    result_payload: dict[str, Any] | None,
+    result_record: dict[str, Any] | None,
 ) -> list[str]:
     lines = [
-        f"## `<{ref}>`",
+        f'<a id="{ref}"></a>',
+        f"## `<{ref}>` {name}",
         "",
         f"- Event: `{event_index}`",
         f"- Id: `{tool_id or 'unknown'}`",
@@ -501,13 +645,11 @@ def tool_detail_section(
         "### Input",
         "",
         "```json",
-        json.dumps(payload.get("input", payload), ensure_ascii=False, indent=2, sort_keys=True),
+        truncate_preserve_lines(json.dumps(payload.get("input", payload), ensure_ascii=False, indent=2, sort_keys=True), TOOL_DETAIL_LIMIT),
         "```",
         "",
     ]
-    if result_payload is not None:
-        label = "Error" if result_payload.get("is_error") else "Result"
-        lines.extend([f"### {label}", "", "```", block_text(result_payload), "```", ""])
+    lines.extend(render_result_detail(result_record))
     return lines
 
 
@@ -661,7 +803,8 @@ def shorten(text: str, limit: int) -> str:
 def truncate_preserve_lines(text: str, limit: int) -> str:
     if len(text) <= limit:
         return text
-    return text[:limit].rstrip() + "\n... (truncated)"
+    kept = text[:limit].rstrip()
+    return f"{kept}\n... (truncated {len(text) - limit} of {len(text)} chars — full payload in source JSONL)"
 
 
 def format_scalar(value: Any) -> str:
