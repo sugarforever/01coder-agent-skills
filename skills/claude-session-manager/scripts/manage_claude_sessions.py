@@ -346,7 +346,7 @@ def append_turn(turns: list[dict[str, Any]], speaker: str, timestamp: str, parts
 
 def render_message_header(speaker: str, timestamp: str) -> list[str]:
     prefix = format_local_timestamp(timestamp) if timestamp else "unknown-time"
-    return [f"**{prefix} {speaker}:**", ""]
+    return [f"### {prefix} {speaker}:", ""]
 
 
 def format_local_timestamp(timestamp: str) -> str:
