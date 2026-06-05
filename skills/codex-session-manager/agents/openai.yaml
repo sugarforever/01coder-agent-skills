@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex Session Manager"
+  short_description: "List and export Codex session transcripts"
+  default_prompt: "Use $codex-session-manager to list, inspect, or export local Codex session JSONL transcripts as readable Markdown."

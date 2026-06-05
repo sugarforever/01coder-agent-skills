@@ -54,10 +54,29 @@ New skills are picked up automatically on marketplace update — no reinstall ne
 ### Utilities
 
 - **codex-cli** — Delegate one-off tasks to OpenAI Codex CLI, including coding reviews, implementation passes, and image generation with proactive image path discovery.
+- **claude-session-manager** — List and export Claude Code JSONL session transcripts from `~/.claude/projects` into organized, readable Markdown with linked tool-call details.
+- **codex-session-manager** — List and export Codex JSONL session transcripts from `~/.codex/sessions` and optional archived sessions into organized, readable Markdown.
 - **diagram-to-image** — Convert Mermaid diagrams and Markdown tables to PNG / SVG images for platforms that don't support rich formatting.
 - **interactive-input** — Embed interactive UI components (multiple choice, forms, surveys) in chat responses on compatible clients.
 
-#### codex-cli Development Direction
+### Integrations
+
+- **add-feishu** — Add Feishu (飞书 / Lark) as an agent channel via WebSocket long connection. No public URL required.
+
+## Skill Notes
+
+### personal-chinese-writing-style
+
+Applies the author's Chinese writing style to writing, translation, editing, subtitles, tweets, newsletters, and social posts. It enforces Chinese punctuation preferences, natural Chinese tech prose, and structure carried by the writing rather than fixed templates.
+
+`SKILL.md` loads reference files on demand:
+
+- `references/punctuation.md`
+- `references/article-structure.md`
+- `references/voice-and-phrasing.md`
+- `references/social-media-style.md`
+
+### codex-cli
 
 The `codex-cli` skill is intended to let other agents, such as Claude Code or OpenClaw, deliberately consult OpenAI Codex CLI for scoped one-off work. It should behave like a bridge workflow, not a replacement for the host agent: first verify that `codex` is installed, delegate a clearly framed task through `codex exec`, then inspect and report the concrete result.
 
@@ -73,9 +92,17 @@ When improving this skill, keep it focused on practical Codex CLI operation:
 
 Future additions should be small and evidence-oriented: better session-id extraction, safer output parsing, known CLI flag changes, and stronger image/file discovery are aligned with the skill. Broad Codex product documentation, general prompt engineering, or host-agent-specific behavior should stay out unless it directly improves this delegation workflow.
 
-### Integrations
+### claude-session-manager
 
-- **add-feishu** — Add Feishu (飞书 / Lark) as an agent channel via WebSocket long connection. No public URL required.
+Manages Claude Code JSONL transcripts from `~/.claude/projects` and exports Markdown under `~/.claude/session-markdown` by default. It supports full export and specific-session export. In specific mode it first lists numbered candidates with modified time, project key, short session id, cwd, and first prompt excerpt, then exports the chosen session.
+
+The exporter is dependency-free Python. It keeps main transcript Markdown readable and writes full tool payloads to linked `tool-details/*.tools.md` sidecar files by default.
+
+### codex-session-manager
+
+Manages Codex JSONL transcripts from `~/.codex/sessions/YYYY/MM/DD/*.jsonl` and optionally `~/.codex/archived_sessions/*.jsonl`. It uses the same full/specific mode pattern as `claude-session-manager`, with `~/.codex/session-markdown` as the default output folder.
+
+The exporter is dependency-free Python and understands Codex `timestamp` / `type` / `payload` events, including session metadata, messages, tool calls, and tool outputs.
 
 ## Creating a New Skill
 
@@ -88,6 +115,8 @@ Future additions should be small and evidence-oriented: better session-id extrac
    ```
 2. Run `./scripts/sync-marketplace-skills.sh` to regenerate the `skills[]` array in `.claude-plugin/marketplace.json`, then bump the `version` manually.
 3. (Optional) Add `references/`, `scripts/`, `assets/`, or `templates/` directories alongside `SKILL.md` for domain knowledge, automation, or report templates.
+
+Do not add per-skill `README.md` files. Keep agent-facing instructions in `SKILL.md` and put human-facing summaries or development notes in this repository README.
 
 See [CLAUDE.md](CLAUDE.md) for the full convention.
 
