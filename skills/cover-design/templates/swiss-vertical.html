@@ -8,6 +8,9 @@
   顶部 kicker、底部 meta 都留足边距 (padding 上下各 ≥160px)。
   设计时给 <body> 加 class="show-guide" 看 ~1080×1464 显示带；最终渲染去掉。
 
+  对齐：核心大字块（eyebrow/title/sub）水平居中 —— 窄高画幅左对齐大字易失衡，
+  横版 swiss.html 的左对齐到竖版改居中；顶/底细线 chrome 保留 full-width。
+
   核心铁律同 swiss.html：大标题字重 ≤300、单一强调色、1px 细线、无圆角/阴影/渐变。
   Render: 见 references/render-pipeline.md
     9:16 → window-size 1080×1940；3:4 → 改 --cv-h:1440px, window-size 1080×1460
@@ -60,11 +63,15 @@ html, body { background: var(--bg); color: var(--ink); font-family: var(--font-d
 .kicker .dot { color: var(--accent); }
 .index { font-family: var(--font-mono); font-size: 24px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-soft); }
 
+/* 竖屏窄高画幅：核心大字块水平居中（横版 swiss.html 走左对齐编辑感；
+   竖版左对齐会把重量压向一侧、显得不平衡，故居中。顶/底细线 chrome 仍 full-width）。 */
 .body {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 .eyebrow { font-family: var(--font-mono); font-size: 28px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin-bottom: 28px; font-weight: 500; }
 .title { font-family: var(--font-display); font-weight: 300; font-size: 220px; line-height: 1.06; letter-spacing: -0.03em; color: var(--ink); text-transform: lowercase; }

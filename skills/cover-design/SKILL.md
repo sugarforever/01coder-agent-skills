@@ -42,6 +42,12 @@ description: Design typography-driven video cover images using HTML/CSS + Chrome
 
 ## 核心原则
 
+### 0. 想法先行(方法论主线 · 最高优先)
+
+这个 skill 只采用**一套**构思方法论:Paul Rand 的「想法先行」。封面不是先选模板填标题,而是**先有一个想法(idea)** - 这期到底要让人 get 到什么 - 再让画面为它服务。四步:**研究(不预设)→ 抽取核心想法 → 删减(simplicity 是好想法的副产品)→ 缩到 160px 验证那个想法还在**。
+
+核心想法**不一定是产品名**,形态开放:一个名字 / 一个 logo / 一个隐喻装置 / 一种氛围。下面的所有原则(单焦点、传达、精简)都是这套方法论的执行层 - **先有想法,再谈表达**。完整方法论见 `references/design-conception.md`,这是全 skill 的构思总纲,不要混入别的设计流派。
+
 ### 1. Thumbnail ≠ Slide
 
 封面缩略图在订阅列表 / 推荐位 / 搜索结果里最小可能只有 160px 宽。**bento 网格、4 个 metric tiles、信息密集的布局都不工作**。要的是:
@@ -63,9 +69,9 @@ description: Design typography-driven video cover images using HTML/CSS + Chrome
 
 `.cover` 元素**必须用固定像素**（通过 `--cv-w` / `--cv-h` 变量 - 横屏 1920 宽、竖屏 1080 宽，高度按比例取值），**不要用 `vw` / `vh` / `%`**。原因见 `references/render-pipeline.md` 里的浏览器视口陷阱章节 - 简单说,resize_page 设的高度不等于实际视口高度,Chrome 工具栏 / 标签栏会吃掉 200-400px。固定像素 + fullPage 截图才稳。
 
-### 4. 传达 > 好看
+### 4. 传达 > 好看(让核心想法落到画面)
 
-封面读得清还不够,要在三秒内说清**是什么 / 什么品类 / 什么领域**:产品名做主元素、品类给信号(agent skill→斜杠命令条、模型→logo)、领域给锚(设计→before/after、安全→告警)。品牌署名只出现一次,精简次要 chrome。这是封面质量能超过纯模板套用的关键一环 - 详见 `references/cover-composition.md`。
+封面读得清还不够,要在三秒内说清**核心想法是什么(及它的形态)/ 什么品类 / 什么领域**:核心想法做最显眼的主元素(它可能是名字、logo、隐喻装置或氛围 - 见原则 0),品类给信号(agent skill→斜杠命令条、模型→logo),领域给锚(设计→before/after、安全→告警)。品牌署名只出现一次,精简次要 chrome(simplicity 是好想法的副产品)。这是封面质量能超过纯模板套用的关键一环 - 详见 `references/cover-composition.md`。
 
 ## 工作流
 
@@ -96,6 +102,12 @@ scripts/extract-brand-theme.sh https://产品官网
 
 它输出可直接写入模板 `:root` 的 Google Fonts + 颜色 token(含 oklch 原值,Chrome 原生支持,原样写入即可)。用提取值覆盖模板默认的 `--accent`/`--bg`/`--ink`/`--font-display`/`--font-mono`,风格按官网调性从 `design-styles.md` 选最接近的。**方法、字体中文搭配、取不到时的处理见 `references/brand-theme.md`**。这和 `brand-logos.md`(取 logo)互补,配齐「色 + 字 + logo」一整套。
 
+### Step 1.5 · 构思:抽取核心想法（动手前必做 · 见原则 0）
+
+收集完信息,**先别选模板**。按 `references/design-conception.md` 走一遍「想法先行」,抽出这期的**核心想法**写下来,再定层级(核心想法做最大主元素 ＞ 角度 / 卖点做 accent 副线 ＞ 能力 / 细节做灰字),带着它进 Step 2。
+
+两条提醒:核心想法**不一定是产品名**(也可能是 logo / 隐喻装置 / 氛围);**别把「角度 / 卖点」误当核心想法**。**这一步不可跳过 - 是封面超过「模板套标题」的关键。**
+
 ### Step 2 · 选模板（按朝向选模板族）
 
 根据 Step 1 要的比例选模板族:
@@ -123,6 +135,18 @@ scripts/extract-brand-theme.sh https://产品官网
 
 每个风格的视觉锚点、identity test、适用场景见 `references/design-styles.md`。
 
+#### 选风格的方法（智能选,不套默认皮）
+
+风格 / 配色和「核心想法」一样要**主动推导**,不是拿模板的默认皮直接用。上面那张「风格 → 适用」清单是**起点不是答案**,照着题材类别机械对号最容易落进套路默认。方法:
+
+1. **从核心想法 + 题材的「调性 / 情绪」出发,而不是题材类别机械映射。** 先问:这期是什么调性 - 冷静严谨?发布的兴奋?悬念压迫?粗粝的黑客气?温和人文?**调性决定风格,题材类别只是线索之一。**
+2. **列 2-3 个候选,逐个问「它的视觉语言服务这个想法和调性吗」**,选最贴的(`design-styles.md` 有每个风格的 identity test)。拿不准就走「多方向预览」(Step 5),一次出 3-4 版让用户选。
+3. **配色要主动定,别继承模板默认皮。** 每个模板 `:root` 自带一套默认配色(terminal 黑绿、aurora 紫渐变、bauhaus 红黄蓝……)—— 那是**起点不是终点**。讲具体产品优先走品牌匹配(Step 1 的 `extract-brand-theme.sh`),否则按调性主动调 `--bg` / `--accent`。
+4. **品类信号独立于皮肤。** 「agent skill → 命令条、模型 → logo」给的是**元素**,不绑定某个风格 - 命令条可以放进白底编辑风,logo 可以放进任何风格。别因为「要给命令条」就反射性套 terminal 黑绿皮。
+
+> **套路默认皮:合适就用,别反射性套。** CLI / skill 题材用 terminal 黑绿、AI 题材用 aurora 紫渐变 - 这些常规组合**本身没问题**,前提是你**真判断过它贴这期的想法和调性**。要避免的是「没思考、顺手抓题材最套路那张皮」,不是「避免常规选择」。
+> **判据**:你能说出「**为什么这个风格服务这个核心想法**」,就用;只能说出「因为这题材一般都长这样」,就再想想。
+
 ### Step 3 · 定制内容
 
 读取选定模板的 HTML,把占位符替换成用户的实际内容:
@@ -146,19 +170,9 @@ scripts/extract-brand-theme.sh https://产品官网
 
 #### 品牌 Logo（@lobehub/icons）
 
-用户要带某个模型/产品/厂商 logo 时（讲 Claude、OpenAI、Gemini、DeepSeek、Ollama 等），从 **[@lobehub/icons](https://lobehub.com/icons)** 取官方 logo 融进模板。**完整说明（CDN URL、变体、放法、避坑、identity test）见 `references/brand-logos.md`**，要点:
+讲模型/产品/厂商时（Claude、OpenAI、Gemini、DeepSeek、Ollama……），从 **[@lobehub/icons](https://lobehub.com/icons)** 取官方 logo 融进模板。**取图标、选变体、放置(品牌行/lockup/角标)、对比类双 logo、深底避坑、identity test 全见 `references/brand-logos.md`。**
 
-> **`@lobehub/icons` 只覆盖 AI / LLM 厂商。** 讲非 AI 产品（开发工具、运行时、框架、SaaS，如 Bun、Vite、Zed）时它多半没有对应图标，`fetch-brand-icon.sh` 会报 FAIL。**这时不要勉强拼一个 logo，也不要随意找网络图片（Critical Rule 8）** - 改走**无 logo 的排版 / 品牌色识别**：产品名做大字主元素 + 品牌色 + 命令条 / 领域装置，照样能建立清晰的品牌识别（Bun 封面就是这么做的，见 `references/cover-composition.md`）。
-
-1. **取图标**：跑 helper 下载到封面同目录的 `assets/`（离线可渲染，最稳）:
-   ```bash
-   scripts/fetch-brand-icon.sh claude color svg ./assets   # 官方配色
-   scripts/fetch-brand-icon.sh openai mono  svg ./assets   # 单色，可 CSS 重新着色
-   ```
-   也可直接引 CDN：`https://unpkg.com/@lobehub/icons-static-svg@latest/icons/{id}.svg`（快速预览用）。
-2. **选变体**：要官方配色用 `color`；要跟封面同色系用 `mono`（`fill=currentColor`，内联后父级 `color` 着色）。注意不是每个 id 都有 `-color`，脚本会自动回退 mono。
-3. **放置**：首选**内联 SVG**（可着色、最清晰），放顶部品牌行（`hero-typography`/`swiss` 是 `.topbar .tag`；其余风格是 `.top .kicker`）旁，或标题前做 lockup，或角标。**深色底别用 mono `<img>`（会变黑看不见），用 `color` 变体或内联着色。**
-4. logo 是辅助识别，标题仍是第一焦点 - 缩到 160px 要先看到标题。
+一条判断要点留在这:**`@lobehub/icons` 只覆盖 AI / LLM 厂商。** 讲非 AI 产品（开发工具、运行时、框架、SaaS，如 Bun、Vite、Zed）时它多半没有对应图标，`fetch-brand-icon.sh` 会报 FAIL。**这时别硬拼 logo、别用网络图片（Rule 8）** - 改走**无 logo 的排版 / 品牌色识别**：产品名做大字主元素 + 品牌色 + 命令条 / 领域装置（Bun 封面就是这么做的，见 `references/cover-composition.md`）。
 
 ### Step 4 · 渲染成 PNG（每个比例一张）
 
@@ -177,8 +191,12 @@ scripts/render-cover.sh cover-v.html ~/covers/<slug> 9x16 3x4 # 竖屏显式指�
 
 `open` 在 macOS 默认查看器里打开所有 PNG 给用户看。
 
-**先过内容传达自检（见 `references/cover-composition.md`）**:
-- [ ] **三信号**都到位?逐条指认画面里哪个元素负责:**是什么**(主角是不是最显眼)/ **什么品类**(agent skill→命令条、模型→logo)/ **什么领域**(设计→before/after、安全→告警…)
+**先过想法验证(见 `references/design-conception.md`)**:
+- [ ] **核心想法 test at scale** - 缩到 160px,问的不是「标题读得出吗」,而是**那个核心想法还在吗**(名字认得出 / 氛围透得出 / 隐喻读得懂)?读不出 → 回 Step 1.5 换更强的表达,或做得更大、删更多。
+- [ ] 主元素是不是**核心想法本身**,而不是被「角度 / 卖点」抢了位?
+
+**再过内容传达自检（见 `references/cover-composition.md`）**:
+- [ ] **三信号**都到位?逐条指认画面里哪个元素负责:**是什么**(核心想法当主角,是不是最显眼)/ **什么品类**(agent skill→命令条、模型→logo)/ **什么领域**(设计→before/after、安全→告警…)
 - [ ] **品牌署名只出现一次**?(注意区分:产品名=选题主角要显眼,频道署名=低调一次。两者不算重复)
 - [ ] 有没有可删的**次要 chrome**(日期 / `Ep·`胶囊 / 分隔横线 / 装饰标签)?空白处是有信息量的视觉还是纯空?
 - [ ] 空白处放了**领域装置**没有?(转变类→before/after,整合类→N 个 ✕ → 一个 ✓,对比类→vs,数据类→大数字;partial 见 `templates/partials/before-after.html`)
@@ -186,7 +204,7 @@ scripts/render-cover.sh cover-v.html ~/covers/<slug> 9x16 3x4 # 竖屏显式指�
 再问视觉反馈:
 - 文字位置 / 字号合不合适?
 - **缩略图测试** - 缩到 ~320px / 160px 宽,主标题还读得出吗?(3 秒原则)
-- **竖屏安全区** - 9:16 / 3:4 的核心文字是否都在中央安全带、没贴边?
+- **竖屏安全区 + 居中** - 9:16 / 3:4 核心文字是否在中央安全带、没贴边?短主视觉(标题/产品名)是否水平居中?(规则与例外见 `references/platform-specs.md` 竖屏安全区)
 - accent / 背景色调要不要换?是否换模板?
 
 > **多方向预览**:定稿前不确定方向时,**一次给出 3-4 个不同方向供用户选择**(不同风格 / 配色),比单版反复改收敛更快。存档命名 `cover-styles/{字母}-{风格}.html/.png`。
@@ -238,5 +256,6 @@ scripts/render-cover.sh cover-v.html ~/covers/<slug> 9x16 3x4 # 竖屏显式指�
 8. **品牌 logo 用官方来源** - 需要模型/产品/厂商 logo 时从 `@lobehub/icons` 取(见 `references/brand-logos.md` + `scripts/fetch-brand-icon.sh`),不要自行制作或随意使用网络图片;深色底别用 mono `<img>`(会变黑),用 color 变体或内联着色;对比类选题(X vs Y)双 logo 放大成标题上方 lockup,别缩成 kicker 小图标
 9. **中文标题行高** - 中文大标题 line-height ≈1.05–1.10,别用拉丁 display 的 0.9(会撞行);见 `references/design-styles.md`
 10. **渲染输出别用 `/tmp`** - headless 渲染输出到持久目录(`/tmp` 会被清);优先用 `scripts/render-cover.sh`,坑见 `references/render-pipeline.md`
-11. **封面要传达选题,不止好看** - 定稿前过三信号自检(是什么/品类/领域)、品牌署名只一次、精简次要 chrome、转变类放 before/after;见 `references/cover-composition.md`
+11. **想法先行(方法论主线,最重要)** - 选模板前先按 `references/design-conception.md` 抽出**核心想法**(可能是名字/logo/隐喻/氛围,别把「角度/卖点」误当想法);全 skill 只用这一套方法论,别混入别的流派。落到画面的传达自检(三信号/署名只一次/精简 chrome)见 `references/cover-composition.md`
 12. **讲具体产品时做品牌匹配** - 用产品官网真实色 + 字(`scripts/extract-brand-theme.sh` + `references/brand-theme.md`),不要一律采用默认 lime;封面气质和被介绍的产品一致更专业
+13. **风格/配色要主动选,别套题材默认皮** - 按核心想法 + 题材调性推导风格(列 2-3 候选),模板自带配色是起点不是终点,品类信号(命令条/logo)不绑定某皮肤;常规选择合适就用,但要能说出「为什么这风格服务这个核心想法」(见 Step 2「选风格的方法」)

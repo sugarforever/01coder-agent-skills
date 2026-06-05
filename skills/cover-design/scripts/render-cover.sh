@@ -37,6 +37,9 @@ CHROME="${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
 [ -f "$HTML" ] || { echo "no such html: $HTML" >&2; exit 1; }
 [ -x "$CHROME" ] || { echo "Chrome not found at: $CHROME (set \$CHROME)" >&2; exit 1; }
 mkdir -p "$OUTDIR"
+# 绝对化 OUTDIR：下面用 "file://$src"（src 在 OUTDIR 内）拼截图 URL，
+# 若 OUTDIR 是相对路径会拼成非法的 file://covers/...（缺主机/根斜杠），Chrome 渲染出错误页。踩过的坑。
+OUTDIR="$(cd "$OUTDIR" && pwd)"
 
 # ratio → "cv-h 画布宽 画布高 预览长边"
 dims() {
