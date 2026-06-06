@@ -43,7 +43,7 @@ Search by the user's description. Prefilter optionally with a raw-JSONL byte gre
 If the chosen session has no markdown yet, run `claude-session-manager` to export just that session, then continue.
 
 ### 2. Read
-Read the session `.md`. Pull `tool-details/<id>.tools.md` ONLY for the specific `<tool_call_NNNNNN>` refs that matter. Use `scripts/extract_session_signals.py <session>.md` to get a clean JSON list of human prompts (with event index, line, timestamp, and arc-break hints) — it encodes the input-robustness rules below.
+Read the session `.md`. Pull `tool-details/<id>.tools.md` ONLY for the specific `<tool_call_NNNNNN>` refs that matter. Use `scripts/extract_session_signals.py <session>.md` to get a clean JSON list of human prompts (with event index, line, timestamp, arc-break hints, and the prompt text) — it encodes the input-robustness rules below.
 
 Input-robustness rules:
 - The real exported header format is `### N. user - <ISO>` / `### N. assistant - <ISO>` (not `### MM-DD HH:MM:SS User:`).
