@@ -99,10 +99,10 @@ Each session Markdown includes:
 
 - Digest: source path, project key, session id, cwd, timestamps, event/message/tool counts, and first user prompt excerpt.
 - Linked tool details file when tool calls or results exist.
-- Conversation: user and Claude turns in timestamp order, rendered as third-level local-time headers: `### MM-DD HH:MM:SS User:` and `### MM-DD HH:MM:SS Claude:`.
+- Timeline: all events are emitted under a `## Timeline` section as numbered third-level headers in ISO-8601 format: `### N. user - <ISO>` for user turns and `### N. assistant - <ISO>` for assistant turns.
 - Message content in the main conversation should avoid Markdown heading syntax too; convert headings to bold lines outside code fences so regular Markdown readers do not render oversized headings inside the flow.
-- Compact tool references such as `<tool_call_000001> Bash - command: npm test - result` inside the relevant Claude turn, with matching sections in the sidecar details file by default.
-- Metadata events, attachments, local command wrappers, and thinking blocks are omitted from the main conversation unless represented by a short useful note.
+- Compact tool references such as `<tool_call_000001> Bash - command: npm test - result` inside the relevant assistant turn, with matching sections in the sidecar details file by default.
+- Metadata and attachment events (`### N. attachment - <ISO>`, `### N. permission-mode`, `### N. file-history-snapshot`, `### N. last-prompt`, etc.) and `[thinking]` blobs in assistant turns are emitted as their own numbered events in the timeline. Readers should skip them as noise; they do not carry conversation content.
 
 ## Reading Exported Sessions
 
