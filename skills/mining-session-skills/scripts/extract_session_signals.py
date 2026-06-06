@@ -56,6 +56,7 @@ def is_human(kind, body_text):
     if kind != 'user':
         return False
     t = body_text.strip()
+    # discard sub-4-char ACK turns ("ok", "y", "好的")
     if len(t) <= 3:
         return False
     if any(t.startswith(p) for p in NONHUMAN_PREFIXES):
@@ -85,7 +86,8 @@ def parse_turns(lines):
 
 
 def extract(path):
-    lines = open(path, encoding='utf-8').read().split('\n')
+    with open(path, encoding='utf-8') as fh:
+        lines = fh.read().splitlines()
     prompts = []
     prev_ts = None
     for (idx, kind, ts_s), start, buf in parse_turns(lines):
