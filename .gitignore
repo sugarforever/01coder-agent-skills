@@ -14,3 +14,6 @@ skills/lark-stock-tracker/
 .claude/
 .agents/
 
+# Planning docs (specs/plans) are kept locally, not tracked
+docs/
+
