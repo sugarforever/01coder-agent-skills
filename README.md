@@ -56,6 +56,7 @@ New skills are picked up automatically on marketplace update — no reinstall ne
 - **codex-cli** — Delegate one-off tasks to OpenAI Codex CLI, including coding reviews, implementation passes, and image generation with proactive image path discovery.
 - **claude-session-manager** — List and export Claude Code JSONL session transcripts from `~/.claude/projects` into organized, readable Markdown with linked tool-call details.
 - **codex-session-manager** — List and export Codex JSONL session transcripts from `~/.codex/sessions` and optional archived sessions into organized, readable Markdown.
+- **mining-session-skills** — Review one completed Claude Code session (located by natural-language description, via its exported Markdown) and propose a skill to create, update, or reuse — so similar work goes faster next time. Builds on `claude-session-manager`.
 - **diagram-to-image** — Convert Mermaid diagrams and Markdown tables to PNG / SVG images for platforms that don't support rich formatting.
 - **interactive-input** — Embed interactive UI components (multiple choice, forms, surveys) in chat responses on compatible clients.
 
@@ -103,6 +104,12 @@ The exporter is dependency-free Python. It keeps main transcript Markdown readab
 Manages Codex JSONL transcripts from `~/.codex/sessions/YYYY/MM/DD/*.jsonl` and optionally `~/.codex/archived_sessions/*.jsonl`. It uses the same full/specific mode pattern as `claude-session-manager`, with `~/.codex/session-markdown` as the default output folder.
 
 The exporter is dependency-free Python and understands Codex `timestamp` / `type` / `payload` events, including session metadata, messages, tool calls, and tool outputs.
+
+### mining-session-skills
+
+The judgment layer on top of `claude-session-manager`. It locates a session by natural-language description ("the session where I fixed the connection-reset bug"), reads the exported compact transcript, segments multi-task sessions into topic arcs, mines friction signals (user corrections, repeated manual steps, supplied domain knowledge), and applies a worth-it gate — only proposing a skill when the work involves non-obvious process, taste/judgment, or a divergence from the standard approach. A clean "nothing worth making here" is a valid result.
+
+It is conversational and gated: it confirms the session, then proposes create/update/reuse with evidence before writing anything — nothing is drafted without approval. The bundled `scripts/extract_session_signals.py` deterministically pulls human prompts (filtering tool results, command wrappers, and thinking blobs) with topic-arc hints, so mining stays cheap on large sessions.
 
 ## Creating a New Skill
 
