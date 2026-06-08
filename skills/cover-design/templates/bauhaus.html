@@ -4,7 +4,15 @@
   支持比例: 16:9 (1920×1080, 默认) / 16:10 (1920×1200, 把 --cv-h 改 1200px)
   适配: YouTube / Bilibili / 横屏短视频 ; 竖屏用 bauhaus-vertical.html
   identity test: ①只用红黄蓝+黑(不加其他色相) ②画面有圆/三角/矩形几何元素参与构图 ③几何无衬线字体 ④构图基于网格
-  占位符同其他模板
+
+  默认精简版 (element budget ≤ 5,见 SKILL.md 原则 1):
+    出厂只放 4 个元素 - kicker(.kicker) + 主标题(.title) + 副标(.sub) + 一处署名(.foot 作者·频道)。
+    红黄蓝几何色块(.geo) + 粗网格细线 = 包豪斯身份,保留(不是可删的装饰色块)。
+    右上编号(.index) / eyebrow / 底部日期 默认不放;
+    确有信息价值时从 body 末尾「可选 opt-in」注释取用(CSS 已保留)。
+
+  占位符 (默认): {{KICKER}} {{TITLE_LINE_1}} {{TITLE_LINE_2}} {{SUBTITLE_HTML}} {{AUTHOR_NAME}} {{CHANNEL}}
+  可选占位符: {{INDEX}} {{EYEBROW}} {{DATE}}
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -51,14 +59,19 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--font-display);
   <div class="geo g-tri"></div>
   <div class="geo g-bar"></div>
   <div class="content">
-    <div class="top"><div class="kicker"><span class="sq"></span>{{KICKER}}</div><div class="index">{{INDEX}}</div></div>
+    <div class="top"><div class="kicker"><span class="sq"></span>{{KICKER}}</div></div>
     <div class="hero">
-      <div class="eyebrow">{{EYEBROW}}</div>
       <h1 class="title"><span class="stack">{{TITLE_LINE_1}}</span><span class="stack alt">{{TITLE_LINE_2}}</span></h1>
       <div class="sub">{{SUBTITLE_HTML}}</div>
     </div>
-    <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span><span>{{DATE}}</span></div>
+    <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span></div>
   </div>
+
+  <!-- 可选 opt-in (默认精简不放;仅当承载信息时取用,CSS 已保留):
+       右上编号    → .top 内 .kicker 后加: <div class="index">{{INDEX}}</div>
+       标题上方小字 → .hero 内 <h1> 前加: <div class="eyebrow">{{EYEBROW}}</div>
+       底部日期    → .foot 内末尾加: <span>{{DATE}}</span>
+  -->
 </div>
 </body>
 </html>

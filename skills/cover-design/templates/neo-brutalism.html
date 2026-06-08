@@ -4,7 +4,15 @@
   支持比例: 16:9 (1920×1080, 默认) / 16:10 (1920×1200, 把 --cv-h 改 1200px)
   适配平台: YouTube / Bilibili / 横屏短视频 ; 竖屏用 neo-brutalism-vertical.html
   identity test: ①主元素 ≥4px 纯黑 border ②阴影是 Npx Npx 0 #000 (硬,无 blur) ③≥2 高饱和色块 ④无渐变/无柔阴影
-  占位符: {{KICKER}} {{INDEX}} {{TITLE_LINE_1}} {{TITLE_LINE_2}} {{SUBTITLE_HTML}} {{AUTHOR_NAME}} {{CHANNEL}} {{DATE}}
+
+  默认精简版 (element budget ≤ 5,见 SKILL.md 原则 1):
+    出厂只放 4 个元素 - kicker(.kicker) + 主标题(.title) + 副标(.sub) + 一处署名(.foot 作者·频道)。
+    撞色块/粗黑描边/硬阴影 = 新粗野身份,保留(不是可删的装饰色块)。
+    右上编号(.index) / eyebrow / 底部日期 默认不放;
+    确有信息价值时从 body 末尾「可选 opt-in」注释取用(CSS 已保留)。
+
+  占位符 (默认): {{KICKER}} {{TITLE_LINE_1}} {{TITLE_LINE_2}} {{SUBTITLE_HTML}} {{AUTHOR_NAME}} {{CHANNEL}}
+  可选占位符: {{INDEX}} {{EYEBROW}} {{DATE}}
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -45,13 +53,18 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--font-display);
 </head>
 <body>
 <div class="cover">
-  <div class="top"><div class="kicker">{{KICKER}}</div><div class="index">{{INDEX}}</div></div>
+  <div class="top"><div class="kicker">{{KICKER}}</div></div>
   <div class="hero">
-    <div class="eyebrow">{{EYEBROW}}</div>
     <h1 class="title"><span class="stack">{{TITLE_LINE_1}}</span><span class="stack alt">{{TITLE_LINE_2}}</span></h1>
     <div class="sub">{{SUBTITLE_HTML}}</div>
   </div>
-  <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span><span class="accent">{{DATE}}</span></div>
+  <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span></div>
+
+  <!-- 可选 opt-in (默认精简不放;仅当承载信息时取用,CSS 已保留):
+       右上编号块  → .top 内 .kicker 后加: <div class="index">{{INDEX}}</div>
+       标题上方标签 → .hero 内 <h1> 前加: <div class="eyebrow">{{EYEBROW}}</div>
+       底部日期    → .foot 内末尾加: <span class="accent">{{DATE}}</span>
+  -->
 </div>
 </body>
 </html>

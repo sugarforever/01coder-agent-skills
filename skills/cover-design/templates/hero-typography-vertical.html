@@ -7,13 +7,17 @@
   所以所有文字都放在一个垂直居中的 .safe 列里,上下各留足余量。
   设计时想看安全区边界,给 <body> 加 class="show-guide" (最终渲染不要留着)。
 
+  默认精简版 (element budget ≤ 5,见 SKILL.md 原则 1):
+    出厂只放 4 个元素 - kicker(.tag) + 主标题(.hero-title) + 副标(.hero-sub) + 一处署名(.foot)。
+    eyebrow 默认不放;确有信息价值时从 body 末尾「可选 opt-in」注释取用(CSS 已保留)。
+
   Customization points (替换占位符,改 CSS 变量):
     1. CSS :root - 改 --bg / --accent 调色;改 --cv-h 切 9:16 / 3:4
-    2. .tag        - 顶部品牌行 (例如 "Claude Code · 深度解读")
-    3. .hero-eyebrow - 主标题上方小字
-    4. .hero-title - 主标题大字,两个 <span class="stack"> 各一行,英文小写最佳
-    5. .hero-sub   - 中文副标题,可在重点词加 <span class="lime">
-    6. .foot .name / .channel - 作者署名 + 频道名
+    2. .tag        - 顶部 kicker (品类 / 工具,例如 "Claude Code · 深度解读")
+    3. .hero-title - 主标题大字,两个 <span class="stack"> 各一行,英文小写最佳
+    4. .hero-sub   - 中文副标题,可在重点词加 <span class="lime">
+    5. .foot .name / .channel - 作者署名 + 频道名 (全图只此一处署名)
+    可选 (默认不放): .hero-eyebrow(标题上方小字)
 
   Render: 见 references/render-pipeline.md
     9:16 → resize 1080×1940, 输出 ~2160×3840 (Retina 2x)
@@ -160,7 +164,7 @@ body.show-guide .guide { display: block; }
   <div class="guide"></div>
   <div class="safe">
     <div class="tag">{{TAG_LEFT}}</div>
-    <div class="hero-eyebrow">{{EYEBROW}}</div>
+    <!-- 可选 opt-in (默认不放): 标题上方小字 → 此处加 <div class="hero-eyebrow">{{EYEBROW}}</div> -->
     <h1 class="hero-title">
       <span class="stack">{{TITLE_LINE_1}}</span>
       <span class="stack">{{TITLE_LINE_2}}</span>

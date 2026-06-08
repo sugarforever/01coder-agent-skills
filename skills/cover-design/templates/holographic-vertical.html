@@ -5,6 +5,14 @@
   适配: 抖音 / 视频号 竖屏短视频 ; 横屏用 holographic.html
   文字收在中央安全带 (加 body.show-guide 看辅助线)
   identity test 同 holographic.html
+
+  默认精简版 (element budget ≤ 5,见 SKILL.md 原则 1):
+    出厂只放 4 个元素 - kicker(.top span) + 主标题(.title) + 副标(.sub) + 一处署名(.foot .name)。
+    虹彩大字 + .foil 全息箔带 + 噪点是身份装饰,保留(.foil 承载身份,非纯分隔线)。
+    eyebrow / 右上 index / 右下 date 默认不放;确有信息价值时从 body 末尾「可选 opt-in」注释取用(CSS 已保留)。
+
+  Customization points: .top span(kicker) · .title(两行) · .sub · .foot .name(全图唯一署名)
+  可选 (默认不放): .eyebrow(标题上方小字) / 右上 index / 右下 date
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -43,15 +51,20 @@ body.show-guide .guide{display:block;}
 </head>
 <body>
 <div class="cover">
-  <div class="top"><span>{{KICKER}}</span><span>{{INDEX}}</span></div>
+  <div class="top"><span>{{KICKER}}</span></div>
   <div class="foil"></div>
   <div class="content">
-    <div class="eyebrow">{{EYEBROW}}</div>
     <h1 class="title"><span class="stack">{{TITLE_LINE_1}}</span><span class="stack">{{TITLE_LINE_2}}</span></h1>
     <div class="sub">{{SUBTITLE_HTML}}</div>
   </div>
-  <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span><span>{{DATE}}</span></div>
+  <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span></div>
   <div class="guide"></div>
+
+  <!-- 可选 opt-in (默认不放;承载信息时取用,CSS 已保留):
+       标题上方小字  → .content 内 <h1> 前加: <div class="eyebrow">{{EYEBROW}}</div>
+       右上 index    → .top 内 kicker span 后加: <span>{{INDEX}}</span>
+       右下 date     → .foot 内 .name 后加: <span>{{DATE}}</span>
+  -->
 </div>
 </body>
 </html>

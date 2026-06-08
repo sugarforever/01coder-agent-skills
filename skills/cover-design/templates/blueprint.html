@@ -4,7 +4,19 @@
   支持比例: 16:9 (1920×1080, 默认) / 16:10 (1920×1200, 把 --cv-h 改 1200px)
   适配: YouTube / Bilibili / 横屏短视频 ; 竖屏用 blueprint-vertical.html
   identity test: ①深藏青/蓝图蓝底 ②白色细网格 (细线 + 主线两层) ③有线稿装饰 (角标尺/标注线/十字) ④等宽标注字, 标题描边或半透白
-  占位符同其他模板
+
+  默认精简版 (element budget ≤ 5,见 SKILL.md 原则 1):
+    出厂只放 5 个元素 - kicker(.top span) + 主标题(.title) + 副标(.sub) + 一条蓝图标注线(.dimline,领域装置) + 一处署名(.foot .name)。
+    网格线稿 + dimline 尺寸标注是蓝图身份语言,保留(网格不是可删的分隔线)。
+    eyebrow / 右上 REV index / dimline 里的 date / 右下 DWG·index(第二处品牌标) 默认不放;
+    确有信息价值时从 body 末尾「可选 opt-in」注释取用(CSS 已保留)。
+
+  Customization points (替换占位符):
+    1. .top span (kicker) - 顶部 kicker (品类 / 工具)
+    2. .title - 主标题,两行 <span class="stack">,第二行可加 .alt 高亮
+    3. .sub  - 中文副标题
+    4. .foot .name - 作者署名 + 频道名 (全图只此一处署名)
+    可选 (默认不放): .eyebrow(标题上方小字) / 右上 REV index / dimline date / 右下 DWG·index
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -53,15 +65,21 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--font-display);
 <body>
 <div class="cover">
   <div class="content">
-    <div class="top"><span>{{KICKER}}</span><span>REV {{INDEX}}</span></div>
+    <div class="top"><span>{{KICKER}}</span></div>
     <div class="hero">
-      <div class="eyebrow">{{EYEBROW}}</div>
       <h1 class="title"><span class="stack">{{TITLE_LINE_1}}</span><span class="stack alt">{{TITLE_LINE_2}}</span></h1>
       <div class="sub">{{SUBTITLE_HTML}}</div>
-      <div class="dimline"><span>SCALE 1:1</span><span class="bar"></span><span>{{DATE}}</span></div>
+      <div class="dimline"><span>SCALE 1:1</span><span class="bar"></span><span>DWG</span></div>
     </div>
-    <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span><span>DWG · {{INDEX}}</span></div>
+    <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span></div>
   </div>
+
+  <!-- 可选 opt-in (默认不放;承载信息时取用,CSS 已保留):
+       标题上方小字  → .hero 内 <h1> 前加: <div class="eyebrow">{{EYEBROW}}</div>
+       右上 REV index → .top 内 kicker span 后加: <span>REV {{INDEX}}</span>
+       dimline date   → .dimline 末尾 <span>DWG</span> 换成 <span>{{DATE}}</span>
+       右下 DWG·index → .foot 内 .name 后加: <span>DWG · {{INDEX}}</span>
+  -->
 </div>
 </body>
 </html>

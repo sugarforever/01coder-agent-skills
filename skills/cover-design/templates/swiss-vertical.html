@@ -12,6 +12,12 @@
   横版 swiss.html 的左对齐到竖版改居中；顶/底细线 chrome 保留 full-width。
 
   核心铁律同 swiss.html：大标题字重 ≤300、单一强调色、1px 细线、无圆角/阴影/渐变。
+
+  默认精简版 (element budget ≤ 5,见 SKILL.md 原则 1):
+    出厂只放 4 个元素 - kicker(.kicker) + 主标题(.title) + 副标(.sub) + 一处署名(.foot 作者+频道)。
+    网格细线 = Swiss 身份,保留。右上编号(.index) / eyebrow 默认不放;
+    确有信息价值时从 body 末尾「可选 opt-in」注释取用(CSS 已保留)。
+
   Render: 见 references/render-pipeline.md
     9:16 → window-size 1080×1940；3:4 → 改 --cv-h:1440px, window-size 1080×1460
 -->
@@ -103,10 +109,8 @@ body.show-guide .guide { display: block; }
   <div class="guide"></div>
   <div class="top">
     <div class="kicker">{{KICKER}}</div>
-    <div class="index">{{INDEX}}</div>
   </div>
   <div class="body">
-    <div class="eyebrow">{{EYEBROW}}</div>
     <h1 class="title">
       <span class="stack">{{TITLE_LINE_1}}</span>
       <span class="stack accent">{{TITLE_LINE_2}}</span>
@@ -117,6 +121,11 @@ body.show-guide .guide { display: block; }
     <span class="val">{{AUTHOR_NAME}}</span>
     <span>{{CHANNEL}}</span>
   </div>
+
+  <!-- 可选 opt-in (默认精简不放;仅当承载信息时取用,CSS 已保留):
+       右上编号    → .top 内 .kicker 后加: <div class="index">{{INDEX}}</div>
+       标题上方小字 → .body 内 <h1> 前加: <div class="eyebrow">{{EYEBROW}}</div>
+  -->
 </div>
 </body>
 </html>
