@@ -25,7 +25,7 @@ cover-design 的每个风格都落成一对模板：横屏（`{style}.html`，16
 |---|---|---|
 | 轻（weight ≤500） | swiss(300)、aurora(500) | **1.06** |
 | 中（weight 600） | glass-dark(600) | **1.08** |
-| 重（weight ≥700）/ 衬线 | hero-typography、neo-brutalism、bauhaus、brutalism、spotlight、blueprint、terminal、holographic、editorial、noir-editorial | **1.10** |
+| 重（weight ≥700）/ 衬线 | hero-typography、neo-brutalism、bauhaus、brutalism、spotlight、blueprint、terminal、holographic、editorial、noir-editorial、quiet-dark | **1.10** |
 
 注意：
 - line-height **只影响多行标题**。这些模板标题都是两行 `.stack`，所以都生效；单行标题取多少都无所谓。
@@ -107,6 +107,14 @@ cover-design 的每个风格都落成一对模板：横屏（`{style}.html`，16
 - **identity test**：①深色底 ②大字填充多色虹彩渐变 ③有一条全息箔色带 ④微噪点/微光，premium 不廉价
 - **适合**：前沿 / 概念 / 潮流科技
 - **字体**：Space Grotesk + Noto Sans SC
+
+### quiet-dark（极简黑）
+- **锚点**：近黑底 + 左锚定非对称留白 + 纯白重字大标题 + 单一强调色只做「标点」（kicker + 短横杠）+ 极淡网格 + 1px 内框，零发光/阴影/渐变
+- **identity test**：①近黑底，结构只靠极淡网格 + 1px 内描边暗示（felt not seen）②内容左锚定，右侧 ≥40% 留空 ③主标题纯白、是全图对比最高的元素，强调色**绝不**用作大标题填充 ④强调色只出现在小而实的标记（kicker / 横杠 / 单个高亮词），无任何 glow
+- **跟邻近风格的边界**：vs `hero-typography`（居中 + 霓虹大字 + 发光）→ 这个左锚定、纯白、零发光；vs `swiss`（暖纸底 + 极轻字重 ≤300）→ 这个黑底、重字重 ≥700；vs `spotlight`（聚光 + 强暗角）→ 这个全程平光、无戏剧光
+- **强调色**：默认电光蓝 `#2f6bff`，可换任一高饱和色（只用作标点，不影响标题对比）
+- **适合**：冷静 / 克制 / 高级调性 - 发布解读、观点、系列封面、需要呼吸感的选题
+- **字号注意**：编辑式多词标题默认 ~132px（让短语单行不折），1-3 个短词时可上推 200-260px（见 `thumbnail-vs-slide.md` §1 例外）
 
 ---
 

@@ -1,0 +1,173 @@
+<!--
+  Template: quiet-dark-vertical (竖屏族 / vertical family)
+  风格: 极简黑 - 纯白大字 + 单一强调色只做标点 + 1px 内框 + 极淡网格
+  支持比例: 9:16 (1080×1920, 默认) / 3:4 (1080×1440, 把 --cv-h 改 1440px)
+  适配平台: 抖音 / 视频号 竖屏封面
+
+  安全区: 抖音/视频号首尾会叠 UI 或被裁。内容用 flex 压在中央纵向安全带里，
+  顶/底各留 ≥200px。设计时给 <body> 加 class="show-guide" 看显示带；最终渲染去掉。
+
+  对齐：窄高画幅里横版的「右侧大留白」不成立，改用「纵向大留白 + 文字左对齐」
+  保持同一种克制感 —— 标题不占满整宽，左边缘对齐 kicker / 横杠 / 副标。
+
+  identity test（同 quiet-dark.html）:
+    ① 近黑底，结构只用极淡网格 + 1px 内框暗示，无发光/阴影/渐变
+    ② 文字左对齐收在中央安全带，纵向留足空白
+    ③ 主标题纯白重字重、全图对比最高；强调色只出现在 kicker + 短横杠
+    ④ 强调色是「标点」不是「填充」：不给大标题整体上色，不在同明度色块上压文字
+
+  默认精简版 (element budget ≤ 5): kicker + 主标题 + 副标行(含前置横杠) + 一处署名。
+
+  Render: 见 references/render-pipeline.md
+    scripts/render-cover.sh quiet-dark-vertical.html ~/covers/<slug> 9x16 3x4
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="color-scheme" content="dark">
+<title>{{TITLE}} · Cover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:           #050505;
+  --ink:          #ffffff;
+  --muted:        #9aa3b2;
+  --line:         rgba(255,255,255,0.06);
+  --frame:        rgba(255,255,255,0.10);
+  --accent:       #2f6bff;
+  --font-display: 'Manrope', 'Noto Sans SC', sans-serif;
+  --font-zh:      'Noto Sans SC', 'Manrope', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+  /* 9:16 默认；3:4 把 --cv-h 改 1440px */
+  --cv-w:         1080px;
+  --cv-h:         1920px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--ink); font-family: var(--font-display); -webkit-font-smoothing: antialiased; }
+
+.cover {
+  width: var(--cv-w);
+  height: var(--cv-h);
+  position: relative;
+  background: var(--bg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 220px 88px;
+}
+
+.cover::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 72px 72px;
+  pointer-events: none;
+}
+
+.frame {
+  position: absolute;
+  inset: 28px;
+  border: 1px solid var(--frame);
+  border-radius: 20px;
+  pointer-events: none;
+}
+
+.content {
+  position: relative;
+  z-index: 5;
+  text-align: left;
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 44px;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  /* 竖屏窄画幅默认 132px：多词短语不折行；1-3 短词时可上推到 180-200px。 */
+  font-size: 132px;
+  line-height: 1.06;     /* 中文三行标题请改 1.10（见 design-styles.md 行高表） */
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  margin-bottom: 56px;
+}
+.title .stack { display: block; }
+.title .accent { color: var(--accent); }
+
+.sub {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  font-family: var(--font-zh);
+  font-weight: 500;
+  font-size: 42px;
+  letter-spacing: 0.01em;
+  color: var(--muted);
+}
+.sub::before {
+  content: "";
+  flex: none;
+  width: 56px;
+  height: 4px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+.foot {
+  position: absolute;
+  left: 88px;
+  bottom: 120px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--font-mono);
+  font-size: 24px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.foot .name { color: var(--ink); font-weight: 700; letter-spacing: 0.03em; text-transform: none; font-size: 28px; font-family: var(--font-display); }
+.foot .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: inline-block; }
+
+/* 设计辅助线 - body.show-guide 显示中央安全带，最终渲染前去掉 class */
+.guide { display: none; position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); height: 1464px; border: 2px dashed var(--accent); z-index: 50; pointer-events: none; }
+body.show-guide .guide { display: block; }
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="guide"></div>
+  <div class="frame"></div>
+
+  <div class="content">
+    <div class="kicker">{{KICKER}}</div>
+    <h1 class="title">
+      <span class="stack">{{TITLE_LINE_1}}</span>
+      <span class="stack">{{TITLE_LINE_2}}</span>
+    </h1>
+    <div class="sub">{{SUBTITLE}}</div>
+  </div>
+
+  <div class="foot">
+    <span class="name">{{AUTHOR_NAME}}</span>
+    <span class="dot"></span>
+    <span>{{CHANNEL}}</span>
+  </div>
+</div>
+</body>
+</html>
