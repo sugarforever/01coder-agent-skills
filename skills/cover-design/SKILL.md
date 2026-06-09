@@ -67,7 +67,7 @@ description: Design typography-driven video cover images using HTML/CSS + Chrome
 
 每种风格落地为一个 HTML 模板,所有可变内容(主标题、副标、accent 色、作者署名等)通过 CSS 变量或文本占位符暴露。新增风格 = 新增一个模板,不动 skill 主流程。
 
-可用模板见 `templates/` 目录，每个风格一对（横屏 + 竖屏）。当前有 13 个风格（见 Step 2 列表），风格目录与扩展规格见 `references/design-styles.md`。
+可用模板见 `templates/` 目录，每个风格一对（横屏 + 竖屏）。当前有 14 个风格（见 Step 2 列表），风格目录与扩展规格见 `references/design-styles.md`。
 
 ### 3. 固定像素画布 + 浏览器陷阱
 
@@ -136,6 +136,7 @@ scripts/extract-brand-theme.sh https://产品官网
 - **`spotlight`** - 聚光戏剧光：全黑 + 单束聚光 + 强暗角 + 高对比。发布 / 悬念 / 重磅。
 - **`blueprint`** - 深蓝图：深藏青 + 白色网格线稿 + 等宽标注。架构 / 原理 / 技术拆解。
 - **`holographic`** - 暗调全息：深底 + 油膜虹彩大字 + 全息箔 + 噪点。前沿 / 概念 / 潮流科技。
+- **`quiet-dark`** - 极简黑：近黑底 + 左锚定大留白 + 纯白重字大标题 + 单一强调色只做标点（kicker + 短横杠）+ 极淡网格 + 1px 内框，零发光。冷静克制高级，发布解读 / 观点 / 系列封面。
 
 每个风格的视觉锚点、identity test、适用场景见 `references/design-styles.md`。
 
@@ -263,3 +264,4 @@ scripts/render-cover.sh cover-v.html ~/covers/<slug> 9x16 3x4 # 竖屏显式指�
 11. **想法先行(方法论主线,最重要)** - 选模板前先按 `references/design-conception.md` 抽出**核心想法**(可能是名字/logo/隐喻/氛围,别把「角度/卖点」误当想法);全 skill 只用这一套方法论,别混入别的流派。落到画面的传达自检(三信号/署名只一次/精简 chrome)见 `references/cover-composition.md`
 12. **讲具体产品时做品牌匹配** - 用产品官网真实色 + 字(`scripts/extract-brand-theme.sh` + `references/brand-theme.md`),不要一律采用默认 lime;封面气质和被介绍的产品一致更专业
 13. **风格/配色要主动选,别套题材默认皮** - 按核心想法 + 题材调性推导风格(列 2-3 候选),模板自带配色是起点不是终点,品类信号(命令条/logo)不绑定某皮肤;常规选择合适就用,但要能说出「为什么这风格服务这个核心想法」(见 Step 2「选风格的方法」)
+14. **配色服务可读性(color-for-legibility)** - 字清不清取决于**亮度对比**,不只是配色好不好看。① 主标题的「体量」留给**最高对比的中性色**(白压暗 ≈21:1 / 墨压浅),目标对比 ≥7:1;② 强调色当**「标点」**用 - kicker / 短横杠 / 单个高亮词 / 图标 / 数字,小而实,**绝不**给整段大标题上饱和色(中等亮度 + 任何 glow 会软化字缘,160px 必糊);③ 主标题**别加 `text-shadow` / glow**;④ **不在同明度半透明色块上压同色文字**(彩字发虚的常见来源)。霓虹风(hero-typography)的发光是有意识的风格选择,不是默认;范本见 `quiet-dark`。详见 `references/thumbnail-vs-slide.md` §4 + `references/cover-composition.md`

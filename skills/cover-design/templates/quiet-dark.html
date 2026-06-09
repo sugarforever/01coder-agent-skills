@@ -1,0 +1,206 @@
+<!--
+  Template: quiet-dark (横屏族 / horizontal family)
+  风格: 极简黑 - 左锚定非对称留白 + 纯白大字 + 单一强调色只做标点 + 1px 内框 + 极淡网格
+  支持比例: 16:9 (1920×1080, 默认) · 16:10 (1920×1200, 把 :root 的 --cv-h 改 1200px)
+  适配平台: YouTube (16:9) · Bilibili (16:10) · 横屏短视频 (16:9)
+  竖屏 (9:16 / 3:4, 抖音 / 视频号) 用 quiet-dark-vertical.html
+
+  When to use:
+    - 冷静 / 克制 / 高级调性：发布解读、观点、系列封面、需要「呼吸感」的选题
+    - 想用大片留白 + 极强排版层级（不靠任何装饰元素）做主视觉
+    - 跟 hero-typography 的区别：那个是居中 + 霓虹大字 + 发光；这个是左锚定 + 纯白大字 + 零发光
+    - 跟 swiss 的区别：swiss 是暖纸底 + 极轻字重(≤300)；这个是黑底 + 重字重(≥700)
+
+  identity test (4 条全过才算做对):
+    ① 近黑底，结构只用「极淡网格 + 1px 内描边」暗示，felt not seen，无发光/阴影/渐变
+    ② 内容左锚定，右侧 ≥40% 画面留空（非对称留白是构图本身，不是没填完）
+    ③ 主标题纯白(--ink)、重字重，是全图对比最高的元素；强调色只出现在 kicker + 短横杠
+    ④ 强调色是「标点」不是「填充」：绝不给大标题整体上色，绝不在同明度色块上压文字
+
+  色彩服务可读性 (见 SKILL.md Critical Rule 14):
+    标题质量 = 亮度对比。白字压黑底 ≈ 21:1，是全图最锐利的边缘。
+    把饱和强调色用作大标题填充 → 中等亮度 + 任何发光都会软化字缘 → 160px 缩略图发虚。
+    所以：标题留给最高对比的中性色，强调色只给小而实的标记(kicker / 横杠 / 单个高亮词 / 图标 / 数字)。
+
+  默认精简版 (element budget ≤ 5,见 SKILL.md 原则 1):
+    出厂只放 4 个元素 - kicker(.kicker) + 主标题(.title) + 副标行(.sub，含前置短横杠) + 一处署名(.foot)。
+    极淡网格 + 内框 = 本风格身份,保留。右上编号(.index) 默认不放;
+    确有信息价值时从 body 末尾「可选 opt-in」注释取用(CSS 已保留)。
+
+  Customization points (替换占位符,改 CSS 变量):
+    1. CSS :root - 改 --bg / --accent 改色调（强调色默认电光蓝 #2f6bff，可换）
+    2. .kicker 文本 - 标题上方 letter-spaced 小字 (品类 / 系列编号,例如 "HARNESS PATTERN 01")
+    3. .title - 主标题,两个 <span class="stack"> 各一行,纯白；可在单个词上加 <span class="accent"> 点缀（克制）
+    4. .sub - 副标题一句（前置短 accent 横杠由 CSS 自动加）
+    5. .foot - 作者署名 + 频道名 (全图只此一处署名)
+
+  Render: 见 SKILL.md Step 4 / references/render-pipeline.md
+    scripts/render-cover.sh quiet-dark.html ~/covers/<slug>   # 横屏自动出 16x9 + 16x10
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="color-scheme" content="dark">
+<title>{{TITLE}} · Cover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:           #050505;
+  --ink:          #ffffff;       /* 标题：最高对比中性色，全图最锐利 */
+  --muted:        #9aa3b2;       /* 副标 / 次要灰字 */
+  --line:         rgba(255,255,255,0.06);  /* 极淡网格 */
+  --frame:        rgba(255,255,255,0.10);  /* 1px 内描边 */
+  --accent:       #2f6bff;       /* 电光蓝；强调色只做标点，可换 */
+  --font-display: 'Manrope', 'Noto Sans SC', sans-serif;
+  --font-zh:      'Noto Sans SC', 'Manrope', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+  /* 画布尺寸 - 横屏族。16:9 默认；16:10 把 --cv-h 改成 1200px */
+  --cv-w:         1920px;
+  --cv-h:         1080px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--ink); font-family: var(--font-display); -webkit-font-smoothing: antialiased; }
+
+.cover {
+  width: var(--cv-w);
+  height: var(--cv-h);
+  position: relative;
+  background: var(--bg);
+  overflow: hidden;
+  /* 内容左锚定：左 padding 起手，右侧留空。content 块宽度上限 ~58% 保证右侧 ≥40% 空。 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 120px;
+}
+
+/* 极淡网格 - 风格身份的一半，felt not seen */
+.cover::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 80px 80px;
+  pointer-events: none;
+}
+
+/* 1px 内描边 - 风格身份的另一半 */
+.frame {
+  position: absolute;
+  inset: 28px;
+  border: 1px solid var(--frame);
+  border-radius: 18px;
+  pointer-events: none;
+}
+
+.content {
+  position: relative;
+  z-index: 5;
+  max-width: 1200px;   /* 右侧留白 ≥40%（画布 1920 - 120 左 padding - 1200 ≈ 600px 空） */
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 26px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 40px;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  /* 多词编辑式标题默认 132px：让一行短语(如 "The Harness" / "Is The Product")不折行。
+     标题只有 1-3 个短词时可上推到 200-260px 增强冲击（短词在 1200px 容器内不会折行）。 */
+  font-size: 132px;
+  line-height: 1.04;          /* 拉丁重字重；中文两行请改 1.10（见 design-styles.md 行高表） */
+  letter-spacing: -0.03em;
+  color: var(--ink);          /* 纯白 = 全图最高对比，最锐利。不要给整段标题上 accent */
+  margin-bottom: 52px;
+}
+.title .stack { display: block; }
+.title .accent { color: var(--accent); }   /* 克制：至多点缀单个词 */
+
+/* 副标行：前置一段短 accent 横杠（标点式强调），后接灰字 */
+.sub {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  font-family: var(--font-zh);
+  font-weight: 500;
+  font-size: 40px;
+  letter-spacing: 0.01em;
+  color: var(--muted);
+}
+.sub::before {
+  content: "";
+  flex: none;
+  width: 64px;
+  height: 4px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+.foot {
+  position: absolute;
+  left: 120px;
+  bottom: 64px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--font-mono);
+  font-size: 22px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.foot .name { color: var(--ink); font-weight: 700; letter-spacing: 0.03em; text-transform: none; font-size: 26px; font-family: var(--font-display); }
+.foot .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: inline-block; }
+
+/* 右上编号（可选 opt-in，默认不放） */
+.index {
+  position: absolute;
+  top: 64px;
+  right: 120px;
+  z-index: 5;
+  font-family: var(--font-mono);
+  font-size: 22px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="frame"></div>
+
+  <div class="content">
+    <div class="kicker">{{KICKER}}</div>
+    <h1 class="title">
+      <span class="stack">{{TITLE_LINE_1}}</span>
+      <span class="stack">{{TITLE_LINE_2}}</span>
+    </h1>
+    <div class="sub">{{SUBTITLE}}</div>
+  </div>
+
+  <div class="foot">
+    <span class="name">{{AUTHOR_NAME}}</span>
+    <span class="dot"></span>
+    <span>{{CHANNEL}}</span>
+  </div>
+
+  <!-- 可选 opt-in (默认精简不放;仅当承载信息时取用,CSS 已保留):
+       右上编号 → .cover 内加: <div class="index">{{INDEX}}</div>
+  -->
+</div>
+</body>
+</html>
