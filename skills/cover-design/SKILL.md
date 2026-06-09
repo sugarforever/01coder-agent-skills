@@ -67,7 +67,7 @@ description: Design typography-driven video cover images using HTML/CSS + Chrome
 
 每种风格落地为一个 HTML 模板,所有可变内容(主标题、副标、accent 色、作者署名等)通过 CSS 变量或文本占位符暴露。新增风格 = 新增一个模板,不动 skill 主流程。
 
-可用模板见 `templates/` 目录，每个风格一对（横屏 + 竖屏）。当前有 14 个风格（见 Step 2 列表），风格目录与扩展规格见 `references/design-styles.md`。
+可用模板见 `templates/` 目录，每个风格一对（横屏 + 竖屏）。当前有 15 个风格（见 Step 2 列表），风格目录与扩展规格见 `references/design-styles.md`。
 
 ### 3. 固定像素画布 + 浏览器陷阱
 
@@ -137,6 +137,7 @@ scripts/extract-brand-theme.sh https://产品官网
 - **`blueprint`** - 深蓝图：深藏青 + 白色网格线稿 + 等宽标注。架构 / 原理 / 技术拆解。
 - **`holographic`** - 暗调全息：深底 + 油膜虹彩大字 + 全息箔 + 噪点。前沿 / 概念 / 潮流科技。
 - **`quiet-dark`** - 极简黑：近黑底 + 左锚定大留白 + 纯白重字大标题 + 单一强调色只做标点（kicker + 短横杠）+ 极淡网格 + 1px 内框，零发光。冷静克制高级，发布解读 / 观点 / 系列封面。
+- **`editorial-index`** - 编辑目录：暖纸底 + 大 wordmark 报头 + 编号目录（ruled contents）+ 单一强调色 + hairline 分隔。**组合式版式而非单大标题**，把整期 lineup 一眼摆出。AI 早读 / 日报周报 / 榜单 Top N / 合集目录（multi-item，缩略图会糊，宜大图 / 文章 hero）。
 
 每个风格的视觉锚点、identity test、适用场景见 `references/design-styles.md`。
 

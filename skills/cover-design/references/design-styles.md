@@ -25,7 +25,7 @@ cover-design 的每个风格都落成一对模板：横屏（`{style}.html`，16
 |---|---|---|
 | 轻（weight ≤500） | swiss(300)、aurora(500) | **1.06** |
 | 中（weight 600） | glass-dark(600) | **1.08** |
-| 重（weight ≥700）/ 衬线 | hero-typography、neo-brutalism、bauhaus、brutalism、spotlight、blueprint、terminal、holographic、editorial、noir-editorial、quiet-dark | **1.10** |
+| 重（weight ≥700）/ 衬线 | hero-typography、neo-brutalism、bauhaus、brutalism、spotlight、blueprint、terminal、holographic、editorial、noir-editorial、quiet-dark、editorial-index | **1.10** |
 
 注意：
 - line-height **只影响多行标题**。这些模板标题都是两行 `.stack`，所以都生效；单行标题取多少都无所谓。
@@ -115,6 +115,13 @@ cover-design 的每个风格都落成一对模板：横屏（`{style}.html`，16
 - **强调色**：默认电光蓝 `#2f6bff`，可换任一高饱和色（只用作标点，不影响标题对比）
 - **适合**：冷静 / 克制 / 高级调性 - 发布解读、观点、系列封面、需要呼吸感的选题
 - **字号注意**：编辑式多词标题默认 ~132px（让短语单行不折），1-3 个短词时可上推 200-260px（见 `thumbnail-vs-slide.md` §1 例外）
+
+### editorial-index（编辑目录 / 报头）
+- **锚点**：暖纸底 + 大 wordmark 报头（下压粗规则线）+ 编号目录（ruled contents，行间 1px hairline）+ 单一强调色（只落在 wordmark 重点字 + 行号）+ 严格左对齐网格，无卡片/阴影/圆角
+- **identity test**：①报头：大 wordmark + 右侧期号/来源 + 一条 ≥3px 规则线 ②正文是「编号 + 条目」的目录，行间 hairline 分隔 ③暖纸底 + 恰好一个强调色 ④等宽字做编号/meta，grotesque + Noto Sans SC 做条目
+- **关键区别**：这是**组合式版式（报头 + 目录）而非单大标题** - 它**刻意打破单焦点**，因为「一期速读 / 榜单 / 目录」本身就是多条目。视觉气质 Swiss-邻近（暖纸 + hairline + 单强调色），但版式不同
+- **适合**：AI 早读 / 日报周报 / 合集 / 榜单 Top N / 专题索引 - 把整期 lineup 一眼摆出
+- **取舍**：multi-item，全幅 / 大图（文章 hero、Substack 题图、X Card）下最好看；缩到 160px 列表会糊，需小缩略图可读时改用单焦点风格（见 `thumbnail-vs-slide.md`「何时违反这些规则」）。行数 3-6（竖屏 4-5），多了减字号
 
 ---
 
