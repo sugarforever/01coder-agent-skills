@@ -14,13 +14,18 @@
     - 分隔用 1-2px 细线 (hairline)，不用卡片/阴影/圆角
     - 左对齐 + 非对称留白
 
-  Customization points:
+  默认精简版 (element budget ≤ 5,见 SKILL.md 原则 1):
+    出厂只放 4 个元素 - kicker(.kicker) + 主标题(.title) + 副标(.sub) + 一处署名(.foot 作者+频道)。
+    网格细线/hairline = Swiss 身份,保留。顶部右编号(.index) / eyebrow / 底部日期 默认不放;
+    确有信息价值时从 body 末尾「可选 opt-in」注释取用(CSS 已保留)。
+
+  Customization points (替换占位符,改 CSS 变量):
     1. CSS :root - --accent 换强调色；--cv-h 切 16:9 / 16:10
     2. .kicker     - 顶部小标签 (来源 / 系列)
-    3. .index      - 顶部右编号 (如 "NOTE / 03")
-    4. .title      - 主标题大字 (英文小写，weight 极轻)
-    5. .sub        - 中文副标 (一句话点题)
-    6. .meta-*     - 底部三栏 meta (作者 / 主题 / 日期)
+    3. .title      - 主标题大字 (英文小写，weight 极轻)
+    4. .sub        - 中文副标 (一句话点题)
+    5. .foot       - 底部署名 (作者 / 频道,全图只此一处)
+    可选 (默认不放): .index(右上编号) / .eyebrow(标题上方小字) / .foot 第三栏日期
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -148,11 +153,9 @@ html, body { background: var(--bg); color: var(--ink); font-family: var(--font-d
 <div class="cover">
   <div class="top">
     <div class="kicker">{{KICKER}}</div>
-    <div class="index">{{INDEX}}</div>
   </div>
 
   <div class="body">
-    <div class="eyebrow">{{EYEBROW}}</div>
     <h1 class="title">
       <span class="stack">{{TITLE_LINE_1}}</span>
       <span class="stack accent">{{TITLE_LINE_2}}</span>
@@ -163,8 +166,13 @@ html, body { background: var(--bg); color: var(--ink); font-family: var(--font-d
   <div class="foot">
     <div><span class="label">Author</span><span class="val">{{AUTHOR_NAME}}</span></div>
     <div><span class="label">Channel</span><span class="val">{{CHANNEL}}</span></div>
-    <div class="right"><span class="label">Date</span><span class="val">{{DATE}}</span></div>
   </div>
+
+  <!-- 可选 opt-in (默认精简不放;仅当承载信息时取用,CSS 已保留):
+       右上编号    → .top 内 .kicker 后加: <div class="index">{{INDEX}}</div>
+       标题上方小字 → .body 内 <h1> 前加: <div class="eyebrow">{{EYEBROW}}</div>
+       底部日期栏  → .foot 内末尾加: <div class="right"><span class="label">Date</span><span class="val">{{DATE}}</span></div>
+  -->
 </div>
 </body>
 </html>

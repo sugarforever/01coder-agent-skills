@@ -57,7 +57,11 @@ description: Design typography-driven video cover images using HTML/CSS + Chrome
 - **3 秒原则** - 缩到 160px 仍能读出主标题
 - **少即是多** - 一个视觉钩子 + 标题 + 副标 + 作者署名,完。
 
-详见 `references/thumbnail-vs-slide.md`。
+**元素预算(默认 ≤ 5,模板一律按此交付精简版,多出来的先删再说)**:① 一个 kicker(品类 / 工具,可选)② 一个核心主元素(标题 或 logo / 隐喻装置 - 单焦点)③ 一句副标(可选)④ 一处署名(只一次)⑤ 至多一个领域装置(before/after、命令条、N→1、大数字 - 仅当承载信息时)。**默认不放**:日期、eyebrow 小字、`Ep·` 胶囊、扇出节点 / 纯装饰色块 / 几何形、上下分隔横线、第二处署名、重复副标。要加回任何一项,先自问「它传达了信息吗」 - 不传达就删,这是原则 0「删减」的执行。
+
+**关键区分(精简时别误伤)**:风格本身的视觉语言 - swiss 的网格细线、bauhaus 的几何色块、terminal 的扫描线 + 光标、aurora / glass 的光晕渐变、blueprint 的网格线稿 - 是这个风格的**身份**,不是 chrome,**不在精简之列**。要删的是被过度填充的**内容槽**(eyebrow / 日期 / episode 胶囊 / 第二署名)和**不承载信息的装饰**(扇出节点、纯平衡用的抽象色块)。
+
+详见 `references/thumbnail-vs-slide.md` 与 `references/cover-composition.md`(默认元素集)。
 
 ### 2. 模板驱动 + 参数化
 

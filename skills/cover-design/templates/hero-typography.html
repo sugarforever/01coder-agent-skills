@@ -9,16 +9,18 @@
     - 主标题是一个英文词或短语 (1-3 词最佳),想用打字版作为视觉锚点
     - 配大字 + 中文副标 + 两侧轻量装饰节点 (暗示并行 / 分支 / 网络这类概念)
 
+  默认精简版 (element budget ≤ 5,见 SKILL.md 原则 1):
+    出厂只放 4 个元素 - kicker(.tag) + 主标题(.hero-title) + 副标(.hero-sub) + 一处署名(.foot .author)。
+    eyebrow / 右上品牌+日期 / 右下 episode 胶囊 / 扇出节点 默认不放;
+    确有信息价值时,从下面 body 末尾的「可选 opt-in」注释里取用(CSS 已保留)。
+
   Customization points (替换占位符,改 CSS 变量):
     1. CSS :root 变量 - 改 --bg / --accent 改色调
-    2. .tag 文本 - 顶部左品牌行 (例如 "Claude Code · 深度解读")
-    3. .brand-mark 文本 - 顶部右品牌 + 日期
-    4. .hero-eyebrow 文本 - 主标题上方小字 (例如 "Anthropic · Research Preview")
-    5. .hero-title - 主标题,两个 <span class="stack"> 各一行,英文小写效果最好
-    6. .hero-sub - 中文副标题,可在重点词上加 <span class="lime"> 高亮
-    7. .foot .author 文本 - 作者署名 + 频道名
-    8. .foot .episode 文本 - 底部右侧 chip,通常 "Ep · {主题} 解读"
-    9. 两个 .nodes SVG - 装饰节点图,默认 5 路扇出,可改路数或换形状
+    2. .tag 文本 - 顶部左 kicker (品类 / 工具,例如 "Claude Code · 深度解读")
+    3. .hero-title - 主标题,两个 <span class="stack"> 各一行,英文小写效果最好
+    4. .hero-sub - 中文副标题,可在重点词上加 <span class="lime"> 高亮
+    5. .foot .author 文本 - 作者署名 + 频道名 (全图只此一处署名)
+    可选 (默认不放): .brand-mark(右上品牌+日期) / .hero-eyebrow(标题上方小字) / .episode(右下胶囊)
 
   Render: 见 SKILL.md Step 4 / references/render-pipeline.md
     16:9  → resize 1920×1100, 输出 ~3840×2160 (Retina 2x)
@@ -150,16 +152,6 @@ html, body { background: var(--bg); color: var(--ink); font-family: var(--font-d
   padding: 0 0.12em;
 }
 
-/* SIDE FAN-OUT VISUAL HINTS */
-.nodes {
-  position: absolute;
-  z-index: 3;
-  pointer-events: none;
-}
-.nodes.left { top: 50%; left: 60px; transform: translateY(-50%); }
-.nodes.right { top: 50%; right: 60px; transform: translateY(-50%); }
-.nodes svg { display: block; }
-
 /* BOTTOM STRIP */
 .foot {
   position: absolute;
@@ -196,44 +188,8 @@ html, body { background: var(--bg); color: var(--ink); font-family: var(--font-d
 <div class="cover">
 
   <div class="tag">{{TAG_LEFT}}</div>
-  <div class="brand-mark"><span class="vsw">{{BRAND}}</span> · {{DATE}}</div>
-
-  <!-- left fan-out hint -->
-  <div class="nodes left">
-    <svg width="180" height="320" viewBox="0 0 180 320" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="20" cy="160" r="8" fill="#7bff9f"/>
-      <line x1="28" y1="160" x2="150" y2="40" stroke="#7bff9f" stroke-width="2" stroke-opacity="0.5"/>
-      <line x1="28" y1="160" x2="150" y2="110" stroke="#7bff9f" stroke-width="2" stroke-opacity="0.5"/>
-      <line x1="28" y1="160" x2="150" y2="160" stroke="#7bff9f" stroke-width="2" stroke-opacity="0.5"/>
-      <line x1="28" y1="160" x2="150" y2="210" stroke="#7bff9f" stroke-width="2" stroke-opacity="0.5"/>
-      <line x1="28" y1="160" x2="150" y2="280" stroke="#7bff9f" stroke-width="2" stroke-opacity="0.5"/>
-      <circle cx="158" cy="40" r="5" fill="#7bff9f" opacity="0.7"/>
-      <circle cx="158" cy="110" r="5" fill="#7bff9f" opacity="0.7"/>
-      <circle cx="158" cy="160" r="5" fill="#7bff9f" opacity="0.7"/>
-      <circle cx="158" cy="210" r="5" fill="#7bff9f" opacity="0.7"/>
-      <circle cx="158" cy="280" r="5" fill="#7bff9f" opacity="0.7"/>
-    </svg>
-  </div>
-
-  <!-- right fan-out hint, mirrored -->
-  <div class="nodes right">
-    <svg width="180" height="320" viewBox="0 0 180 320" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="160" cy="160" r="8" fill="#7bff9f"/>
-      <line x1="152" y1="160" x2="30" y2="40" stroke="#7bff9f" stroke-width="2" stroke-opacity="0.5"/>
-      <line x1="152" y1="160" x2="30" y2="110" stroke="#7bff9f" stroke-width="2" stroke-opacity="0.5"/>
-      <line x1="152" y1="160" x2="30" y2="160" stroke="#7bff9f" stroke-width="2" stroke-opacity="0.5"/>
-      <line x1="152" y1="160" x2="30" y2="210" stroke="#7bff9f" stroke-width="2" stroke-opacity="0.5"/>
-      <line x1="152" y1="160" x2="30" y2="280" stroke="#7bff9f" stroke-width="2" stroke-opacity="0.5"/>
-      <circle cx="22" cy="40" r="5" fill="#7bff9f" opacity="0.7"/>
-      <circle cx="22" cy="110" r="5" fill="#7bff9f" opacity="0.7"/>
-      <circle cx="22" cy="160" r="5" fill="#7bff9f" opacity="0.7"/>
-      <circle cx="22" cy="210" r="5" fill="#7bff9f" opacity="0.7"/>
-      <circle cx="22" cy="280" r="5" fill="#7bff9f" opacity="0.7"/>
-    </svg>
-  </div>
 
   <div class="hero">
-    <div class="hero-eyebrow">{{EYEBROW}}</div>
     <h1 class="hero-title">
       <span class="stack">{{TITLE_LINE_1}}</span>
       <span class="stack">{{TITLE_LINE_2}}</span>
@@ -247,8 +203,13 @@ html, body { background: var(--bg); color: var(--ink); font-family: var(--font-d
       <span class="dot"></span>
       <span>{{CHANNEL}}</span>
     </div>
-    <div class="episode">{{EPISODE_CHIP}}</div>
   </div>
+
+  <!-- 可选 opt-in (默认精简不放;仅当承载信息时取用,CSS 已保留):
+       右上品牌+日期  → 紧跟 .tag 后加: <div class="brand-mark"><span class="vsw">{{BRAND}}</span> · {{DATE}}</div>
+       标题上方小字    → .hero 内 <h1> 前加: <div class="hero-eyebrow">{{EYEBROW}}</div>
+       右下胶囊        → .foot 内 .author 后加: <div class="episode">{{EPISODE_CHIP}}</div>
+  -->
 
 </div>
 </body>

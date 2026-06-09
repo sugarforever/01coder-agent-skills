@@ -3,8 +3,21 @@
   风格: 暗调杂志 - 近黑底 + 衬线大标题 + 暖金强调 + 胶片颗粒 (editorial 的暗黑高级版)
   支持比例: 16:9 (1920×1080, 默认) / 16:10 (1920×1200, 把 --cv-h 改 1200px)
   适配: YouTube / Bilibili / 横屏短视频 ; 竖屏用 noir-editorial-vertical.html
-  identity test: ①近黑底 (非纯黑) ②大标题用衬线字族 ③恰好一个暖金强调色 (eyebrow / hairline) ④背景有颗粒/纸纹氛围, "越大越细"
-  占位符同其他模板
+  identity test: ①近黑底 (非纯黑) ②大标题用衬线字族 ③恰好一个暖金强调色 (gold hairline / italic alt) ④背景有颗粒/纸纹氛围, "越大越细"
+
+  默认精简版 (element budget ≤ 5,见 SKILL.md 原则 1):
+    出厂只放 4 个元素 - kicker(.top) + 金色 hairline(.rule) + 主标题(.title,第二行 .alt 走暖金斜体) + 副标(.sub) + 一处署名(.foot .name)。
+    近黑底 / 衬线大标题 / 暖金强调 (.rule + .alt) / 胶片颗粒都是身份装置,保留。
+    右上序号(.top 内 № INDEX) / 标题上方 eyebrow / 右下日期 默认不放;
+    确有信息价值时,从 body 末尾「可选 opt-in」注释取用(CSS 已保留)。
+
+  Customization points (替换占位符,改 CSS 变量):
+    1. CSS :root - 改 --gold 切强调色;改 --cv-h 切 16:9 / 16:10
+    2. .top 左 kicker - 品类 / 工具
+    3. .title - 主标题,两个 <span class="stack"> 各一行,第二行 .alt 走暖金斜体
+    4. .sub   - 中文副标题
+    5. .foot .name - 作者署名 + 频道名 (全图只此一处署名)
+    可选 (默认不放): 右上 № INDEX 序号 / 标题上方 eyebrow 小字 / 右下日期
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -44,14 +57,19 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--font-sans);-we
 <body>
 <div class="cover">
   <div class="content">
-    <div><div class="top"><span>{{KICKER}}</span><span>№ {{INDEX}}</span></div><div class="rule"></div></div>
+    <div><div class="top"><span>{{KICKER}}</span></div><div class="rule"></div></div>
     <div class="hero">
-      <div class="eyebrow">{{EYEBROW}}</div>
       <h1 class="title"><span class="stack">{{TITLE_LINE_1}}</span><span class="stack alt">{{TITLE_LINE_2}}</span></h1>
       <div class="sub">{{SUBTITLE_HTML}}</div>
     </div>
-    <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span><span>{{DATE}}</span></div>
+    <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span></div>
   </div>
+
+  <!-- 可选 opt-in (默认不放;承载信息时取用,CSS 已保留):
+       右上序号  → .top 改成: <span>{{KICKER}}</span><span>№ {{INDEX}}</span>
+       标题上方小字 → .hero 内 <h1> 前加: <div class="eyebrow">{{EYEBROW}}</div>
+       右下日期  → .foot 内 .name 后加: <span>{{DATE}}</span>
+  -->
 </div>
 </body>
 </html>

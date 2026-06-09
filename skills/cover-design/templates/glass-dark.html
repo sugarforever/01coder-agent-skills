@@ -4,7 +4,20 @@
   支持比例: 16:9 (1920×1080, 默认) / 16:10 (1920×1200, 把 --cv-h 改 1200px)
   适配: YouTube / Bilibili / 横屏短视频 ; 竖屏用 glass-dark-vertical.html
   identity test: ①深色底 ②背后 2-3 团柔光透出 ③磨砂玻璃面板 (backdrop-blur + 半透明 + 1px 高光描边 + 圆角) ④面板内大字偏白, 整体通透高级
-  占位符同其他模板
+
+  默认精简版 (element budget ≤ 5,见 SKILL.md 原则 1):
+    出厂只放 4 个元素 - kicker(.kicker) + 主标题(.title) + 副标(.sub) + 一处署名(.foot .name)。
+    右上序号(.index) / 玻璃面板内 eyebrow / 右下日期 默认不放;
+    确有信息价值时,从下面 body 末尾的「可选 opt-in」注释里取用(CSS 已保留)。
+    玻璃面板 + 背后柔光是身份装置,保留。
+
+  Customization points (替换占位符,改 CSS 变量):
+    1. CSS :root - 改 --bg / --g1~3 调底色与柔光;改 --cv-h 切 16:9 / 16:10
+    2. .kicker  - 顶部左 kicker (品类 / 工具)
+    3. .title   - 主标题,两个 <span class="stack"> 各一行,第二行 .alt 走渐变
+    4. .sub     - 中文副标题
+    5. .foot .name - 作者署名 + 频道名 (全图只此一处署名)
+    可选 (默认不放): .index(右上序号) / .eyebrow(面板内小字) / 右下日期
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -48,14 +61,19 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--font-display);
 <body>
 <div class="cover">
   <div class="content">
-    <div class="top"><div class="kicker">{{KICKER}}</div><div class="index">{{INDEX}}</div></div>
+    <div class="top"><div class="kicker">{{KICKER}}</div></div>
     <div class="hero">
-      <div class="eyebrow">{{EYEBROW}}</div>
       <h1 class="title"><span class="stack">{{TITLE_LINE_1}}</span><span class="stack alt">{{TITLE_LINE_2}}</span></h1>
       <div class="sub">{{SUBTITLE_HTML}}</div>
     </div>
-    <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span><span>{{DATE}}</span></div>
+    <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span></div>
   </div>
+
+  <!-- 可选 opt-in (默认不放;承载信息时取用,CSS 已保留):
+       右上序号  → .top 内 .kicker 后加: <div class="index">{{INDEX}}</div>
+       面板内小字 → .hero 内 <h1> 前加: <div class="eyebrow">{{EYEBROW}}</div>
+       右下日期  → .foot 内 .name 后加: <span>{{DATE}}</span>
+  -->
 </div>
 </body>
 </html>

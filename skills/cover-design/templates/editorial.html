@@ -4,7 +4,20 @@
   支持比例: 16:9 (1920×1080, 默认) / 16:10 (1920×1200, 把 --cv-h 改 1200px)
   适配: YouTube / Bilibili / 横屏短视频 ; 竖屏用 editorial-vertical.html
   identity test: ①大标题用衬线字族 ②背景有氛围层(grain/纸纹/墨色),非纯平色 ③越大越细(display ~500 + 宽字距) ④有杂志感元素(栏线/引文/页眉 ledger)
-  占位符同其他模板
+  身份装饰(必留): 暖纸底 + 衬线大标题 + 氛围层(墨晕/grain) + 页眉/页脚细线 = editorial 身份,勿删。
+
+  默认精简版 (element budget ≤ 5,见 SKILL.md 原则 1):
+    出厂只放 4 个元素 - kicker(.ledger 左) + 主标题(.title) + 副标(.sub) + 一处署名(.foot .name)。
+    页眉 index 胶囊 / eyebrow 小字 / 页脚日期 默认不放;
+    确有信息价值时,从下面 body 末尾的「可选 opt-in」注释里取用(CSS 已保留)。
+
+  Customization points (替换占位符,改 CSS 变量):
+    1. CSS :root - 改 --bg / --accent / --ink 调纸色与墨色
+    2. .ledger 左 {{KICKER}} - 页眉 kicker (品类 / 工具)
+    3. .title - 衬线主标题,两行 <span class="stack">,第二行 .alt 走斜体强调色
+    4. .sub - 中文副标题,重点词加 <span class="mark">
+    5. .foot .name - 作者署名 · 频道 (全图只此一处署名)
+    可选 (默认不放): .ledger .index(页眉编号) / .eyebrow(标题上方小字) / 页脚日期
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -42,13 +55,18 @@ html,body{background:var(--bg);color:var(--ink);font-family:var(--font-sans);-we
 </head>
 <body>
 <div class="cover">
-  <div class="ledger"><span>{{KICKER}}</span><span class="index">{{INDEX}}</span></div>
+  <div class="ledger"><span>{{KICKER}}</span></div>
   <div class="hero">
-    <div class="eyebrow">{{EYEBROW}}</div>
     <h1 class="title"><span class="stack">{{TITLE_LINE_1}}</span><span class="stack alt">{{TITLE_LINE_2}}</span></h1>
     <div class="sub">{{SUBTITLE_HTML}}</div>
   </div>
-  <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span><span>{{DATE}}</span></div>
+  <div class="foot"><span class="name">{{AUTHOR_NAME}} · {{CHANNEL}}</span></div>
+
+  <!-- 可选 opt-in (默认精简不放;仅当承载信息时取用,CSS 已保留):
+       页眉编号    → .ledger 内 {{KICKER}} 后加: <span class="index">{{INDEX}}</span>
+       标题上方小字 → .hero 内 <h1> 前加: <div class="eyebrow">{{EYEBROW}}</div>
+       页脚日期    → .foot 内 .name 后加: <span>{{DATE}}</span>
+  -->
 </div>
 </body>
 </html>
