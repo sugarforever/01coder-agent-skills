@@ -1,0 +1,130 @@
+<!--
+  Template: editorial-index (横屏族 / horizontal family)
+  风格: 编辑目录 / 报头 - 暖纸底 + 大 wordmark 报头 + 编号目录(ruled contents) + 单一强调色 + hairline 分隔
+  支持比例: 16:9 (1920×1080, 默认) · 16:10 (1920×1200, 把 :root 的 --cv-h 改 1200px)
+  适配平台: 文章 hero / Substack 题图 / X Card / 横屏视频封面
+  竖屏 (9:16 / 3:4, 抖音 / 视频号) 用 editorial-index-vertical.html
+
+  When to use:
+    - 「一期内容 / 一天速读 / 榜单 / 目录」这类**天然是多条目**的选题 - 把整期的 lineup 一眼摆出来
+    - 适合 AI 早读 / 日报 / 周报 / Top N / 合集 / 专题索引；不适合单一主题的 hero 封面
+    - 跟其它风格的根本区别：不是「一句大标题」，而是「报头 + 编号目录」的**组合式版式**
+    - 视觉气质 Swiss-邻近（暖纸底 + hairline + 单一强调色），但版式是目录而非 hero
+
+  identity test (4 条全过才算做对):
+    ① 报头(masthead)：大 wordmark + 右侧期号/来源，下压一条粗规则线(≥3px)
+    ② 正文是「编号目录」：编号 + 条目，行间 1px hairline 分隔，无卡片/阴影/圆角
+    ③ 暖纸底 + 单一强调色（只落在 wordmark 重点字 + 行号），不混多色
+    ④ 等宽字做编号/meta，grotesque + Noto Sans SC 做条目；严格左对齐网格
+
+  刻意打破单焦点(见 thumbnail-vs-slide.md「何时违反这些规则」)：
+    这是 multi-item 版式，全幅 / 大图(文章 hero、Substack 题图、X Card)下信息一览无余最好看；
+    但缩到 160px 列表会糊 - 需要小缩略图可读时改用单焦点风格(quiet-dark / 大数字)。
+    行数控制在 3-6 行；多于 6 行请减字号或删条目。
+
+  Customization points (替换占位符,改 CSS 变量):
+    1. CSS :root - 改 --accent / --bg 调色调；--cv-h 切 16:9 / 16:10
+    2. .brand   - 报头 wordmark：{{BRAND_A}} 走墨色 + {{BRAND_B}} 走强调色
+    3. .meta    - 右上：{{INDEX_LABEL}} 大期号 + {{INDEX_SUB}} 小来源(大写字距)
+    4. .row     - 目录行：{{NO_n}} 编号 + {{ITEM_n}} 条目；行内可选灰字 .sub(见 body 注释)
+    5. .foot    - 底部 meta：{{FOOT_LEFT}} 署名(全图只此一处) + {{FOOT_RIGHT}} 一句点题
+
+  Render: 见 SKILL.md Step 4 / references/render-pipeline.md
+    scripts/render-cover.sh editorial-index.html ~/covers/<slug>   # 横屏自动出 16x9 + 16x10
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="color-scheme" content="light">
+<title>{{TITLE}} · Cover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800;900&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:           #f5f4ef;   /* warm off-white paper */
+  --ink:          #15140f;
+  --muted:        #6f6a5e;
+  --line:         #d8d4c7;   /* hairline */
+  --accent:       #1f3aff;   /* 单一强调色，可换 */
+  --font-display: 'Manrope', 'Noto Sans SC', sans-serif;
+  --font-zh:      'Noto Sans SC', 'Manrope', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+  /* 画布尺寸 - 横屏族。16:9 默认；16:10 把 --cv-h 改成 1200px */
+  --cv-w:         1920px;
+  --cv-h:         1080px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--ink); font-family: var(--font-display); -webkit-font-smoothing: antialiased; }
+
+.cover {
+  width: var(--cv-w);
+  height: var(--cv-h);
+  position: relative;
+  background: var(--bg);
+  overflow: hidden;
+  padding: 84px 120px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 报头 masthead：wordmark + 期号/来源，下压一条粗规则线 */
+.masthead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 26px;
+  border-bottom: 4px solid var(--ink);
+}
+.brand { font-weight: 900; font-size: 120px; letter-spacing: -0.02em; line-height: 0.9; }
+.brand .em { color: var(--accent); }
+.meta { text-align: right; font-family: var(--font-mono); color: var(--muted); }
+.meta .label { font-size: 64px; font-weight: 600; color: var(--ink); letter-spacing: 0.04em; line-height: 1; }
+.meta .sub { font-size: 24px; letter-spacing: 0.16em; text-transform: uppercase; margin-top: 14px; }
+
+/* 编号目录 ruled contents：垂直居中，行间 hairline */
+.toc { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.row { display: flex; align-items: baseline; gap: 36px; padding: 22px 0; border-bottom: 1px solid var(--line); }
+.row:last-child { border-bottom: none; }
+.row .no { font-family: var(--font-mono); font-size: 40px; font-weight: 600; color: var(--accent); width: 84px; flex: none; }
+.row .t  { font-weight: 700; font-size: 66px; letter-spacing: -0.01em; color: var(--ink); }
+.row .t .sub { font-weight: 500; font-size: 40px; color: var(--muted); margin-left: 18px; }
+
+/* 底部 meta：上压一条 hairline */
+.foot {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 24px; border-top: 1px solid var(--line);
+  font-family: var(--font-mono); font-size: 24px; letter-spacing: 0.1em; color: var(--muted);
+}
+.foot .name { font-family: var(--font-display); color: var(--ink); font-weight: 700; letter-spacing: 0.02em; }
+</style>
+</head>
+<body>
+<div class="cover">
+
+  <div class="masthead">
+    <div class="brand">{{BRAND_A}}<span class="em">{{BRAND_B}}</span></div>
+    <div class="meta">
+      <div class="label">{{INDEX_LABEL}}</div>
+      <div class="sub">{{INDEX_SUB}}</div>
+    </div>
+  </div>
+
+  <div class="toc">
+    <div class="row"><span class="no">{{NO_1}}</span><span class="t">{{ITEM_1}}</span></div>
+    <div class="row"><span class="no">{{NO_2}}</span><span class="t">{{ITEM_2}}</span></div>
+    <div class="row"><span class="no">{{NO_3}}</span><span class="t">{{ITEM_3}}</span></div>
+    <div class="row"><span class="no">{{NO_4}}</span><span class="t">{{ITEM_4}}</span></div>
+    <div class="row"><span class="no">{{NO_5}}</span><span class="t">{{ITEM_5}}</span></div>
+  </div>
+
+  <div class="foot"><span class="name">{{FOOT_LEFT}}</span><span>{{FOOT_RIGHT}}</span></div>
+
+  <!-- 行内灰字补充（可选）：在某行的 .t 文本后追加
+         <span class="sub">Erste · LSEG · Allica</span>
+       增减条目：直接加 / 删 .row（保持 3-6 行；多于 6 行减 .row .t 字号）。 -->
+
+</div>
+</body>
+</html>

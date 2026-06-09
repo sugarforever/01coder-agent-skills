@@ -1,0 +1,102 @@
+<!--
+  Template: editorial-index-vertical (竖屏族 / vertical family)
+  风格: 编辑目录 / 报头 - 暖纸底 + wordmark 报头 + 编号目录 + 单一强调色 + hairline
+  支持比例: 9:16 (1080×1920, 默认) / 3:4 (1080×1440, 把 --cv-h 改 1440px)
+  适配平台: 抖音 / 视频号 竖屏封面
+
+  安全区: 抖音/视频号首尾会叠 UI 或被裁。报头 + 目录 + 页脚整体收在中央安全带里，
+  顶/底各留 ≥180px。设计时给 <body> 加 class="show-guide" 看显示带；最终渲染去掉。
+
+  identity test（同 editorial-index.html）：报头 + 编号目录 + 暖纸单强调色 + hairline。
+  竖屏行数建议 4-5 行（窄高画幅，条目字号更大）。multi-item 版式，缩到 160px 列表会糊
+  （见 thumbnail-vs-slide.md「何时违反这些规则」）。
+
+  默认精简版：报头(brand + 期号) + 4 行目录 + 一处署名(.foot)。
+  Render: scripts/render-cover.sh editorial-index-vertical.html ~/covers/<slug> 9x16 3x4
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="color-scheme" content="light">
+<title>{{TITLE}} · Cover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800;900&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:           #f5f4ef;
+  --ink:          #15140f;
+  --muted:        #6f6a5e;
+  --line:         #d8d4c7;
+  --accent:       #1f3aff;
+  --font-display: 'Manrope', 'Noto Sans SC', sans-serif;
+  --font-zh:      'Noto Sans SC', 'Manrope', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+  /* 9:16 默认；3:4 把 --cv-h 改 1440px */
+  --cv-w:         1080px;
+  --cv-h:         1920px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--ink); font-family: var(--font-display); -webkit-font-smoothing: antialiased; }
+
+.cover {
+  width: var(--cv-w);
+  height: var(--cv-h);
+  position: relative;
+  background: var(--bg);
+  overflow: hidden;
+  padding: 200px 80px;
+  display: flex;
+  flex-direction: column;
+}
+
+.masthead { padding-bottom: 24px; border-bottom: 4px solid var(--ink); }
+.brand { font-weight: 900; font-size: 132px; letter-spacing: -0.02em; line-height: 0.9; }
+.brand .em { color: var(--accent); }
+.metarow { display: flex; justify-content: space-between; align-items: baseline; margin-top: 22px; font-family: var(--font-mono); }
+.metarow .label { font-size: 56px; font-weight: 600; color: var(--ink); letter-spacing: 0.04em; }
+.metarow .sub { font-size: 24px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+
+.toc { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.row { display: flex; align-items: baseline; gap: 30px; padding: 30px 0; border-bottom: 1px solid var(--line); }
+.row:last-child { border-bottom: none; }
+.row .no { font-family: var(--font-mono); font-size: 44px; font-weight: 600; color: var(--accent); width: 84px; flex: none; }
+.row .t  { font-weight: 700; font-size: 70px; letter-spacing: -0.01em; line-height: 1.12; color: var(--ink); }
+.row .t .sub { display: block; font-weight: 500; font-size: 38px; color: var(--muted); margin-top: 8px; }
+
+.foot {
+  padding-top: 24px; border-top: 1px solid var(--line);
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--font-mono); font-size: 24px; letter-spacing: 0.08em; color: var(--muted);
+}
+.foot .name { font-family: var(--font-display); color: var(--ink); font-weight: 700; letter-spacing: 0.02em; }
+
+/* 设计辅助线 - body.show-guide 显示中央安全带，最终渲染前去掉 class */
+.guide { display: none; position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); height: 1464px; border: 2px dashed var(--accent); z-index: 50; pointer-events: none; }
+body.show-guide .guide { display: block; }
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="guide"></div>
+
+  <div class="masthead">
+    <div class="brand">{{BRAND_A}}<span class="em">{{BRAND_B}}</span></div>
+    <div class="metarow"><span class="label">{{INDEX_LABEL}}</span><span class="sub">{{INDEX_SUB}}</span></div>
+  </div>
+
+  <div class="toc">
+    <div class="row"><span class="no">{{NO_1}}</span><span class="t">{{ITEM_1}}</span></div>
+    <div class="row"><span class="no">{{NO_2}}</span><span class="t">{{ITEM_2}}</span></div>
+    <div class="row"><span class="no">{{NO_3}}</span><span class="t">{{ITEM_3}}</span></div>
+    <div class="row"><span class="no">{{NO_4}}</span><span class="t">{{ITEM_4}}</span></div>
+  </div>
+
+  <div class="foot"><span class="name">{{FOOT_LEFT}}</span><span>{{FOOT_RIGHT}}</span></div>
+
+  <!-- 行内灰字补充（可选）：.t 内追加 <span class="sub">…</span>（竖屏 .sub 自动换行成第二行）。
+       增减条目：加 / 删 .row（竖屏建议 4-5 行）。 -->
+</div>
+</body>
+</html>
