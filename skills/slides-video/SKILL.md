@@ -1,6 +1,6 @@
 ---
 name: slides-video
-description: Produce slides-driven narration videos (口播视频) where each slide maps 1:1 to one voiceover section. Orchestrates `magazine-web-ppt` (PPT) and `video-planner` (script + publishing materials) with a method-focused production workflow. Use when user wants to make a video that uses slides to explain a topic - e.g. 发布解读 / 产品评测 / 行业观察 / 技术解读 / 趋势分析. Triggers on "做一期视频 + PPT", "slides 视频", "发布解读视频", "深度讲解视频", or similar requests for structured narration videos.
+description: Produce slides-driven narration videos (口播视频) where each slide maps 1:1 to one voiceover section. Orchestrates a slides-generating skill (PPT, chosen from whatever is available) and `video-planner` (script + publishing materials) with a method-focused production workflow. Use when user wants to make a video that uses slides to explain a topic - e.g. 发布解读 / 产品评测 / 行业观察 / 技术解读 / 趋势分析. Triggers on "做一期视频 + PPT", "slides 视频", "发布解读视频", "深度讲解视频", or similar requests for structured narration videos.
 ---
 
 # Slides-Video · 幻灯片驱动的口播视频
@@ -9,16 +9,29 @@ description: Produce slides-driven narration videos (口播视频) where each sl
 
 ---
 
-## Pre-flight · 依赖检查
+## Pre-flight · 依赖检查与 slides skill 选择
 
-本 skill **显式依赖**以下 skill:
+本 skill 是**编排 + 方法**层,自己不生成幻灯片 —— 它调用一个**幻灯片生成 skill** + `video-planner`。
 
 | 依赖 | 作用 |
 |---|---|
-| `magazine-web-ppt` | 生成单文件 HTML 横向翻页 PPT · 负责所有视觉风格 |
+| 一个**幻灯片生成 skill** | 生成单文件 HTML 横向翻页 deck · 负责所有视觉风格 |
 | `video-planner` | 生成 script.md / youtube.md / bilibili.md / x.md 等脚本与发布素材 |
 
-使用前先确认这两个可调用。**任一不可用立即告知用户并停止** —— 不要自己重写 PPT / 脚本生成逻辑(那样会失去与生态的一致性)。
+### 不固定某一个 slides skill —— 从当前可用的里选
+
+开工前先确定用哪个幻灯片 skill:
+
+1. **识别候选** —— 会话里能产出单文件 HTML 横向翻页 deck 的 skill 就是候选。常见的有 `magazine-web-ppt`、`guizang-ppt-skill`、`frontend-slides` —— 但**以本次会话实际列出的为准**,不要假设某个一定在、也不要硬编码某一个。
+2. **0 个可用** → **不要自己手写 deck 逻辑**。告知用户当前没有可用的幻灯片生成 skill,并**推荐安装一个**再继续,例如:
+   - `frontend-slides` —— https://github.com/zarazhangrui/frontend-slides
+   - 也可让用户用 `find-skills` 搜索安装
+
+   装好后回到第 1 步重新识别。
+3. **正好 1 个** → 直接用它,并在开工时告诉用户用的是哪个。
+4. **多个可用** → **必须用 `AskUserQuestion` 跟用户确认选哪个**(列出候选 + 各自风格特点),不要替用户拍板。
+
+选定后,后文所有「调用 slides skill」都指这个选中的;`video-planner` 固定用于脚本与发布素材。**任一必需依赖不可用就停下**告知用户 —— 不要自己重写 deck / 脚本生成逻辑(那样会失去与生态的一致性)。
 
 建议并行调用 `personal-chinese-writing-style` 确保语言风格跟作者一致。
 
@@ -82,7 +95,7 @@ PPT 生成完必须验证:
 
 详见 `references/overflow-audit.md`。
 
-**修复原则 —— 改内容,不改模板**。模板是 `magazine-web-ppt` 的维护范围,本 skill 不动它的 CSS。
+**修复原则 —— 改内容,不改模板**。模板(CSS / 组件)是**所选 slides skill** 的维护范围,本 skill 不动它。
 
 ---
 
@@ -101,7 +114,7 @@ PPT 生成完必须验证:
 5. **参考资料** —— 推文 / 论文 / 博客 / 源码仓库?
 6. **视觉风格** —— 是否继承某个已有项目的风格?(给 URL / 项目路径) · 还是全新开始?
 
-第 6 条很关键 —— **本 skill 不规定风格**,风格由用户在这里指定。继承已有项目的话,在 Step 5 把相应配置原样传给 `magazine-web-ppt`。
+第 6 条很关键 —— **本 skill 不规定风格**,风格由用户在这里指定。继承已有项目的话,在 Step 5 把相应配置原样传给**所选 slides skill**。
 
 ### Step 2 · 资料研究
 
@@ -124,7 +137,7 @@ PPT 生成完必须验证:
 ```
 {output-dir}/{YYYYMMDD}-{slug}/
 ├── ppt/
-│   ├── index.html         # 由 magazine-web-ppt 生成
+│   ├── index.html         # 由所选 slides skill 生成
 │   └── images/            # (可选)插图
 ├── script.md              # 由 video-planner 生成,本 skill 加 1:1 标记
 ├── youtube.md
@@ -132,15 +145,15 @@ PPT 生成完必须验证:
 └── x.md
 ```
 
-### Step 5 · 调用 `magazine-web-ppt` 生成 PPT
+### Step 5 · 调用所选 slides skill 生成 PPT
 
-用 `Skill` 工具调用,传入 Step 1 和 Step 3 收集到的配置:
+用 `Skill` 工具调用 **Pre-flight 选定的那个幻灯片 skill**,传入 Step 1 和 Step 3 收集到的配置:
 
 - 主题色(用户指定 / 继承参考项目)
 - 页面节奏表
 - 内容(按 Step 3 规划 + Step 2 研究)
 
-**本 skill 不规定主题色、不规定封面 / masthead 样式** —— 这些由用户选择和 `magazine-web-ppt` 负责实现。
+**本 skill 不规定主题色、不规定封面 / masthead 样式** —— 这些由用户选择和**所选 slides skill** 负责实现。不同 slides skill 的页面类型 / 模板约定不一样,按它自己的来。
 
 ### Step 6 · 调用 `video-planner` 生成脚本 + 发布素材
 
@@ -190,7 +203,7 @@ PPT 已在浏览器打开,可以开始录制。
 - 主题色、品牌名、masthead 文案、封面设计 —— 都由用户在 Step 1 决定或继承参考项目
 - 本 skill 不规定具体视觉方案
 
-如果用户想沿用之前某期视频的风格,在 Step 5 把该项目的 PPT 配置传给 `magazine-web-ppt`(主题色、封面结构、品牌元素等)。
+如果用户想沿用之前某期视频的风格,在 Step 5 把该项目的 PPT 配置传给**所选 slides skill**(主题色、封面结构、品牌元素等)。注意:继承的风格最好出自同一个 slides skill,跨 skill 继承可能因模板体系不同而需要适配。
 
 ### 不要自动发布
 
@@ -219,7 +232,7 @@ PPT 已在浏览器打开,可以开始录制。
 
 ## Critical Rules
 
-1. **显式调用两个依赖 skill** —— 不自己重写 PPT / 脚本生成逻辑
+1. **显式调用所选 slides skill + `video-planner`** —— 不自己重写 deck / 脚本生成逻辑;slides skill 不固定,从当前可用的里选,多个候选时用 `AskUserQuestion` 跟用户确认
 2. **先规划后动手** —— Step 3 的页面节奏表必须跟用户确认
 3. **1:1 同步不妥协** —— 每张 PPT 对应一段脚本,每段脚本开头带切页标记
 4. **每段必须有受众视角** —— 技术点必须翻译成受众能感受的价值
