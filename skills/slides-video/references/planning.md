@@ -14,7 +14,7 @@ Step 3 必须产出一份表格跟用户确认:
 | 2 | light | {开场引入} | {对主题的一句话定位} |
 | ... |
 
-**主题 class** 从 `magazine-web-ppt` 的节奏硬规则里选(light / dark / hero light / hero dark)。
+**主题 class / 页面类型** 从**所选 slides skill** 的模板约定里选(例如 magazine-web-ppt 用 light / dark / hero light / hero dark;别的 slides skill 用它自己的页面类型词汇)。
 
 **页面角色**是方法层面的,不涉及具体设计:
 - 封面(开场仪式感)
@@ -44,9 +44,9 @@ Step 3 必须产出一份表格跟用户确认:
 
 ---
 
-## 主题节奏硬规则(从 magazine-web-ppt 继承)
+## 主题节奏硬规则(沿用所选 slides skill 的约定)
 
-这些硬规则是 `magazine-web-ppt` 的要求,本 skill 规划时必须遵守:
+以下以 `magazine-web-ppt` 的页面类型为例;若选了别的 slides skill,换成它的强调页 / 章节页类型,规则精神一致:
 
 - ❌ **禁止**连续 3 页以上相同主题(light 堆叠或 dark 堆叠都不行)
 - ❌ **禁止**超过 8 页的 deck 没有至少 1 个 `hero dark` + 1 个 `hero light`
@@ -92,7 +92,7 @@ Step 3 必须产出一份表格跟用户确认:
 - 主题色 / 品牌元素 / 封面设计风格 —— 用户决定(或继承已有项目)
 - 规划时只关心**结构和节奏**,不关心视觉
 
-到 Step 5 调用 `magazine-web-ppt` 时把 Step 1 收集到的风格决策一起传下去。
+到 Step 5 调用**所选 slides skill** 时把 Step 1 收集到的风格决策一起传下去。
 
 ---
 

@@ -83,7 +83,7 @@ Hero 页(封面 / 章节幕封 / 大引用等)因 `min-height:82vh` + `align-con
 4. **分页** —— 内容必要但一页装不下,拆成两页(页数预算 +1)。
 
 **不允许**:
-- ❌ 改模板 CSS(字号 / 间距 / padding) —— 那是 `magazine-web-ppt` 的维护范围
+- ❌ 改模板 CSS(字号 / 间距 / padding) —— 那是所选 slides skill 的维护范围
 - ❌ 加 `overflow:hidden` —— 会截断内容
 - ❌ 改 `min-height` —— 会破坏节奏
 
