@@ -34,6 +34,7 @@ New skills are picked up automatically on marketplace update — no reinstall ne
 - **share-reading** — Draft social-media posts to recommend an article, paper, or resource across X, Substack, and 知识星球.
 - **promote-post** — Write a teaser tweet for a published article that opens the story instead of summarizing it — the tweet IS the first bite, not a label on the packaging.
 - **slides-video** — Orchestrate slide generation + script writing to produce slides-driven narration videos (口播视频), with each slide mapping 1:1 to one voiceover section.
+- **producing-video** — Turn a user-provided voiceover audio + SRT into a finished, narration-synced MP4 with HyperFrames (HTML-to-video). Audio + SRT are the source of truth: scenes are timed to the SRT cues and the audio is muxed in automatically.
 - **subtitle-correction** — Correct speech-recognition errors in `.srt` subtitle files (Chinese and English) while preserving timestamps.
 
 ### Publishing
