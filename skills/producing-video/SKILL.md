@@ -1,6 +1,6 @@
 ---
 name: producing-video
-description: Turn a user-provided voiceover audio file + SRT subtitle into a finished, narration-synced MP4 using HyperFrames (HTML-to-video). The audio + SRT are the source of truth — scenes are timed to the SRT cues, content is read from the SRT, and the audio is muxed in automatically. Use when the user hands over an mp3/wav + srt and wants a video, says "把音频做成视频", "做一期视频", "audio + srt to video", "把这期早读做成视频", "render this narration into a video", or provides a recording + subtitles for an explainer / daily / 解读 / 口播. NOT for generating the voiceover (that's the user's job here) and NOT for slide decks (use a slides skill).
+description: Turn a user-provided voiceover audio file + SRT subtitle into a finished, narration-synced MP4 using HyperFrames (HTML-to-video). The audio + SRT are the source of truth — scenes are timed to the SRT cues, content is read from the SRT, and the audio is muxed in automatically. Use when the user hands over an mp3/wav + srt and wants a video, says "把音频做成视频", "做一期视频", "audio + srt to video", "把这期早读做成视频", "render this narration into a video", or provides a recording + subtitles for an explainer / daily / 解读 / 口播. If the user gives only the narration text (no audio), it can optionally generate the audio (ListenHub TTS) and subtitles (cloud ASR via Groq/OpenAI) upstream first. NOT for slide decks (use a slides skill).
 ---
 
 # Producing-Video · 音频 + 字幕 → 成片
@@ -16,7 +16,7 @@ description: Turn a user-provided voiceover audio file + SRT subtitle into a fin
 | **用户** | 写稿 → 录音/合成音频 → 生成 SRT → 把 `audio.mp3` + `audio.srt` 交给你 |
 | **本 skill（你）** | 选 frame/品牌 → 按 SRT 搭 HyperFrames 合成 → 校对 → 渲染成片 |
 
-用户**不**指望你生成配音（那是上游）。如果用户还没有音频、问的是"怎么配音"，那不是本 skill —— TTS / 声音克隆是另一条线（见下方"超出范围"）。
+默认用户给你音频 + SRT，你只管出片。**但若用户只给了「文本」（口播稿）、没有音频**，本 skill 也能补上游 —— 用 `scripts/listenhub-tts.sh` 出音频 + 字幕，见下方「上游（可选）：文本 → 音频 + 字幕」。声音克隆仍是另一条线（见"超出范围"）。
 
 ## 依赖检查（pre-flight）
 
@@ -26,7 +26,48 @@ npx hyperframes doctor      # 需要 Node ≥ 22 · FFmpeg · Chrome
 
 需要 `hyperframes` / `hyperframes-cli` 两个 skill 在场（编写合成 + 跑 CLI）。缺了就让用户 `npx hyperframes skills` 安装后重来。
 
-确认用户给了**两个文件**：音频（mp3/wav/m4a）+ SRT。只给音频没给 SRT → 本 skill 需要 SRT 拿时间轴；可让用户补 SRT（很多录音工具/剪辑软件能导出），**不要**默认去跑 Whisper 转写（用户没给 SRT 往往是有意的，先问）。
+确认用户给了**两个文件**：音频（mp3/wav/m4a）+ SRT。只给音频没给 SRT → 本 skill 需要 SRT 拿时间轴；可让用户补 SRT（很多录音工具/剪辑软件能导出），**不要**默认去跑 Whisper 转写（用户没给 SRT 往往是有意的，先问）。**只给了文本（口播稿）、连音频也没有** → 走下面「上游（可选）」一节，用 ListenHub 出音频 + 云端 ASR 出字幕。
+
+---
+
+## 上游（可选）：文本 → 音频 + 字幕
+
+**仅当用户没给音频、只给了口播文本时走这步**；已给 mp3 + SRT 就跳过、直接进工作流。
+配套 `scripts/listenhub-tts.sh`（+ `scripts/srt_helper.py`），两步出「音频 + 原始字幕」：
+
+1. **TTS（ListenHub）** → `narration-full.mp3`。OpenAI 兼容端点 `POST /v1/audio/speech`
+   （base `https://api.marswave.ai/openapi/v1`，`Authorization: Bearer $LISTENHUB_API_KEY`）。
+2. **云端 ASR → 原始 SRT**。运行时选 **Groq `whisper-large-v3`** 或 **OpenAI `whisper-1`**，各自从
+   `GROQ_API_KEY` / `OPENAI_API_KEY` 找 key（非交互用 `ASR_PROVIDER=groq|openai`）。**时间轴准是关键**
+   —— 这步要的就是它；识别错的字下一步修。
+
+```bash
+LISTENHUB_API_KEY=...  GROQ_API_KEY=... \
+  scripts/listenhub-tts.sh <narration.txt> <out-dir> [speakerId] [ttsModel]
+# 出 narration-full.mp3 + narration.srt（原始，未校正）
+```
+
+### 第三步 · 字幕校正（你来编排，按此顺序）
+
+ASR 时间轴准，但中文里的英文专名/同音字会有个别错（如 Claude→Cloud、Vercel→Verso）。**铁律仍是不动时间轴。**
+
+1. **先扫描可用的「字幕校正」skill，优先用它。** 在当前 skill 列表里找名字含 `subtitle` / `字幕` /
+   `correction` 的（如 `subtitle-correction`）。有就把原始 SRT 交给它修 —— 交互式、会问术语、质量更高。
+2. **没有这类 skill** → **先跟用户确认**：「要用同一 ASR 提供方的 chat 模型做一次**文本级**校正吗？
+   （只改文字、按原条目重挂时间戳，零时间轴风险）」。**用户同意**再跑：
+   ```bash
+   python3 scripts/srt_helper.py correct narration.srt narration.fixed.srt \
+     --base <ASR_BASE> --key <ASR_KEY> --model <chatModel> --terms "OpenAI, Anthropic, Claude, Vercel, ..."
+   # Groq → llama-3.3-70b-versatile · OpenAI → gpt-4o-mini；base/key 复用 ASR 那套
+   ```
+   `srt_helper.py correct` 只把字幕文本发给 LLM、按原条目重挂时间戳/编号；LLM 出错或条数不符自动退回原始。
+3. 有 `subtitle_tool.py`（字幕校正 skill 里）就再 `validate <raw> <fixed>` 兜底确认时间轴/条数/编号没变。
+
+校正完，把 `narration-full.mp3` + 校正后的 SRT 作为 `audio/narration-full.mp3` + `audio/narration.srt`
+放进项目（Step 2），进主流程。
+
+> 成本（~3 分钟日更）：TTS 是大头（ListenHub credits，~4 credits/分钟）；云端 ASR ~半美分到两美分、
+> LLM 校正 ~1 美分，**可忽略**；渲染本地、零成本。
 
 ---
 
@@ -161,7 +202,7 @@ function wipe(sel, i){ tl.fromTo(sel, {clipPath:"inset(0 100% 0 0)"}, {clipPath:
 
 ## 超出范围
 
-- **生成配音 / 声音克隆**：本 skill 只吃用户给的音频。要让它"听起来像我"用云端 TTS（MiniMax / ElevenLabs，支持中文 + 克隆），克隆只换"出声那一步"，下游时间轴/挂载/渲染不变。HyperFrames 自带的 Kokoro TTS **做不了中文**（CLI 传 `zh`、espeak 要 `cmn`，且质量差）；本机临时方案 macOS `say -v Tingting`。
+- **声音克隆 / 「听起来像我」**：上游 TTS（见「上游（可选）」）用的是通用音色。要克隆自己的声音，用支持克隆的云端 TTS（MiniMax / ElevenLabs），克隆只换"出声那一步"，下游时间轴/挂载/渲染不变。HyperFrames 自带的 Kokoro TTS **做不了中文**（CLI 传 `zh`、espeak 要 `cmn`，且质量差）；本机临时方案 macOS `say -v Tingting`。
 - **幻灯片 deck**：要的是横向翻页 deck 而非视频 → 用 slides 类 skill。
 
 ## 输出清单
