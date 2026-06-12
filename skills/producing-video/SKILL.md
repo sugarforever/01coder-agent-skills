@@ -58,6 +58,8 @@ cp <user-audio> audio/narration-full.mp3
 cp <user-srt>   audio/narration.srt
 ```
 
+> **目录已有源文件时**（日更目录常已放了 `script.md` / `narration.txt`）：`hyperframes init` 拒绝非空目录（报 `Directory already exists and is not empty`）。先 `init` 到一个临时目录，再 `cp -R __tmp/. <slug>/` 把脚手架并进来，或先 `init` 再放稿。
+
 ### Step 3 · 解析 SRT → 切场景
 
 读完整 SRT（`scripts/srt-cues.mjs` 可打印每条 cue 的开始秒数 + 文本，方便规划）。然后：
@@ -83,7 +85,7 @@ cp <user-srt>   audio/narration.srt
   ```js
   function wipe(sel, at){ tl.fromTo(sel,{clipPath:"inset(0 100% 0 0)"},{clipPath:"inset(0 0% 0 0)",duration:0.5,ease:"power3.inOut"}, at); }
   ```
-- **入场动画**用 `gsap.from()`，定位在对应 cue 时间。短（0.3–0.7s），错峰，变化 ease。
+- **入场动画**用 `tl.from(sel, vars, 位置秒)`（**必须挂在注册到 `window.__timelines` 的 `tl` 上**，第三参是 tl 上的绝对秒），定位在对应 cue 时间。短（0.3–0.7s），错峰，变化 ease。**绝不用裸 `gsap.from()` / `gsap.to()`** —— 它们挂到 gsap 全局时间轴，而渲染只 seek `tl`，会导致部分场景（尤其后段）在 seek 渲染里整片空白（见 Gotcha 12）。
 - **复用一套 class 化的 CSS 工具件**（kicker / headline / note / stat / chip-xform / cards / numbered-list / accent-mark），15 个场景共享，别每场写一套 id 样式。
 - **品牌纪律**：严格按 frame 的 token；强调色当"标点"不当"填充"（深色系：强调色只给小而实的标记；浅色系：强调色做色块、文字用墨色压在色块上）。
 
@@ -102,12 +104,21 @@ npx hyperframes inspect --samples 30   # 版面溢出，带时间戳；场景多
   ```bash
   ffmpeg -y -ss <秒> -i renders/x.mp4 -frames:v 1 /tmp/f.png   # 然后看图
   ```
+- **空白场景廉价自检**：每个场景中点各抽一帧，先比 PNG 文件大小 / 哈希 —— 跨场景出现一模一样的尺寸＝同一张空白帧的强信号（深色主题尤其靠这个，别只信肉眼）。命中再针对性看图。
+  ```bash
+  for t in <每场中点秒>; do ffmpeg -y -ss $t -i renders/x.mp4 -frames:v 1 /tmp/f_$t.png; done; ls -la /tmp/f_*.png   # 同尺寸 = 可疑
+  ```
 - **成片渲染**（master）：
   ```bash
   npx hyperframes render --resolution landscape-4k --quality high --output renders/<slug>-4k.mp4
   ```
   `--resolution landscape-4k` 是把同一合成按 2× DPR 真·超采样到 3840×2160（不是放大）；4K master 即使观众看 1080p 也更耐平台二压。4K + 长片渲染较久（几分钟到十几分钟），可后台跑。
-- 验收：`ffprobe` 确认有 video(h264) + audio(aac) 两条轨且时长对得上；抽帧确认每场落在它的 cue 上。
+- **响度核查 + 规范化**：用户的口播 / TTS 常偏安静。先 `ffmpeg -i renders/x.mp4 -af loudnorm=print_format=summary -f null -` 量整体响度；低于约 -16 LUFS 就规范化到网络标准（-14 LUFS）—— **视频流 `-c:v copy` 不重渲，几秒搞定**：
+  ```bash
+  ffmpeg -y -i renders/x.mp4 -af loudnorm=I=-14:TP=-1.5:LRA=11 -c:v copy -c:a aac -b:a 192k renders/x-loud.mp4
+  ```
+  顺手把源 `audio/narration-full.mp3` 也规范化，将来重渲（竖屏 / 改版）自动继承。
+- 验收：`ffprobe` 确认有 video(h264) + audio(aac) 两条轨且时长对得上（**CLI 汇总行的时长可能误报，以 `ffprobe` 为准**）；抽帧确认每场落在它的 cue 上。
 
 成片留在 `studio/videos/<slug>/renders/`。**不要自动提交**（除非用户明确要）。
 
@@ -120,7 +131,7 @@ npx hyperframes inspect --samples 30   # 版面溢出，带时间戳；场景多
 1. **音频即时钟**。场景时长从 SRT 量出来，不要凭感觉定时长再硬塞音频。
 2. **有 SRT 就别转写**。用户给了 SRT = 精确时间轴免费拿到，不需要 Whisper。（没 SRT 想自己转写前先问用户。）
 3. **转场只用场景自身 clip-path 揭幕**。**绝不**用单独的全屏色块/幕布/刀闸/砸场板去做转场 —— 在渲染引擎里它会"扫进来盖住下一场后卡住不走"，整场变成纯色/黑屏。揭幕揭的是 incoming 场景本体。
-4. **不要给 `.pad` 容器套整体 opacity 的 "pushIn" 包装**。容器级 opacity 动画在 seek 渲染里可能留在 0，把整场变黑。用每个元素各自的 `gsap.from()`。
+4. **不要给 `.pad` 容器套整体 opacity 的 "pushIn" 包装**。容器级 opacity 动画在 seek 渲染里可能留在 0，把整场变黑。用每个元素各自的 `tl.from()`（挂在 `tl` 上，不是裸 `gsap.from`，见 Gotcha 12）。
 5. **配对 tween 不要加 `overwrite:"auto"`**。它会把配对的另一条 tween 杀掉（比如"扫入"在、"扫出"没了）。lint 的 overlapping_gsap_tweens 是无害告警，宁可留着。
 6. **字体必须本地 woff2**。Google Fonts `<link>` 会被 lint 标记、且 sandbox 渲染里不可靠。中文配 Noto Sans SC；**中文字在彩色 accent 色块里要给足竖直 padding/line-height**（CJK 字形比 em 框高，padding 太紧 inspect 会报 text_box_overflow，给到 ~0.2em 竖直 padding + line-height ~1.12）。
 7. **深色主题别信亮度探测**。1×1 平均亮度对深底+稀疏文字永远偏低，会把正常场景误判成黑屏。**靠抽帧看图**确认。
@@ -128,6 +139,8 @@ npx hyperframes inspect --samples 30   # 版面溢出，带时间戳；场景多
 9. **确定性**。禁止 `Date.now()` / `Math.random()`（破坏可复现渲染）；要随机用种子化 PRNG。
 10. **每个场景独立 track-index**；音频单独高 track-index。装饰出血标 `data-layout-ignore`。
 11. **画质**：原生 1080p 在 Retina 上看会发虚（被放大 + H.264 4:2:0 软化彩色字缘）；master 用 `--resolution landscape-4k --quality high`。
+12. **定时动画必须挂在 `tl` 上**（最高频废片坑）。一律 `tl.from / tl.to / tl.fromTo(sel, vars, 位置秒)`。**绝不用裸 `gsap.from()` / `gsap.to()`** —— 它们挂到 gsap 全局时间轴，而 HyperFrames 渲染只 seek 注册到 `window.__timelines` 的那个 `tl`。结果 wipe（在 tl）与入场（在全局轴）各跑各的，**后段场景的 clip-path 不被驱动 → 整片只剩持久 chrome、内容空白**。现象很隐蔽：前几场正常、越往后越空。排查用 Gotcha 7 / Step 6 的「空白场景廉价自检」。
+13. **`data-layout-ignore` 元素保持静态**。标了它的装饰元素（大水印数字等）会被 validate 从 DOM 上下文剔除，再对它 `tl.from` 会报 `GSAP target not found`。装饰随场景 wipe 一起揭出即可，别单独 tween 它。
 
 ## SRT → 场景时间轴（配方）
 
@@ -154,7 +167,9 @@ function wipe(sel, i){ tl.fromTo(sel, {clipPath:"inset(0 100% 0 0)"}, {clipPath:
 ## 输出清单
 
 - [ ] `lint` 0 error · `validate` 全过 · `inspect` 0 issue
-- [ ] 抽帧确认每场落在它的 cue 上（尤其数据页/转折页）
-- [ ] `ffprobe`：video + audio 两轨、时长 = 音频时长
+- [ ] 所有定时动画挂在 `tl` 上（无裸 `gsap.from/gsap.to`，见 Gotcha 12）
+- [ ] 抽帧确认每场落在它的 cue 上（尤其数据页/转折页）；跨场景帧大小无异常雷同（无空白场景）
+- [ ] `ffprobe`：video + audio 两轨、时长 = 音频时长（CLI 汇总行时长可能误报）
+- [ ] 响度已核查：低于 -16 LUFS 已 `loudnorm` 到 -14（`-c:v copy` 不重渲）
 - [ ] master 用 4K high（除非用户另说）
 - [ ] 成片在 `studio/videos/<slug>/renders/`，未自动提交
