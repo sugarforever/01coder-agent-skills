@@ -64,6 +64,11 @@ New skills are picked up automatically on marketplace update — no reinstall ne
 ### Integrations
 
 - **add-feishu** — Add Feishu (飞书 / Lark) as an agent channel via WebSocket long connection. No public URL required.
+- **xquik**: Search, read, monitor, export, and perform approved X actions
+  through Xquik REST, MCP, or SDKs.
+
+Xquik is an independent third-party service. Not affiliated with X Corp.
+"Twitter" and "X" are trademarks of X Corp.
 
 ## Skill Notes
 
