@@ -19,15 +19,22 @@ if [[ ! -f "$MARKETPLACE" ]]; then
   exit 1
 fi
 
-# Collect tracked + untracked-but-not-gitignored SKILL.md, derive skill dirs,
-# sort alphabetically, prefix with ./
+# Collect existing tracked + untracked-but-not-gitignored SKILL.md files.
+# Deleted tracked files remain in Git's index, so ignore paths missing on disk.
 skills_array=$(
-  git ls-files --cached --others --exclude-standard 'skills/*/SKILL.md' \
-    | xargs -n1 dirname \
-    | sort -u \
-    | sed 's|^|./|' \
-    | jq -R . \
-    | jq -s .
+  {
+    while IFS= read -r -d '' skill_file; do
+      [[ -f "$skill_file" ]] || continue
+      dirname "$skill_file"
+    done < <(
+      git ls-files -z --cached --others --exclude-standard \
+        -- 'skills/*/SKILL.md'
+    )
+  } |
+    sort -u |
+    sed 's|^|./|' |
+    jq -R . |
+    jq -s .
 )
 
 if [[ "$(echo "$skills_array" | jq 'length')" -eq 0 ]]; then
