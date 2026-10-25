@@ -52,6 +52,10 @@ New skills are picked up automatically on marketplace update — no reinstall ne
 - **nextjs-security-scan** — Security vulnerability scanner for Next.js and TypeScript/JavaScript projects. OWASP Top 10, XSS, injection, secret scanning, dependency CVEs.
 - **python-security-scan** — Security vulnerability scanner for Python projects. Framework-aware checks for Flask, Django, and FastAPI.
 
+### Application Testing
+
+- **[agent-qa-run-review](skills/agent-qa-run-review/SKILL.md)** — Run selected agent-qa regression tests and review recorded evidence, with an advanced memidex memory engine and self-improvement capabilities from vostride.
+
 ### Utilities
 
 - **codex-cli** — Delegate one-off tasks to OpenAI Codex CLI, including coding reviews, implementation passes, and image generation with proactive image path discovery.
